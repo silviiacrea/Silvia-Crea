@@ -416,7 +416,7 @@ input, textarea, select, [contenteditable] {
 /* ANIMACIÓN DE EFECTOS GLOBALES Y LOGOS                                      */
 /* ========================================================================== */
 
-/* Efecto de pétalos al hacer clic (El perfecto original) */
+/* Efecto de pétalos al hacer clic */
 .petal-anim {
     position: absolute;
     width: 4px; 
@@ -434,7 +434,16 @@ input, textarea, select, [contenteditable] {
     100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot)) scale(1.5); opacity: 0; filter: blur(0.8px); }
 }
 
-/* Base gráfica común para todos los crayones */
+/* Envoltorio limpio y transparente de los crayones (Sin líneas) */
+.crayon-anim-wrap {
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+}
+
+/* Crayones del Inicio */
 .crayon-anim-hero {
     position: absolute;
     width: 10px;
@@ -445,29 +454,20 @@ input, textarea, select, [contenteditable] {
     pointer-events: none;
     background-color: currentColor;
     transform-origin: center center;
-    z-index: 1; /* Sale siempre desde debajo del logo Hero (que tiene z-index: 2) */
+    z-index: 1; /* Sale debajo del logo */
+    animation: crayonRollHero 6s cubic-bezier(0.15, 0.9, 0.35, 1) forwards !important;
 }
 .crayon-anim-hero::before {
-    content: '';
-    position: absolute;
-    top: -9px;
-    left: 0;
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 9px solid currentColor;
+    content: ''; position: absolute; top: -9px; left: 0; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 9px solid currentColor;
 }
 .crayon-anim-hero::after {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: 3px;
-    width: 4px;
-    height: 2px;
-    background-color: currentColor;
-    border-radius: 2px 2px 0 0;
-    opacity: 0.8;
+    content: ''; position: absolute; top: -10px; left: 3px; width: 4px; height: 2px; background-color: currentColor; border-radius: 2px 2px 0 0; opacity: 0.8;
+}
+@keyframes crayonRollHero {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 0; filter: blur(0px); }
+    5% { opacity: 1; filter: blur(0px); }
+    70% { opacity: 1; filter: blur(0px); }
+    100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); }
 }
 
 /* Corazones y Ovillos de Lana (Gravedad y Rebote desde arriba) */

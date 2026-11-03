@@ -3,7 +3,8 @@
 const pageMap = {'home': 'index.html', 'shop': 'tienda.html', 'gallery': 'galeria.html', 'about': 'sobre-mi.html', 'orders': 'encargos.html', 'contact': 'contacto.html'};  
 const actualPage = document.body.dataset.page;  
 const currentHtml = pageMap[actualPage] || 'index.html';  
-const savedHtml = sessionStorage.getItem('silviacrea_current_page');  
+// Utilizamos localStorage para asegurar que Google Sites recuerde la pestaña al hacer recargas completas
+const savedHtml = localStorage.getItem('silviacrea_current_page');  
   
 let isBackForward = false;  
 if (window.performance) {  
@@ -13,12 +14,12 @@ if (window.performance) {
 }  
   
 if (isBackForward) {  
- sessionStorage.setItem('silviacrea_current_page', currentHtml);  
+ localStorage.setItem('silviacrea_current_page', currentHtml);  
 } else if (savedHtml && savedHtml !== currentHtml && currentHtml === 'index.html') {  
  window.location.replace(savedHtml);  
  return;   
 } else {  
- sessionStorage.setItem('silviacrea_current_page', currentHtml);  
+ localStorage.setItem('silviacrea_current_page', currentHtml);  
 }  
 // -----------------------------------------------------  
   
@@ -318,7 +319,7 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
   
 document.addEventListener("click",e=>{   
 
- // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC (Perfectos) ---
+ // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC ---
  const petalColors = ['#f9d8e4', '#fbecf3', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#e9ddf3', '#c8dbf2', '#d6c5e5', '#f4c2d7'];
  for (let i = 0; i < 18; i++) {
      const petal = document.createElement('div');
@@ -335,7 +336,7 @@ document.addEventListener("click",e=>{
      setTimeout(() => petal.remove(), 3000); 
  }
 
- // 2. --- LOGO INICIO HERO (CRAYONES NACEN DE FORMA LIMPIA Y SIN LINEAS BLANCAS) ---
+ // 2. --- LOGO INICIO HERO (CRAYONES SIN RAYAS, NACEN LIMPIOS) ---
  const heroLogo = e.target.closest(".hero-logo");
  if (heroLogo) {
      const container = heroLogo.closest('.hero-art');
@@ -347,18 +348,12 @@ document.addEventListener("click",e=>{
              crayon.className = 'crayon-anim-hero'; 
              crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
              
-             const wrap = document.createElement('div');
-             wrap.className = 'crayon-anim-wrap';
-             crayon.appendChild(wrap);
-                
              const angle = Math.random() * Math.PI * 2;
              const distance = 250 + Math.random() * 450; 
              crayon.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
              crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
              crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
              
-             // Se añaden dentro del contenedor (z-index 1 hará que nazcan por debajo del logo)
-             // Y gracias a los keyframes con opacidad 0 al nacer no dejan líneas blancas
              container.appendChild(crayon);
              setTimeout(() => crayon.remove(), 6500); 
          }
@@ -368,6 +363,7 @@ document.addEventListener("click",e=>{
  // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO LENTAMENTE DESDE TODO EL HEADER) ---
  const headerBrand = e.target.closest(".site-header .brand");
  if (headerBrand) {
+     // Previene que se recargue o se navegue a la página home al cliquear el logo
      e.preventDefault(); 
      
      const yarnColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fbecf3'];
@@ -388,12 +384,11 @@ document.addEventListener("click",e=>{
             <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round"/>
          </svg>`;
          
-         // Nacen aleatoriamente a lo ancho de toda la pantalla y POR ENCIMA para que caigan por detrás del header
+         // Nacen aleatoriamente a lo ancho de toda la pantalla y POR ENCIMA del viewport para que caigan desde fuera
          const startX = Math.random() * window.innerWidth;
-         const startY = -40; // Totalmente escondidos por arriba
+         const startY = -40; // Escondidos
          
-         const tx = (Math.random() - 0.5) * 200; // Desviación horizontal durante la caída
-         // Calculamos la distancia de caída hasta el borde inferior de la pantalla
+         const tx = (Math.random() - 0.5) * 200; 
          const dropY = window.innerHeight - startY - 20; 
          const bx = (Math.random() - 0.5) * 80; 
          const scale = 0.6 + Math.random() * 0.6; 
@@ -409,57 +404,16 @@ document.addEventListener("click",e=>{
          document.body.appendChild(yarn);
          setTimeout(() => yarn.remove(), 7500); 
      }
-
-     if (document.body.dataset.page !== 'home') {
-         // Si haces múltiples clics, reinicia el contador de redirección
-         clearTimeout(headerBrand.navTimer);
-         headerBrand.navTimer = setTimeout(() => {
-             window.location.href = headerBrand.href;
-         }, 1200); 
-     }
+     
+     // El clic al logo solo suelta los ovillos, se cancela todo tipo de navegación.
      return;
  }
 
- // 4. --- LOGO FOOTER (CRAYONES SALIENDO DESDE DETRÁS DEL PROPIO LOGO) ---
+ // 4. --- LOGO FOOTER (DESACTIVADO, YA NO HACE NADA) ---
  const footerLink = e.target.closest(".footer-brand-img");
  if (footerLink) {
      e.preventDefault();
-     if(footerLink.dataset.animScheduled) return;
-     footerLink.dataset.animScheduled = "true";
-     
-     const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
-     
-     // Para salir desde debajo del logo del footer
-     for (let i = 0; i < 40; i++) {
-         const crayon = document.createElement('div');
-         crayon.className = 'crayon-anim-footer'; 
-         crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
-            
-         const wrap = document.createElement('div');
-         wrap.className = 'crayon-anim-wrap';
-         crayon.appendChild(wrap);
-            
-         const angle = Math.random() * Math.PI * 2;
-         const distance = Math.max(window.innerWidth, window.innerHeight) * (0.6 + Math.random()); 
-         crayon.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
-         crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
-         crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
-         
-         footerLink.appendChild(crayon);
-         setTimeout(() => crayon.remove(), 9500); 
-     }
-
-     // Tras esperar 3 segundos, hacemos un scroll smooth a la parte de arriba
-     setTimeout(() => {
-         window.scrollTo({ top: 0, behavior: 'smooth' });
-     }, 3000);
-     
-     // Desbloqueamos el botón a los 9 segundos cuando desaparece todo
-     setTimeout(() => {
-         footerLink.dataset.animScheduled = "";
-     }, 9000);
-     
-     return;
+     return; // Cancela cualquier enlace y no dispara animación
  }
 
  // 5. --- LLUVIA DE CORAZONES EN "SOY SILVIA RODRIGUEZ" DESDE TODO EL HEADER ---
@@ -477,7 +431,7 @@ document.addEventListener("click",e=>{
          
          // Nacen aleatoriamente a lo ancho de la pantalla por encima del viewport
          const startX = Math.random() * window.innerWidth; 
-         const startY = -40; // Totalmente escondidos
+         const startY = -40; // Escondidos
          
          const tx = (Math.random() - 0.5) * window.innerWidth * 0.9; 
          const dropY = window.innerHeight - startY - 20; 
@@ -498,16 +452,16 @@ document.addEventListener("click",e=>{
  }
  // --------------------------------------------------------
   
- // CONTROLADOR DE NAVEGACIÓN NORMAL (SIN TRANSICIONES AGRESIVAS)
+ // CONTROLADOR DE NAVEGACIÓN NORMAL (Navegación al instante para evitar agresividad visual)
  const link = e.target.closest("a");  
  if (link && link.href) {  
      const isInternal = link.getAttribute("href").includes(".html") && !link.getAttribute("href").startsWith("http") && link.target !== "_blank";
      if (isInternal) {  
-         // Evitamos interrumpir al logo del header (que tiene su propio timer para cargar tras soltar ovillos)
-         if (link.classList.contains("brand")) return; 
+         // Evitamos interrumpir al logo del header y al logo del footer
+         if (link.classList.contains("brand") || link.classList.contains("footer-brand-img")) return; 
          
-         // Navega instantáneamente como antes
-         sessionStorage.setItem("silviacrea_current_page", link.getAttribute("href"));
+         // Guarda la página y navega de inmediato, como lo hacía originalmente
+         localStorage.setItem("silviacrea_current_page", link.getAttribute("href"));
          window.location.href = link.href;
          e.preventDefault();
          return;
