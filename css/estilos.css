@@ -383,21 +383,36 @@ padding:12px 16px;font-size:15px;text-align:center;background:var(--white-lilac)
 .cart-trigger span { font-weight: bold; font-size: 15px; }  
   
 /* ========================================================================== */
-/* CURSORES PERSONALIZADOS SVG (Flor de Cerezo Sakura + Bolígrafo)            */
+/* CURSORES PERSONALIZADOS SVG (Sakura Detallada + Bolígrafo)                 */
 /* ========================================================================== */
 body, html {  
-    cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3Cpath id='p' d='M12 13C8 4 10 1 12 3C14 1 16 4 12 13' fill='%23f9d8e4' stroke='%23e6a9bf' stroke-width='0.75'/%3E%3C/defs%3E%3Cuse href='%23p'/%3E%3Cuse href='%23p' transform='rotate(72 12 12)'/%3E%3Cuse href='%23p' transform='rotate(144 12 12)'/%3E%3Cuse href='%23p' transform='rotate(216 12 12)'/%3E%3Cuse href='%23p' transform='rotate(288 12 12)'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%23fbecf3'/%3E%3Ccircle cx='12' cy='12' r='1' fill='%23b99acb'/%3E%3C/svg%3E") 12 12, auto;  
+    cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cdefs%3E%3Cg id='p'%3E%3Cpath d='M16 16 C6 5 10 0 16 3 C22 0 26 5 16 16' fill='%23fbecf3' stroke='%23e6a9bf' stroke-width='0.75'/%3E%3Cpath d='M16 16 C10 8 12 4 16 6 C20 4 22 8 16 16' fill='%23f9d8e4'/%3E%3Cline x1='16' y1='16' x2='16' y2='7' stroke='%23b99acb' stroke-width='0.75'/%3E%3Ccircle cx='16' cy='7' r='1' fill='%23b99acb'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23p'/%3E%3Cuse href='%23p' transform='rotate(72 16 16)'/%3E%3Cuse href='%23p' transform='rotate(144 16 16)'/%3E%3Cuse href='%23p' transform='rotate(216 16 16)'/%3E%3Cuse href='%23p' transform='rotate(288 16 16)'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23e6a9bf'/%3E%3C/svg%3E") 16 16, auto !important;  
 }  
-a, button, .item-card, .slider-btn, .mini-btn, .cart-trigger, .modal-close, .hero-logo {  
-    cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cdefs%3E%3Cpath id='p' d='M12 13C8 4 10 1 12 3C14 1 16 4 12 13' fill='%23f9d8e4' stroke='%23e6a9bf' stroke-width='0.75'/%3E%3C/defs%3E%3Cuse href='%23p'/%3E%3Cuse href='%23p' transform='rotate(72 12 12)'/%3E%3Cuse href='%23p' transform='rotate(144 12 12)'/%3E%3Cuse href='%23p' transform='rotate(216 12 12)'/%3E%3Cuse href='%23p' transform='rotate(288 12 12)'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%23fbecf3'/%3E%3Ccircle cx='12' cy='12' r='1' fill='%23b99acb'/%3E%3C/svg%3E") 12 12, pointer;  
+a, button, .item-card, .slider-btn, .mini-btn, .cart-trigger, .modal-close, .hero-logo, .footer-brand-img {  
+    cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cdefs%3E%3Cg id='p'%3E%3Cpath d='M16 16 C6 5 10 0 16 3 C22 0 26 5 16 16' fill='%23fbecf3' stroke='%23e6a9bf' stroke-width='0.75'/%3E%3Cpath d='M16 16 C10 8 12 4 16 6 C20 4 22 8 16 16' fill='%23f9d8e4'/%3E%3Cline x1='16' y1='16' x2='16' y2='7' stroke='%23b99acb' stroke-width='0.75'/%3E%3Ccircle cx='16' cy='7' r='1' fill='%23b99acb'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23p'/%3E%3Cuse href='%23p' transform='rotate(72 16 16)'/%3E%3Cuse href='%23p' transform='rotate(144 16 16)'/%3E%3Cuse href='%23p' transform='rotate(216 16 16)'/%3E%3Cuse href='%23p' transform='rotate(288 16 16)'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23e6a9bf'/%3E%3C/svg%3E") 16 16, pointer !important;  
 }  
 input, textarea, select, [contenteditable] {  
-    cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cpath fill='%23b99acb' stroke='%23765b89' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M19 4l3 3-14 14H5v-3L19 4z'/%3E%3Cpath stroke='%23fbecf3' stroke-width='1.5' d='M17 6l3 3'/%3E%3C/svg%3E") 5 21, text;  
+    cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cpath fill='%23b99acb' stroke='%23765b89' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M19 4l3 3-14 14H5v-3L19 4z'/%3E%3Cpath stroke='%23fbecf3' stroke-width='1.5' d='M17 6l3 3'/%3E%3C/svg%3E") 5 21, text !important;  
 }
 
 /* ========================================================================== */
-/* ANIMACIÓN CRAYONES CLICK LOGO INICIO                                       */
+/* ANIMACIÓN DE EFECTOS GLOBALES Y LOGO                                       */
 /* ========================================================================== */
+.petal-anim {
+    position: absolute;
+    width: 10px;
+    height: 14px;
+    border-radius: 50% 0 50% 0; 
+    pointer-events: none;
+    z-index: 99999;
+    /* !important asegura que no lo bloquee el ahorro de batería/rendimiento de PC */
+    animation: petalFall 1.2s cubic-bezier(0.2, 1, 0.3, 1) forwards !important;
+}
+@keyframes petalFall {
+    0% { transform: translate(-50%, -50%) rotate(0deg) scale(0.3); opacity: 1; filter: blur(0px); }
+    100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot)) scale(1.1); opacity: 0; filter: blur(1.5px); }
+}
+
 .crayon-anim {
     position: absolute;
     top: 50%;
@@ -412,9 +427,7 @@ input, textarea, select, [contenteditable] {
     pointer-events: none;
     background-color: currentColor;
     transform-origin: center center;
-    /* Los !important aquí son clave para que la animación se reproduzca 
-       incluso si el usuario tiene activado el ahorro de energía o si
-       tiene desactivada la aceleración de hardware en Chrome */
+    /* !important esquiva la pausa por defecto de la aceleración por hardware en PC */
     animation-name: crayonRoll !important;
     animation-duration: 6s !important;
     animation-timing-function: cubic-bezier(0.15, 0.9, 0.35, 1) !important;
