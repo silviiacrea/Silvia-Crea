@@ -323,8 +323,11 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
 document.addEventListener("click",e=>{   
  const isMobile = window.innerWidth <= 768;
 
- // PALETA ESTRICTA DE COLORES PASTEL DESATURADOS Y SUAVES
+ // PALETA ESTRICTA DE COLORES PASTEL DESATURADOS Y SUAVES (Para Pétalos y Crayones)
  const mutedPastels = ['#c8bccf', '#dcbac5', '#bcccda', '#bed1c7', '#e3cbbd', '#dfc4cd', '#e6dec4', '#c2bdd4', '#dcd0d9', '#d1d8e0'];
+ 
+ // PALETA ORIGINAL LUMINOSA (Para Ovillos y Corazones: Rojo, Lila, Morado y Rosa)
+ const vividPastels = ['#ff9aa2', '#c8a2c8', '#b19cd9', '#ffb3c6'];
 
  // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC ---
  if (!isMobile || activeMobileClicks < 3) {
@@ -387,10 +390,10 @@ document.addEventListener("click",e=>{
              const yarn = document.createElement('div');
              yarn.className = 'yarn-anim';
              
-             const color = mutedPastels[Math.floor(Math.random() * mutedPastels.length)];
+             const color = vividPastels[Math.floor(Math.random() * vividPastels.length)];
              yarn.innerHTML = `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="50" cy="50" r="40" fill="${color}"/>
-                <circle cx="50" cy="50" r="40" fill="black" opacity="0.1"/>
+                <circle cx="50" cy="50" r="40" fill="black" opacity="0.04"/>
                 <path d="M 14 35 Q 50 20 86 35 M 10 50 Q 50 40 90 50 M 14 65 Q 50 60 86 65" stroke="rgba(255,255,255,0.4)" stroke-width="5" fill="none" stroke-linecap="round"/>
                 <path d="M 35 14 Q 20 50 35 86 M 50 10 Q 35 50 50 90 M 65 14 Q 50 50 65 86" stroke="rgba(0,0,0,0.15)" stroke-width="5" fill="none" stroke-linecap="round"/>
                 <path d="M 25 20 Q 50 5 75 20 M 25 80 Q 50 95 75 80" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
@@ -440,7 +443,7 @@ document.addEventListener("click",e=>{
              const heart = document.createElement('div');
              heart.className = 'heart-anim';
              
-             const color = mutedPastels[Math.floor(Math.random() * mutedPastels.length)];
+             const color = vividPastels[Math.floor(Math.random() * vividPastels.length)];
              heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
              
              // Nacen escondidos por encima del viewport
