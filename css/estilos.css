@@ -40,13 +40,11 @@ button,input,textarea{font:inherit}
 .header-logo:hover{transform:scale(1.05)}
 .brand strong{display:block;font:600 28px var(--script);color:var(--lilac-dark);line-height:1;margin-bottom:2px}
 .brand small{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--pink-dark)}
-
-/* MENÚ PRINCIPAL: TEXTO PROTEGIDO CON RELLENO (NO MÁS CORTES) Y ALINEACIÓN PERFECTA */
 .main-nav{display:flex;align-items:center;justify-content:center;gap:clamp(12px,2vw,26px);flex:1}
-.main-nav a{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#665c6b;transition:.2s;border-radius:14px;overflow:hidden;padding:8px 12px;line-height:1}
+.main-nav a{font-size:15px;font-weight:700;color:#665c6b;transition:.2s;border-radius:14px;overflow:hidden}
 .main-nav a:hover,.main-nav a[aria-current=page]{color:var(--pink-dark)}
 .main-nav a[aria-current=page]{font-style:italic;}
-.main-nav a[aria-current=page]:after{content:"";display:block;width:100%;height:2px;background:var(--pink);margin-top:4px;border-radius:2px}
+.main-nav a[aria-current=page]:after{content:"";display:block;height:2px;background:var(--pink);margin-top:3px;border-radius:2px}
 
 /* ALINEACIÓN PERFECTA DEL BOTÓN CARRITO Y SU CÍRCULO */
 .cart-trigger{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid #f0d5e1;background:var(--pink-soft);border-radius:30px;padding:8px 15px;color:var(--lilac-dark);white-space:nowrap;transition:transform 0.2s;overflow:hidden;line-height:1;}
