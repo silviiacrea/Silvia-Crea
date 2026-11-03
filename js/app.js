@@ -335,38 +335,41 @@ document.addEventListener("click",e=>{
      setTimeout(() => petal.remove(), 3000); 
  }
 
- // 2. --- LOGO INICIO HERO (CRAYONES SALEN DESDE DEBAJO, DENTRO DEL CONTENEDOR) ---
+ // 2. --- LOGO INICIO HERO (CRAYONES SALEN DESDE EL CENTRO EXCEPTO LAS LÍNEAS BLANCAS) ---
  const heroLogo = e.target.closest(".hero-logo");
  if (heroLogo) {
-     const container = heroLogo.closest('.hero-art');
-     if(container) {
-         const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
+     const rect = heroLogo.getBoundingClientRect();
+     // Fija las coordenadas exactamente detrás de la imagen del logo en el DOM real
+     const startX = rect.left + rect.width / 2 + window.scrollX;
+     const startY = rect.top + rect.height / 2 + window.scrollY;
+     const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
+     
+     for (let i = 0; i < 20; i++) {
+         const crayon = document.createElement('div');
+         crayon.className = 'crayon-anim-hero'; 
+         crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
+         crayon.style.left = startX + 'px';
+         crayon.style.top = startY + 'px';
+            
+         const wrap = document.createElement('div');
+         wrap.className = 'crayon-anim-wrap';
+         crayon.appendChild(wrap);
+            
+         const angle = Math.random() * Math.PI * 2;
+         const distance = 250 + Math.random() * 450; 
+         crayon.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+         crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+         crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
          
-         for (let i = 0; i < 20; i++) {
-             const crayon = document.createElement('div');
-             crayon.className = 'crayon-anim-hero'; 
-             crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
-             
-             // Los posicionamos exactamente en el medio de .hero-art, CSS ya hace top 50% left 50% absoluto
-             const wrap = document.createElement('div');
-             wrap.className = 'crayon-anim-wrap';
-             crayon.appendChild(wrap);
-                
-             const angle = Math.random() * Math.PI * 2;
-             const distance = 250 + Math.random() * 450; 
-             crayon.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
-             crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
-             crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
-             
-             container.appendChild(crayon);
-             setTimeout(() => crayon.remove(), 6500); 
-         }
+         document.body.appendChild(crayon);
+         setTimeout(() => crayon.remove(), 6500); 
      }
  }
 
  // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO LENTAMENTE) ---
  const headerBrand = e.target.closest(".site-header .brand");
  if (headerBrand) {
+     // Aquí prevenimos que cambie de página (es decir, permitimos acumular los clics y generar ovillos infinitos)
      e.preventDefault(); 
      
      const rect = headerBrand.getBoundingClientRect();
@@ -407,9 +410,19 @@ document.addEventListener("click",e=>{
          document.body.appendChild(yarn);
          setTimeout(() => yarn.remove(), 7500); 
      }
+
+     if (actualPage !== 'home') {
+         // Si haces múltiples clics, reinicia el contador de redirección para dejarte jugar sin cambiarte de pantalla
+         clearTimeout(headerBrand.navTimer);
+         headerBrand.navTimer = setTimeout(() => {
+             document.body.classList.add("is-leaving"); // Animación de salida al terminar de cliquear
+             setTimeout(() => window.location.href = headerBrand.href, 350); 
+         }, 1500); 
+     }
+     return;
  }
 
- // 4. --- LOGO FOOTER (CRAYONES Y SCROLL SMOOTH SIN CAMBIAR PÁGINA) ---
+ // 4. --- LOGO FOOTER (CRAYONES 8 SEGUNDOS + SCROLL SMOOTH) ---
  const footerLink = e.target.closest(".footer-brand-img");
  if (footerLink) {
      e.preventDefault();
@@ -417,8 +430,8 @@ document.addEventListener("click",e=>{
      footerLink.dataset.animScheduled = "true";
 
      const rect = footerLink.getBoundingClientRect();
-     const startX = rect.left + rect.width / 2;
-     const startY = rect.top + rect.height / 2;
+     const startX = rect.left + rect.width / 2 + window.scrollX;
+     const startY = rect.top + rect.height / 2 + window.scrollY;
      const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
      
      for (let i = 0; i < 40; i++) {
@@ -444,7 +457,7 @@ document.addEventListener("click",e=>{
 
      // Tras esperar 3 segundos, simulamos "recargar" haciendo un scroll extra suave al tope actual
      setTimeout(() => {
-         window.scrollTo({ top: 0, behavior: 'smooth' });
+         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
      }, 3000);
      
      // Desbloqueamos el botón a los 9 segundos cuando desaparece todo
@@ -455,37 +468,42 @@ document.addEventListener("click",e=>{
      return;
  }
 
- // 5. --- LLUVIA DE CORAZONES EN "SOY SILVIA RODRIGUEZ" ---
+ // 5. --- LLUVIA DE CORAZONES EN "SOY SILVIA RODRIGUEZ" DESDE EL HEADER ---
  const h2Target = e.target.closest("h2");
  if (h2Target && h2Target.textContent.includes("Soy Silvia Rodríguez")) {
-     const rect = h2Target.getBoundingClientRect();
-     const startX = rect.left + rect.width / 2;
-     const startY = rect.bottom;
-     const heartColors = ['#e6a9bf', '#b99acb', '#f4c2d7', '#fbecf3'];
+     // Obtenemos la posición de la barra del header para que caigan desde el menú
+     const headerMenu = document.querySelector(".main-nav");
+     if(headerMenu) {
+         const rect = headerMenu.getBoundingClientRect();
+         const startX = rect.left + rect.width / 2;
+         const startY = rect.bottom;
+         const heartColors = ['#e6a9bf', '#b99acb', '#f4c2d7', '#fbecf3'];
 
-     const count = 5 + Math.floor(Math.random() * 3);
-     for(let i = 0; i < count; i++) {
-         const heart = document.createElement('div');
-         heart.className = 'heart-anim';
-         
-         const color = heartColors[Math.floor(Math.random() * heartColors.length)];
-         heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="#fff" stroke-width="1.2"/></svg>`;
-         
-         const tx = (Math.random() - 0.5) * window.innerWidth * 0.4; 
-         const dropY = window.innerHeight - startY - 20; 
-         const bx = (Math.random() - 0.5) * 80; 
-         const scale = 0.7 + Math.random() * 0.6; 
-         
-         heart.style.left = startX + 'px';
-         heart.style.top = startY + 'px';
-         heart.style.setProperty('--tx', `${tx}px`);
-         heart.style.setProperty('--drop-y', `${dropY}px`);
-         heart.style.setProperty('--bx', `${bx}px`);
-         heart.style.setProperty('--rot', `${(Math.random() - 0.5) * 360}deg`);
-         heart.style.setProperty('--scale', scale);
-         
-         document.body.appendChild(heart);
-         setTimeout(() => heart.remove(), 7500); 
+         const count = 10 + Math.floor(Math.random() * 6); // Entre 10 y 15 corazones por cada vez que cliques
+         for(let i = 0; i < count; i++) {
+             const heart = document.createElement('div');
+             heart.className = 'heart-anim';
+             
+             const color = heartColors[Math.floor(Math.random() * heartColors.length)];
+             heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
+             
+             // Que se esparzan por todo lo ancho de la pantalla
+             const tx = (Math.random() - 0.5) * window.innerWidth * 0.9; 
+             const dropY = window.innerHeight - startY - 20; 
+             const bx = (Math.random() - 0.5) * 80; 
+             const scale = 0.8 + Math.random() * 0.7; // tamaños surtidos
+             
+             heart.style.left = startX + 'px';
+             heart.style.top = startY + 'px';
+             heart.style.setProperty('--tx', `${tx}px`);
+             heart.style.setProperty('--drop-y', `${dropY}px`);
+             heart.style.setProperty('--bx', `${bx}px`);
+             heart.style.setProperty('--rot', `${(Math.random() - 0.5) * 360}deg`);
+             heart.style.setProperty('--scale', scale);
+             
+             document.body.appendChild(heart);
+             setTimeout(() => heart.remove(), 7500); 
+         }
      }
  }
  // --------------------------------------------------------
@@ -495,8 +513,8 @@ document.addEventListener("click",e=>{
  if (link && link.href) {  
      const isInternal = link.getAttribute("href").includes(".html") && !link.getAttribute("href").startsWith("http") && link.target !== "_blank";
      if (isInternal) {  
-         // Evitamos interrumpir las reglas especiales del footer
-         if (link.classList.contains("footer-brand-img")) return;
+         // Evitamos interrumpir las reglas especiales del footer y el header que tienen sus propias animaciones y navegaciones
+         if (link.classList.contains("footer-brand-img") || link.classList.contains("brand")) return;
          
          e.preventDefault();
          sessionStorage.setItem("silviacrea_current_page", link.getAttribute("href"));

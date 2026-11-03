@@ -2,22 +2,6 @@
 --svg-emojis: url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg font-size='20' opacity='0.08'%3E%3Ctext x='40' y='50' transform='rotate(-12 40 50)'%3E🧶%3C/text%3E%3Ctext x='200' y='70' transform='rotate(15 200 70)'%3E🦋%3C/text%3E%3Ctext x='350' y='40' transform='rotate(-5 350 40)'%3E✏️%3C/text%3E%3Ctext x='100' y='160' transform='rotate(22 100 160)'%3E🎨%3C/text%3E%3Ctext x='280' y='190' transform='rotate(-18 280 190)'%3E🧵%3C/text%3E%3Ctext x='50' y='290' transform='rotate(10 50 290)'%3E🖌️%3C/text%3E%3Ctext x='220' y='320' transform='rotate(-20 220 320)'%3E🧶%3C/text%3E%3Ctext x='360' y='260' transform='rotate(8 360 260)'%3E🦋%3C/text%3E%3Ctext x='140' y='370' transform='rotate(-10 140 370)'%3E🧵%3C/text%3E%3C/g%3E%3C/svg%3E");  
 }   
   
-/* TRANSICIÓN FLUIDA ENTRE PÁGINAS */
-body {   
-    animation: pageFadeIn 0.4s ease-out forwards;
-}
-body.is-leaving {
-    animation: pageFadeOut 0.35s ease-in forwards;
-}
-@keyframes pageFadeIn {
-    0% { opacity: 0; transform: translateY(12px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-@keyframes pageFadeOut {
-    0% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-12px); }
-}
-
 /* SISTEMA UNIVERSAL DE PULSACIONES (Pantallas táctiles y móviles) */  
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}   
 a, button, input, textarea, [tabindex], [role="button"], .item-card {  
@@ -484,13 +468,12 @@ input, textarea, select, [contenteditable] {
     background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.25), rgba(255,255,255,0.25) 3px, transparent 3px, transparent 7px);
 }
 
-/* Animación Crayones Hero - Sin artefactos porque nacen invisibles debajo del logo */
+/* Animación Crayones Hero - Sin líneas extrañas porque se definen las coordenadas reales */
 .crayon-anim-hero {
     animation: crayonRollHero 6s cubic-bezier(0.15, 0.9, 0.35, 1) forwards !important;
 }
 @keyframes crayonRollHero {
-    0% { transform: translate(0, 0) rotate(0deg); opacity: 0; filter: blur(0px); }
-    5% { opacity: 1; filter: blur(0px); }
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; filter: blur(0px); }
     70% { opacity: 1; filter: blur(0px); }
     100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); }
 }
@@ -500,34 +483,24 @@ input, textarea, select, [contenteditable] {
     animation: crayonRollFooter 9s cubic-bezier(0.1, 0.8, 0.3, 1) forwards !important;
 }
 @keyframes crayonRollFooter {
-    0% { transform: translate(0, 0) rotate(0deg); opacity: 0; filter: blur(0px); }
-    5% { opacity: 1; filter: blur(0px); }
-    66% { opacity: 1; filter: blur(0px); } /* 6 segundos exactos */
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; filter: blur(0px); }
+    66% { opacity: 1; filter: blur(0px); } /* Sólidos hasta el segundo 6 exacto */
     100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); } /* Difuminado en los 3 segs restantes */
 }
 
-/* Corazones y Ovillos de Lana (Gravedad y Rebote) */
-.yarn-anim, .heart-anim {
-    position: fixed; 
+/* Ovillos cayendo y rebotando en la pantalla (Header) */
+.yarn-anim {
+    position: fixed; /* Siempre fijos respecto a la pantalla del navegador (Viewport) */
+    width: 36px; 
+    height: 44px; 
+    margin-left: -18px;
+    margin-top: -22px;
     z-index: 999999;
     pointer-events: none;
     animation: yarnDrop 7s forwards !important;
-}
-.yarn-anim {
-    width: 36px; 
-    height: 44px;
-    margin-left: -18px;
-    margin-top: -22px;
     filter: drop-shadow(0 6px 8px rgba(0,0,0,0.15));
 }
-.heart-anim {
-    width: 24px; 
-    height: 24px;
-    margin-left: -12px;
-    margin-top: -12px;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
-}
-.yarn-anim svg, .heart-anim svg {
+.yarn-anim svg {
     width: 100%;
     height: 100%;
     display: block;
@@ -540,4 +513,31 @@ input, textarea, select, [contenteditable] {
     66% { transform: translate(calc(var(--tx) + var(--bx)*1.2), calc(var(--drop-y) - 20px)) rotate(calc(var(--rot) * 0.9)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
     75% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(var(--rot)) scale(var(--scale)); opacity: 1; filter: blur(0px); }
     100% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(var(--rot)) scale(var(--scale)); opacity: 0; filter: blur(5px); }
+}
+
+/* Lluvia de corazones cayendo desde el menú (Sobre Mi) */
+.heart-anim {
+    position: fixed; 
+    width: 28px;
+    height: 28px;
+    margin-left: -14px;
+    margin-top: -14px;
+    z-index: 999999;
+    pointer-events: none;
+    animation: heartDrop 8s forwards !important;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.12));
+}
+.heart-anim svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+@keyframes heartDrop {
+    0% { transform: translate(0, 0) rotate(var(--rot)) scale(var(--scale)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
+    35% { transform: translate(calc(var(--tx) * 0.4), var(--drop-y)) rotate(calc(var(--rot) + 90deg)); opacity: 1; animation-timing-function: cubic-bezier(0, 0, 0.2, 1); } 
+    50% { transform: translate(calc(var(--tx) * 0.7 + var(--bx)*0.4), calc(var(--drop-y) - 80px)) rotate(calc(var(--rot) + 180deg)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
+    65% { transform: translate(calc(var(--tx) + var(--bx)*0.8), var(--drop-y)) rotate(calc(var(--rot) + 270deg)); opacity: 1; animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+    75% { transform: translate(calc(var(--tx) + var(--bx)*1.2), calc(var(--drop-y) - 30px)) rotate(calc(var(--rot) + 360deg)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
+    85% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(calc(var(--rot) + 400deg)) scale(var(--scale)); opacity: 1; filter: blur(0px); }
+    100% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(calc(var(--rot) + 450deg)) scale(var(--scale)); opacity: 0; filter: blur(6px); }
 }
