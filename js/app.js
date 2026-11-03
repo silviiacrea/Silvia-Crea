@@ -95,7 +95,7 @@ el.classList.remove("has-slider","is-centered");
 el.classList.add(count>3?"has-slider":"is-centered");   
 el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
   
-// --- ARRASTRAR CON RATÓN EN PC (DRAG TO SCROLL) ---  
+// --- ARRASTRAR CON RATÓN EN PC MEJORADO (DRAG TO SCROLL BUG FIXED) ---  
 if (count > 3) {  
  el.style.cursor = 'grab';  
  let isDown = false;  
@@ -106,12 +106,27 @@ if (count > 3) {
  el.addEventListener('mousedown', (e) => {  
  isDown = true;  
  isDragging = false;  
- el.style.cursor = 'grabbing';  
+ el.style.cursor = 'grabbing';
+ el.style.userSelect = 'none'; // Previene que al arrastrar se bloquee copiando texto  
  startX = e.pageX - el.offsetLeft;  
  scrollLeft = el.scrollLeft;  
  });  
- el.addEventListener('mouseleave', () => { isDown = false; el.style.cursor = 'grab'; });  
- el.addEventListener('mouseup', () => { isDown = false; el.style.cursor = 'grab'; });  
+ 
+ // Si soltamos el ratón incluso FUERA del elemento (en toda la ventana)
+ window.addEventListener('mouseup', () => { 
+     if (isDown) {
+         isDown = false; 
+         el.style.cursor = 'grab'; 
+         el.style.removeProperty('user-select');
+     }
+ });  
+ 
+ el.addEventListener('mouseleave', () => { 
+     isDown = false; 
+     el.style.cursor = 'grab'; 
+     el.style.removeProperty('user-select');
+ });  
+ 
  el.addEventListener('mousemove', (e) => {  
  if(!isDown) return;  
  e.preventDefault();  
@@ -305,80 +320,127 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
   
 document.addEventListener("click",e=>{   
 
- // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC ---
+ // 1. --- EFECTO PÉTALOS GLOBALES ULTRA-EXPANSIVOS AL CLIC ---
  const petalColors = ['#f9d8e4', '#fbecf3', '#e6a9bf', '#e2edf8', '#f0e7f4'];
- for (let i = 0; i < 6; i++) {
+ for (let i = 0; i < 9; i++) {
      const petal = document.createElement('div');
      petal.className = 'petal-anim';
      petal.style.background = petalColors[Math.floor(Math.random() * petalColors.length)];
      petal.style.left = e.pageX + 'px';
      petal.style.top = e.pageY + 'px';
      const angle = Math.random() * Math.PI * 2;
-     const dist = 30 + Math.random() * 60;
+     // Incrementado muchísimo la zona de rebote y distancia de la onda
+     const dist = 50 + Math.random() * 120;
      petal.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
-     petal.style.setProperty('--ty', `${Math.sin(angle) * dist + 30}px`); // Cae un poquito hacia abajo simulando gravedad
-     petal.style.setProperty('--rot', `${(Math.random() - 0.5) * 720}deg`);
+     petal.style.setProperty('--ty', `${Math.sin(angle) * dist + 40}px`); // Con más efecto de gravedad
+     petal.style.setProperty('--rot', `${(Math.random() - 0.5) * 1080}deg`);
      document.body.appendChild(petal);
-     setTimeout(() => petal.remove(), 1200);
+     setTimeout(() => petal.remove(), 1500);
  }
 
- // 2. --- ANIMACIÓN CRAYONES Y EXPANSIÓN EN FOOTER LOGO ---
+ // 2. --- EXPLOSIÓN DE NUBE PASTEL Y TRANSICIÓN DE 7.5 SEGUNDOS (FOOTER) ---
  const footerLink = e.target.closest(".footer-brand-img");
  if (footerLink) {
      e.preventDefault();
-     const rect = footerLink.getBoundingClientRect();
-     const startX = rect.left + rect.width / 2 + window.scrollX;
-     const startY = rect.top + rect.height / 2 + window.scrollY;
-
-     const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
-     for (let i = 0; i < 25; i++) {
-         const crayon = document.createElement('div');
-         crayon.className = 'crayon-anim';
-         crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
-         crayon.style.left = startX + 'px';
-         crayon.style.top = startY + 'px';
-         crayon.style.zIndex = '99999'; // Encima de todo el footer
-         
-         const wrap = document.createElement('div');
-         wrap.className = 'crayon-anim-wrap';
-         crayon.appendChild(wrap);
-         
-         const angle = Math.random() * Math.PI * 2;
-         const distance = 400 + Math.random() * 800; // Vuelan más lejos y rápido
-         crayon.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
-         crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
-         crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
-         document.body.appendChild(crayon);
-         setTimeout(() => crayon.remove(), 6000);
-     }
-
      const logoImg = footerLink.querySelector('.footer-logo');
-     if (logoImg) {
-         const clone = logoImg.cloneNode(true);
-         const imgRect = logoImg.getBoundingClientRect();
-         clone.style.position = 'fixed';
-         clone.style.top = imgRect.top + 'px';
-         clone.style.left = imgRect.left + 'px';
-         clone.style.width = imgRect.width + 'px';
-         clone.style.height = imgRect.height + 'px';
-         clone.style.zIndex = '999999';
-         clone.style.transition = 'all 1.3s cubic-bezier(0.4, 0, 0.2, 1)';
-         clone.style.pointerEvents = 'none';
-         document.body.appendChild(clone);
-         
-         logoImg.style.opacity = '0';
-         clone.getBoundingClientRect(); // Forzar dibujo rápido antes de transicionar
+     if (!logoImg) { window.location.href = footerLink.href; return; }
 
+     // Evitar que el usuario rompa la transición haciendo mil clics
+     if(footerLink.classList.contains("animating")) return;
+     footerLink.classList.add("animating");
+
+     // Creamos un clon exacto del logo para animarlo
+     const imgRect = logoImg.getBoundingClientRect();
+     const clone = logoImg.cloneNode(true);
+     clone.style.position = 'fixed';
+     clone.style.top = imgRect.top + 'px';
+     clone.style.left = imgRect.left + 'px';
+     clone.style.width = imgRect.width + 'px';
+     clone.style.height = imgRect.height + 'px';
+     clone.style.zIndex = '999999';
+     clone.style.transition = 'all 1.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+     clone.style.pointerEvents = 'none';
+     document.body.appendChild(clone);
+     logoImg.style.opacity = '0'; // Ocultamos el logo original de la web
+        
+     // Un velo blanco súper sutil de fondo para dar contraste
+     const overlay = document.createElement("div");
+     overlay.style.position = "fixed";
+     overlay.style.inset = "0";
+     overlay.style.background = "var(--white-lilac)";
+     overlay.style.zIndex = "999997";
+     overlay.style.opacity = "0";
+     overlay.style.transition = "opacity 1.5s";
+     document.body.appendChild(overlay);
+
+     // Fase 1: (0 Segundos) El Logo crece y se planta en el centro de la pantalla
+     setTimeout(() => {
+         overlay.style.opacity = "0.7";
          clone.style.top = '50%';
          clone.style.left = '50%';
-         clone.style.transform = 'translate(-50%, -50%) scale(15)';
-         clone.style.opacity = '0'; // Se difumina para mostrar la nueva web cargada debajo
-     }
+         clone.style.transform = 'translate(-50%, -50%) scale(4)';
+     }, 50);
 
-     // Navegamos tras la espectacular transición
+     // Fase 2: (1.8 Segundos) Explosión brutal de nube invasiva de colores
+     setTimeout(() => {
+         // El logo principal se hace gigantesco a la vez que se vuelve invisible
+         clone.style.transition = 'all 1.2s cubic-bezier(0.1, 0.9, 0.2, 1)';
+         clone.style.transform = 'translate(-50%, -50%) scale(20)';
+         clone.style.opacity = '0';
+
+         const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
+            
+         // Creación de las esferas de humo/nube pastel
+         for(let i=0; i<15; i++) {
+             const cloud = document.createElement('div');
+             cloud.style.position = 'fixed';
+             cloud.style.top = '50%';
+             cloud.style.left = '50%';
+             cloud.style.width = '15vw';
+             cloud.style.height = '15vw';
+             cloud.style.borderRadius = '50%';
+             cloud.style.backgroundColor = crayonColors[Math.floor(Math.random() * crayonColors.length)];
+             cloud.style.zIndex = '999998';
+             cloud.style.pointerEvents = 'none';
+             cloud.style.transform = 'translate(-50%, -50%) scale(0)';
+             cloud.style.transition = `all ${2 + Math.random()*2}s cubic-bezier(0.2, 1, 0.3, 1)`;
+             document.body.appendChild(cloud);
+
+             setTimeout(() => {
+                 const angle = Math.random() * Math.PI * 2;
+                 const tx = Math.cos(angle) * 35; 
+                 const ty = Math.sin(angle) * 35;
+                 cloud.style.transform = `translate(calc(-50% + ${tx}vw), calc(-50% + ${ty}vh)) scale(${15 + Math.random()*15})`;
+             }, 50);
+         }
+
+         // Lanzamos también crayones hacia todos los lados
+         for (let i = 0; i < 20; i++) {
+             const crayon = document.createElement('div');
+             crayon.className = 'crayon-anim';
+             crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
+             crayon.style.left = '50%';
+             crayon.style.top = '50%';
+             crayon.style.zIndex = '999999';
+                
+             const wrap = document.createElement('div');
+             wrap.className = 'crayon-anim-wrap';
+             crayon.appendChild(wrap);
+                
+             const angle = Math.random() * Math.PI * 2;
+             const distance = 600 + Math.random() * 800; 
+             crayon.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+             crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+             crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
+             document.body.appendChild(crayon);
+         }
+     }, 1800);
+
+     // Fase 3: (7.5 Segundos en total). La pantalla está inmersa en una nube. 
+     // Realizamos la redirección transparente a la página de inicio.
      setTimeout(() => {
          window.location.href = footerLink.href;
-     }, 1250);
+     }, 7500); 
      return;
  }
  // --------------------------------------------------------
