@@ -95,36 +95,45 @@ el.classList.remove("has-slider","is-centered");
 el.classList.add(count>3?"has-slider":"is-centered");   
 el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
   
-// --- ARRASTRAR CON LÁPIZ (MÁS LENTO Y PRECISO) ---
+// --- ARRASTRAR CON MARIPOSA (LÓGICA SEPARADA DE CLIC) ---
 if (count > 3) {
     let isDown = false;
     let startX;
     let scrollLeft;
-    let isDragging = false;
+    let hasMoved = false;
 
     el.addEventListener('mousedown', (e) => {
         isDown = true;
-        isDragging = false;
-        el.classList.add('dragging'); // Bloquea el texto y cambia el cursor al lápiz clickeado
+        hasMoved = false;
         startX = e.pageX - el.offsetLeft;
         scrollLeft = el.scrollLeft;
     });
-    el.addEventListener('mouseleave', () => { isDown = false; el.classList.remove('dragging'); });
-    el.addEventListener('mouseup', () => { isDown = false; el.classList.remove('dragging'); });
+
     el.addEventListener('mousemove', (e) => {
         if(!isDown) return;
-        e.preventDefault();
         const x = e.pageX - el.offsetLeft;
-        const walk = (x - startX) * 0.8; // Antes era 1.5. Ahora hay que mover más el ratón, es más suave y controlable.
-        if (Math.abs(walk) > 5) isDragging = true; 
-        el.scrollLeft = scrollLeft - walk;
+        const walk = (x - startX);
+        if (Math.abs(walk) > 5) {
+            hasMoved = true;
+            el.classList.add('dragging');
+            el.scrollLeft = scrollLeft - (walk * 0.8);
+        }
     });
+
+    const stopDragging = () => {
+        isDown = false;
+        el.classList.remove('dragging');
+    };
+
+    el.addEventListener('mouseup', stopDragging);
+    el.addEventListener('mouseleave', stopDragging);
     
-    // Si realmente estábamos arrastrando, anulamos el "clic" accidental en la tarjeta
+    // Si se arrastró más de 5px, bloqueamos el clic para que no abra la tarjeta
     el.addEventListener('click', (e) => {
-        if (isDragging) {
+        if (hasMoved) {
             e.preventDefault();
             e.stopPropagation();
+            hasMoved = false;
         }
     }, true);
 }
@@ -149,7 +158,6 @@ const btnRight = document.createElement("button");
 wrapper.appendChild(btnLeft);  
  wrapper.appendChild(btnRight);  
    
-// Ahora mueve 1 sola tarjeta a la vez
 btnLeft.addEventListener("click", () => {  
  const card = el.querySelector(".item-card");  
  if(card) el.scrollBy({left: -(card.offsetWidth + 24), behavior: "smooth"});  
@@ -213,8 +221,17 @@ function initMenu(){
  btn?.addEventListener("click",()=>{const open=nav.classList.toggle("open");btn.setAttribute("aria-expanded",String(open));});  
    
  const cartTrigger = $(".cart-trigger");  
- if(cartTrigger && cartTrigger.innerHTML.includes("♡")) {  
- cartTrigger.innerHTML = cartTrigger.innerHTML.replace("♡", "✿");  
+ if(cartTrigger) {  
+    // Nuevo icono de Carrito Cozy en tonos lila y rosa pastel
+    const cozyCart = `<svg class="cart-svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#765b89" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 3h3l2.25 10.5a2.5 2.5 0 0 0 2.5 2h7.5a2.5 2.5 0 0 0 2.5 -2l1.5 -7.5h-14" fill="#fbecf3"/><circle cx="10" cy="19.5" r="2" fill="#b99acb" stroke="#765b89"/><circle cx="17" cy="19.5" r="2" fill="#b99acb" stroke="#765b89"/></svg>`;
+    if(cartTrigger.innerHTML.includes("♡")) cartTrigger.innerHTML = cartTrigger.innerHTML.replace("♡", cozyCart);
+    if(cartTrigger.innerHTML.includes("✿")) cartTrigger.innerHTML = cartTrigger.innerHTML.replace("✿", cozyCart);
+    if(cartTrigger.innerHTML.includes("svg")) {
+        // Si ya tenía un svg previo, lo actualizamos limpiamente
+        const textPart = cartTrigger.querySelector("span")?.outerHTML || '<span style="display:inline">Carrito</span>';
+        const countPart = cartTrigger.querySelector("b")?.outerHTML || cartTrigger.querySelector(".cart-count")?.outerHTML || '<b>0</b>';
+        cartTrigger.innerHTML = `${cozyCart} ${textPart} ${countPart}`;
+    }
  }  
    
  const drawerHead = $(".drawer-head");  
@@ -281,152 +298,4 @@ if(!cart.length){showToast("Tu carrito está vacío.");return;}
 const name=$("#customer-name")?.value.trim(),email=$("#customer-email")?.value.trim(),phone=$("#customer-phone")?.value.trim(),address=$("#customer-address")?.value.trim(),comment=$("#customer-comment")?.value.trim();   
 if(!name||!email||!phone||!address){showToast("Completa los datos obligatorios.");return;}   
   
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;  
- if(!emailRegex.test(email)){showToast("Por favor, introduce un correo electrónico válido.");return;}  
- const cleanPhone = phone.replace(/\D/g,"");  
- if(cleanPhone.length !== 9){showToast("El número de teléfono debe tener exactamente 9 dígitos.");return;}  
-   
-const total=cart.reduce((n,x)=>n+x.price*x.qty,0);   
-const productsText=cart.map(x=>`- ${x.qty}x ${x.name} | Personalización: ${x.comment||"Sin detalles"}`).join("\n");   
-const payload={Cliente:name,Email:email,Telefono:phone.replace(/\D/g,""),Direccion:address,Productos:productsText,Total:`${total.toFixed(2).replace(".",",")} €`,Comentario:comment};   
-const btn=$("#submit-order");btn.disabled=true;btn.textContent="Enviando solicitud…";   
-try{   
-if(!cfg.appsScriptUrl)throw new Error("La conexión de pedidos no está configurada.");   
-const response=await fetch(cfg.appsScriptUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),redirect:"follow"});   
-if(!response.ok)throw new Error("El servidor no ha aceptado la solicitud.");   
-const result=await response.json();   
-if(result.status!=="success")throw new Error(result.message||"No se ha podido registrar el pedido.");   
-cart=[];updateCart();closeCart();$("#order-form")?.reset();$("#back-to-cart")?.click();   
-showCustomAlert("¡Solicitud enviada!", "Tu solicitud se ha registrado correctamente. Silvia se pondrá en contacto contigo para confirmar los detalles y el pago por Bizum.");   
-}catch(err){   
-showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu solicitud. No se ha vaciado tu carrito. Puedes intentarlo de nuevo más tarde o escribir a "+cfg.email+". Detalle: "+err.message);   
-}finally{btn.disabled=false;btn.textContent="Enviar solicitud de pedido";}   
-}   
-  
-document.addEventListener("click",e=>{   
-const link = e.target.closest("a");
-if (link) {
-    const href = link.getAttribute("href");
-    if (href && href.includes(".html") && !href.startsWith("http")) {
-        sessionStorage.setItem("silviacrea_current_page", href);
-    }
-}
-
-if(e.target.closest("[data-open-cart]"))openCart();   
-if(e.target.closest("[data-close-cart]"))closeCart();   
-const add=e.target.closest("[data-add]");if(add){e.stopPropagation();addProduct(products[Number(add.dataset.add)]);return;}   
-const detail=e.target.closest("[data-detail-card]");   
-if(detail){const i=Number(detail.dataset.index),kind=detail.dataset.detailCard;openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product", i);return;}   
-  
-const cardEl=e.target.closest("[data-card-kind]");   
-if(cardEl&&!e.target.closest("button")){  
- const i=Number(cardEl.dataset.index),kind=cardEl.dataset.cardKind;  
- openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product", i);  
- return;  
- }   
-
-if(e.target.closest("#modal-img-wrapper")) {
-   const img = $("#modal-image");
-   if(img && img.src && img.style.display !== "none") {
-       const fsImg = $("#fs-modal-image");
-       fsImg.src = img.src;
-       const fsModal = $("#fs-modal");
-       const pModal = $(".product-modal");
-       const fsContent = $(".fs-modal-content");
-       fsContent.className = "fs-modal-content"; 
-       if(pModal.classList.contains("theme-pink")) fsContent.classList.add("theme-pink");
-       if(pModal.classList.contains("theme-lilac")) fsContent.classList.add("theme-lilac");
-       fsModal.classList.add("open");
-       fsModal.setAttribute("aria-hidden", "false");
-   }
-}
-
-if(e.target.closest("[data-close-fs]") || e.target.id === "fs-modal") {
-   $("#fs-modal")?.classList.remove("open");
-   $("#fs-modal")?.setAttribute("aria-hidden", "true");
-}
-  
-const qty=e.target.closest("[data-qty]");if(qty){const item=cart[Number(qty.dataset.index)];item.qty=Math.max(1,item.qty+Number(qty.dataset.qty));const p=products.find(x=>x.name===item.name);if(p)item.qty=Math.min(item.qty,p.stock);updateCart();}   
-const rem=e.target.closest("[data-remove]");if(rem){cart.splice(Number(rem.dataset.remove),1);updateCart();}   
-if(e.target.closest("[data-close-modal]")||e.target.id==="product-modal")closeProduct();   
-});   
-
-document.addEventListener("keydown",e=>{
-    // Ignoramos el teclado si estás rellenando el formulario de contacto o el carrito
-    if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;
-
-    // --- NAVEGACIÓN DE CARRUSEL CON TECLADO ---
-    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        const sliders = $$(".has-slider");
-        let bestSlider = null;
-        let maxVisible = 0;
-        
-        // Detecta de forma inteligente qué carrusel estás mirando en pantalla
-        sliders.forEach(slider => {
-            const rect = slider.getBoundingClientRect();
-            const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
-            if (visibleHeight > maxVisible) {
-                maxVisible = visibleHeight;
-                bestSlider = slider;
-            }
-        });
-        
-        // Si hay uno visible, mueve exactamente 1 tarjeta por pulsación
-        if (bestSlider && maxVisible > 100) { 
-            e.preventDefault(); 
-            const card = bestSlider.querySelector(".item-card");  
-            const walk = card ? (card.offsetWidth + 24) : 300;
-            bestSlider.scrollBy({left: e.key === "ArrowLeft" ? -walk : walk, behavior: "smooth"});
-        }
-    }
-    // ----------------------------------------------
-
-    const c=e.target.closest("[data-card-kind]");
-    if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault();const i=Number(c.dataset.index),kind=c.dataset.cardKind;openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product",i);}
-});   
-
-document.addEventListener("input",e=>{const el=e.target.closest("[data-comment]");if(el){cart[Number(el.dataset.comment)].comment=el.value;saveCart();}});   
-$("#modal-add")?.addEventListener("click",()=>{if(modalProduct){const p=products.find(x=>x.name===modalProduct.name);if(p)addProduct(p);closeProduct();}});   
-$("#continue-order")?.addEventListener("click",()=>{   
-if(!cart.length){showToast("Añade algún producto primero.");return;}   
-let checkoutView = $("#checkout-view");
-if(!checkoutView){
-    checkoutView = document.createElement("div");
-    checkoutView.id = "checkout-view";
-    checkoutView.style.display = "none";
-    checkoutView.style.flex = "1";
-    checkoutView.style.overflow = "auto";
-    checkoutView.innerHTML = `
-        <div style="margin-bottom:15px;"><button type="button" class="text-button" id="back-to-cart" style="font-size:14.5px;">← Volver al carrito</button></div>
-        <form id="order-form" class="form-card" style="padding:20px; background:var(--pink-soft); border-color:#f0d5e1;">
-            <label>Nombre *<input id="customer-name" required autocomplete="name" style="background:var(--lilac-card); border-color:#dfceeb;"></label>
-            <label>Correo electrónico *<input id="customer-email" type="email" required autocomplete="email" style="background:var(--lilac-card); border-color:#dfceeb;"></label>
-            <label>Teléfono *<input id="customer-phone" required inputmode="numeric" pattern="[0-9]{9}" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,'')" title="El teléfono debe tener exactamente 9 dígitos" autocomplete="tel" style="background:var(--lilac-card); border-color:#dfceeb;"></label>
-            <label>Dirección de envío *<textarea id="customer-address" rows="2" required autocomplete="street-address" style="background:var(--lilac-card); border-color:#dfceeb;"></textarea></label>
-            <label>Comentario general<textarea id="customer-comment" rows="3" style="background:var(--lilac-card); border-color:#dfceeb;"></textarea></label>
-            <p class="small-note">El importe mostrado es estimado y no incluye los gastos de envío. En esta etapa no se realizará ningún cargo; Silvia contactará contigo para confirmar los detalles y el importe definitivo.<br><br><strong style="color:var(--pink-dark)">Nota importante:</strong> Actualmente solo realizamos envíos dentro de la Península.</p>
-            <button class="btn btn-primary full-width" id="submit-order" type="submit">Enviar solicitud de pedido</button>
-        </form>
-    `;
-    $(".cart-drawer").appendChild(checkoutView);
-    $("#order-form").addEventListener("submit",e=>{e.preventDefault();sendOrder();});
-    $("#back-to-cart").addEventListener("click",()=>{
-        $("#checkout-view").style.display = "none";
-        $("#cart-items").style.display = "";
-        $(".cart-summary").style.display = "block";
-        $(".drawer-head h2").textContent = "Mi carrito";
-        $(".drawer-head .eyebrow").textContent = "Tus favoritos";
-    });
-}
-$("#cart-items").style.display = "none";
-$(".cart-summary").style.display = "none";
-checkoutView.style.display = "block";
-$(".drawer-head h2").textContent = "Datos de tu solicitud";
-$(".drawer-head .eyebrow").textContent = "Un último paso";
-});   
-$("#contact-form")?.addEventListener("submit",sendContact);   
-$("#year").textContent=new Date().getFullYear();initMenu();updateCart();   
-if($("#products-grid"))loadProducts().catch(()=>showLoadError("#products-grid"));   
-if($("#specialties-grid"))loadSpecialties().catch(()=>showLoadError("#specialties-grid"));   
-if($("#gallery-grid"))loadGallery().catch(()=>showLoadError("#gallery-grid"));   
-})();
+const emailRegex
