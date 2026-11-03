@@ -34,7 +34,7 @@ button{cursor:pointer;}
   
 .site-header{position:relative;z-index:50;background:rgba(226,211,241,.94);backdrop-filter:blur(16px);border-bottom:1px solid rgba(192,169,215,.65);box-shadow:0 5px 22px rgba(112,84,139,.07)}   
 .header-inner{max-width:1180px;margin:auto;padding:12px 24px;display:flex;align-items:center;gap:26px}  
-.brand{display:flex;align-items:center;gap:10px;min-width:205px; border-radius:16px; padding:4px 8px; margin-left:-8px; overflow:hidden;}  
+.brand{display:flex;align-items:center;gap:10px;min-width:205px; border-radius:16px; padding:4px 8px; margin-left:-8px; overflow:hidden; cursor:pointer;}  
 .header-logo{height:42px;width:auto;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(107,78,117,0.1));transition:transform 0.2s}  
 .header-logo:hover{transform:scale(1.05)}  
 .brand strong{display:block;font:600 28px var(--script);color:var(--lilac-dark);line-height:1;margin-bottom:2px}  
@@ -65,7 +65,7 @@ button{cursor:pointer;}
 .btn-soft{background:var(--pink-soft);color:var(--pink-dark);border:1px solid #f0d5e1}  
 .btn-header-purple{background:rgba(226,211,241,.94);color:var(--lilac-dark);border:1px solid #d6c5e5}  
 .hero-art{height:390px;position:relative;display:grid;place-items:center}  
-.hero-logo{max-width:340px;width:85%;height:auto;filter:drop-shadow(0 15px 35px rgba(107,78,117,0.15));transform:rotate(2deg);transition:transform 0.4s ease;position:relative;z-index:2;cursor:pointer}  
+.hero-logo{max-width:340px;width:85%;height:auto;filter:drop-shadow(0 15px 35px rgba(107,78,117,0.15));transform:rotate(2deg);transition:transform 0.4s ease;position:relative;z-index:2;}  
 .hero-logo:hover{transform:rotate(-1deg) scale(1.03)}  
 .art-flower,.art-spark{position:absolute;color:var(--pink-dark);font-size:70px;z-index:1}  
 .art-flower{top:10px;left:5%}  
@@ -383,14 +383,14 @@ padding:12px 16px;font-size:15px;text-align:center;background:var(--white-lilac)
 .cart-trigger span { font-weight: bold; font-size: 15px; }  
   
 /* ========================================================================== */
-/* CURSORES PERSONALIZADOS SVG (Sakura Detallada a la mitad + Bolígrafo)      */
+/* CURSORES PERSONALIZADOS SVG (Sakura Tamaño Intermedio + Bolígrafo)         */
 /* ========================================================================== */
 body, html {  
-    /* width/height al 50% de la versión original, manteniendo el viewBox entero para no perder definición */
-    cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 32 32'%3E%3Cdefs%3E%3Cg id='p'%3E%3Cpath d='M16 16 C6 5 10 0 16 3 C22 0 26 5 16 16' fill='%23fbecf3' stroke='%23e6a9bf' stroke-width='0.75'/%3E%3Cpath d='M16 16 C10 8 12 4 16 6 C20 4 22 8 16 16' fill='%23f9d8e4'/%3E%3Cline x1='16' y1='16' x2='16' y2='7' stroke='%23b99acb' stroke-width='0.75'/%3E%3Ccircle cx='16' cy='7' r='1' fill='%23b99acb'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23p'/%3E%3Cuse href='%23p' transform='rotate(72 16 16)'/%3E%3Cuse href='%23p' transform='rotate(144 16 16)'/%3E%3Cuse href='%23p' transform='rotate(216 16 16)'/%3E%3Cuse href='%23p' transform='rotate(288 16 16)'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23e6a9bf'/%3E%3C/svg%3E") 8 8, auto !important;  
+    /* Tamaño intermedio exacto (22x22px con punto de anclaje en el centro 11 11) */
+    cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 32 32'%3E%3Cdefs%3E%3Cg id='p'%3E%3Cpath d='M16 16 C6 5 10 0 16 3 C22 0 26 5 16 16' fill='%23fbecf3' stroke='%23e6a9bf' stroke-width='0.75'/%3E%3Cpath d='M16 16 C10 8 12 4 16 6 C20 4 22 8 16 16' fill='%23f9d8e4'/%3E%3Cline x1='16' y1='16' x2='16' y2='7' stroke='%23b99acb' stroke-width='0.75'/%3E%3Ccircle cx='16' cy='7' r='1' fill='%23b99acb'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23p'/%3E%3Cuse href='%23p' transform='rotate(72 16 16)'/%3E%3Cuse href='%23p' transform='rotate(144 16 16)'/%3E%3Cuse href='%23p' transform='rotate(216 16 16)'/%3E%3Cuse href='%23p' transform='rotate(288 16 16)'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23e6a9bf'/%3E%3C/svg%3E") 11 11, auto !important;  
 }  
-a, button, .item-card, .slider-btn, .mini-btn, .cart-trigger, .modal-close, .hero-logo, .footer-brand-img {  
-    cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 32 32'%3E%3Cdefs%3E%3Cg id='p'%3E%3Cpath d='M16 16 C6 5 10 0 16 3 C22 0 26 5 16 16' fill='%23fbecf3' stroke='%23e6a9bf' stroke-width='0.75'/%3E%3Cpath d='M16 16 C10 8 12 4 16 6 C20 4 22 8 16 16' fill='%23f9d8e4'/%3E%3Cline x1='16' y1='16' x2='16' y2='7' stroke='%23b99acb' stroke-width='0.75'/%3E%3Ccircle cx='16' cy='7' r='1' fill='%23b99acb'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23p'/%3E%3Cuse href='%23p' transform='rotate(72 16 16)'/%3E%3Cuse href='%23p' transform='rotate(144 16 16)'/%3E%3Cuse href='%23p' transform='rotate(216 16 16)'/%3E%3Cuse href='%23p' transform='rotate(288 16 16)'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23e6a9bf'/%3E%3C/svg%3E") 8 8, pointer !important;  
+a, button, .item-card, .slider-btn, .mini-btn, .cart-trigger, .modal-close, .hero-logo, .footer-brand-img, .brand {  
+    cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 32 32'%3E%3Cdefs%3E%3Cg id='p'%3E%3Cpath d='M16 16 C6 5 10 0 16 3 C22 0 26 5 16 16' fill='%23fbecf3' stroke='%23e6a9bf' stroke-width='0.75'/%3E%3Cpath d='M16 16 C10 8 12 4 16 6 C20 4 22 8 16 16' fill='%23f9d8e4'/%3E%3Cline x1='16' y1='16' x2='16' y2='7' stroke='%23b99acb' stroke-width='0.75'/%3E%3Ccircle cx='16' cy='7' r='1' fill='%23b99acb'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23p'/%3E%3Cuse href='%23p' transform='rotate(72 16 16)'/%3E%3Cuse href='%23p' transform='rotate(144 16 16)'/%3E%3Cuse href='%23p' transform='rotate(216 16 16)'/%3E%3Cuse href='%23p' transform='rotate(288 16 16)'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23e6a9bf'/%3E%3C/svg%3E") 11 11, pointer !important;  
 }  
 input, textarea, select, [contenteditable] {  
     cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cpath fill='%23b99acb' stroke='%23765b89' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M19 4l3 3-14 14H5v-3L19 4z'/%3E%3Cpath stroke='%23fbecf3' stroke-width='1.5' d='M17 6l3 3'/%3E%3C/svg%3E") 5 21, text !important;  
@@ -401,24 +401,22 @@ input, textarea, select, [contenteditable] {
 /* ========================================================================== */
 .petal-anim {
     position: absolute;
-    width: 12px;
-    height: 16px;
+    width: 4px; /* Tercera parte del tamaño anterior */
+    height: 6px;
     border-radius: 50% 0 50% 0; 
     pointer-events: none;
     z-index: 99999;
-    box-shadow: 1px 2px 4px rgba(185, 154, 203, 0.4);
-    border: 1px solid rgba(255,255,255,0.4);
-    /* !important asegura que no lo bloquee el ahorro de batería/rendimiento de PC */
-    animation: petalFall 1.5s cubic-bezier(0.2, 1, 0.3, 1) forwards !important;
+    box-shadow: 0px 1px 3px rgba(185, 154, 203, 0.5);
+    animation: petalFall 1.3s cubic-bezier(0.2, 1, 0.3, 1) forwards !important;
 }
 @keyframes petalFall {
-    0% { transform: translate(-50%, -50%) rotate(0deg) scale(0.6); opacity: 1; filter: blur(0px); }
+    0% { transform: translate(-50%, -50%) rotate(0deg) scale(0.6); opacity: 1; filter: blur(0.5px); }
     30% { opacity: 1; }
-    100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot)) scale(1.5); opacity: 0; filter: blur(1.5px); }
+    100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot)) scale(1.5); opacity: 0; filter: blur(3px); }
 }
 
 .crayon-anim {
-    position: absolute;
+    position: fixed; /* Fixed para que invada toda la pantalla independientemente del scroll */
     top: 50%;
     left: 50%;
     width: 10px;
@@ -427,16 +425,11 @@ input, textarea, select, [contenteditable] {
     margin-top: -18px;
     border-radius: 2px;
     box-shadow: inset -2px 0 3px rgba(0,0,0,0.08), 0 6px 12px rgba(107,78,117,0.2);
-    z-index: 1; 
+    z-index: 999999; 
     pointer-events: none;
     background-color: currentColor;
     transform-origin: center center;
-    /* !important esquiva la pausa por defecto de la aceleración por hardware en PC */
-    animation-name: crayonRoll !important;
-    animation-duration: 6s !important;
-    animation-timing-function: cubic-bezier(0.15, 0.9, 0.35, 1) !important;
-    animation-fill-mode: forwards !important;
-    animation-iteration-count: 1 !important;
+    animation: crayonRoll 3.5s cubic-bezier(0.15, 0.9, 0.35, 1) forwards !important;
 }
 .crayon-anim::before {
     content: '';
@@ -475,18 +468,29 @@ input, textarea, select, [contenteditable] {
     );
 }
 @keyframes crayonRoll {
-    0% {
-        transform: translate(0, 0) rotate(0deg);
-        opacity: 1;
-        filter: blur(0px);
-    }
-    70% {
-        opacity: 1;
-        filter: blur(0px);
-    }
-    100% {
-        transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
-        opacity: 0; 
-        filter: blur(6px); 
-    }
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; filter: blur(0px); }
+    70% { opacity: 1; filter: blur(0px); }
+    100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); }
+}
+
+.yarn-anim {
+    position: fixed;
+    width: 26px;
+    height: 26px;
+    z-index: 999999;
+    pointer-events: none;
+    animation: yarnDrop 2.5s forwards !important;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08));
+}
+.yarn-anim svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+@keyframes yarnDrop {
+    0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+    60% { transform: translate(var(--tx), var(--drop-y)) rotate(var(--rot)) scale(1.1, 0.85); opacity: 1; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); } /* Golpe en el suelo (esponjoso) */
+    75% { transform: translate(calc(var(--tx) + var(--bx)), calc(var(--drop-y) - 60px)) rotate(calc(var(--rot) + 45deg)) scale(0.95, 1.05); opacity: 1; animation-timing-function: cubic-bezier(0.8, 0, 1, 1); } /* Rebote hacia arriba */
+    90% { transform: translate(calc(var(--tx) + var(--bx) * 1.8), var(--drop-y)) rotate(calc(var(--rot) + 90deg)) scale(1.05, 0.95); opacity: 0.8; } /* Cae al suelo de nuevo */
+    100% { transform: translate(calc(var(--tx) + var(--bx) * 2), var(--drop-y)) rotate(calc(var(--rot) + 120deg)) scale(1); opacity: 0; filter: blur(5px); }
 }
