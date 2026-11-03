@@ -98,6 +98,7 @@ el.classList.remove("has-slider","is-centered");
 el.classList.add(count>3?"has-slider":"is-centered");   
 el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
   
+// --- ARRASTRAR CON RATÓN EN PC (BUG FIXED) ---  
 if (count > 3) {  
  el.style.cursor = 'grab';  
  let isDown = false;  
@@ -144,6 +145,7 @@ if (count > 3) {
  }  
  }, true);  
 }  
+// --------------------------------------------------  
   
 if(count>3 && !el.parentElement.classList.contains("slider-wrapper")){   
 const wrapper = document.createElement("div");   
@@ -338,7 +340,7 @@ document.addEventListener("click",e=>{
      setTimeout(() => petal.remove(), 3000); 
  }
 
- // 2. --- LOGO INICIO HERO (CRAYONES LIMPIOS) ---
+ // 2. --- LOGO INICIO HERO (CRAYONES LIMPIOS GENERADOS SOLO VÍA CSS, SIN WRAPPER HTML) ---
  const heroLogo = e.target.closest(".hero-logo");
  if (heroLogo) {
      const container = heroLogo.closest('.hero-art');
@@ -356,20 +358,16 @@ document.addEventListener("click",e=>{
              crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
              crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
              
-             const wrap = document.createElement('div');
-             wrap.className = 'crayon-anim-wrap';
-             crayon.appendChild(wrap);
-             
              container.appendChild(crayon);
              setTimeout(() => crayon.remove(), 6500); 
          }
      }
  }
 
- // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO) ---
+ // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO DE VERDAD AL PULSAR SILVIA CREA ARTE Y MANUALIDADES) ---
  const headerBrand = e.target.closest(".site-header .brand");
  if (headerBrand) {
-     e.preventDefault(); 
+     e.preventDefault(); // Anulamos la navegación para que solo deje caer la lana
      
      const yarnColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fbecf3'];
      const count = isMobile ? (2 + Math.floor(Math.random() * 2)) : (4 + Math.floor(Math.random() * 4));
@@ -411,10 +409,10 @@ document.addEventListener("click",e=>{
      return;
  }
 
- // 4. --- LOGO FOOTER (INACTIVO COMPLETAMENTE) ---
+ // 4. --- LOGO FOOTER (INACTIVO) ---
  const footerLink = e.target.closest(".footer-brand-img");
  if (footerLink) {
-     e.preventDefault();
+     e.preventDefault(); // Desactivado
      return; 
  }
 
@@ -431,6 +429,7 @@ document.addEventListener("click",e=>{
          const color = heartColors[Math.floor(Math.random() * heartColors.length)];
          heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
          
+         // Caen desde el header de forma aleatoria
          const startX = Math.random() * window.innerWidth; 
          const startY = -40; 
          
@@ -453,7 +452,7 @@ document.addEventListener("click",e=>{
  }
  // --------------------------------------------------------
   
- // CONTROLADOR DE NAVEGACIÓN NORMAL (Navegación al instante, sin recargas raras)
+ // CONTROLADOR DE NAVEGACIÓN NORMAL (Navegación al instante y memoria en Google Sites)
  const link = e.target.closest("a");  
  if (link && link.href) {  
      const isInternal = link.getAttribute("href").includes(".html") && !link.getAttribute("href").startsWith("http") && link.target !== "_blank";
