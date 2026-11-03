@@ -199,7 +199,9 @@ button{cursor:pointer;}
 .form-status{font-size:13px;color:var(--lilac-dark)}  
 .site-footer{text-align:center;padding:45px 20px 40px;background:var(--blue-pastel);border-top:1px solid #c8dbf2;color:#5a6e85}  
 .footer-logo{max-width:160px;height:auto;margin-bottom:10px;transition:transform 0.3s ease;filter:drop-shadow(0 4px 10px rgba(107,78,117,0.1))}  
-.footer-brand-img{display:inline-block;text-decoration:none; border-radius:16px; padding:6px; overflow:hidden; position:relative; z-index:10000; cursor:pointer;}  
+
+/* Z-INDEX ARREGLADO PARA EL FOOTER */
+.footer-brand-img{display:inline-block;text-decoration:none; border-radius:16px; padding:6px; overflow:hidden; position:relative; z-index:10; cursor:pointer;}  
 .footer-brand-img:hover .footer-logo{transform:scale(1.05)}  
 .footer-brand{display:block;font:600 30px var(--script);color:var(--lilac-dark);line-height:1;margin-bottom:15px}  
 .footer-brand span{color:var(--pink)}  

@@ -306,7 +306,7 @@ function showCustomAlert(title, message) {
  <h3 style="color:var(--lilac-dark); font-size: 24px;">${title}</h3>  
  <p style="color:var(--muted);">${message}</p>  
  <div class="confirm-btns">  
- <button class="btn" onclick="this.closest('.modal-backdrop').remove()" style="background:var(--pink-soft); color:var(--pink-dark); border:1px solid #f0d5e1;">Aceptar</button>  
+ <button class="btn" onclick="this.closest('.modal-backdrop').remove()" style="background:var(--pink-soft); color:var(--lilac-dark); border:1px solid #f0d5e1;">Aceptar</button>  
  </div>  
  </div>`;  
  document.body.appendChild(backdrop);  
