@@ -95,8 +95,9 @@ el.classList.remove("has-slider","is-centered");
 el.classList.add(count>3?"has-slider":"is-centered");   
 el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
   
-// --- ARRASTRAR CON LÁPIZ (MÁS LENTO Y PRECISO) ---
+// --- ARRASTRAR CON RATÓN EN PC (DRAG TO SCROLL) ---
 if (count > 3) {
+    el.style.cursor = 'grab';
     let isDown = false;
     let startX;
     let scrollLeft;
@@ -105,22 +106,22 @@ if (count > 3) {
     el.addEventListener('mousedown', (e) => {
         isDown = true;
         isDragging = false;
-        el.classList.add('dragging'); // Bloquea el texto y cambia el cursor al lápiz clickeado
+        el.style.cursor = 'grabbing';
         startX = e.pageX - el.offsetLeft;
         scrollLeft = el.scrollLeft;
     });
-    el.addEventListener('mouseleave', () => { isDown = false; el.classList.remove('dragging'); });
-    el.addEventListener('mouseup', () => { isDown = false; el.classList.remove('dragging'); });
+    el.addEventListener('mouseleave', () => { isDown = false; el.style.cursor = 'grab'; });
+    el.addEventListener('mouseup', () => { isDown = false; el.style.cursor = 'grab'; });
     el.addEventListener('mousemove', (e) => {
         if(!isDown) return;
         e.preventDefault();
         const x = e.pageX - el.offsetLeft;
-        const walk = (x - startX) * 0.8; // Antes era 1.5. Ahora hay que mover más el ratón, es más suave y controlable.
-        if (Math.abs(walk) > 5) isDragging = true; 
+        const walk = (x - startX) * 1.5; // Velocidad de arrastre
+        if (Math.abs(walk) > 10) isDragging = true; // Si se mueve más de 10px, es arrastre y no clic
         el.scrollLeft = scrollLeft - walk;
     });
     
-    // Si realmente estábamos arrastrando, anulamos el "clic" accidental en la tarjeta
+    // Bloquear el clic si la intención real era arrastrar
     el.addEventListener('click', (e) => {
         if (isDragging) {
             e.preventDefault();
@@ -149,14 +150,13 @@ const btnRight = document.createElement("button");
 wrapper.appendChild(btnLeft);  
  wrapper.appendChild(btnRight);  
    
-// Ahora mueve 1 sola tarjeta a la vez
 btnLeft.addEventListener("click", () => {  
  const card = el.querySelector(".item-card");  
- if(card) el.scrollBy({left: -(card.offsetWidth + 24), behavior: "smooth"});  
+ if(card) el.scrollBy({left: -(card.offsetWidth + 24) * 2, behavior: "smooth"});  
  });  
  btnRight.addEventListener("click", () => {  
  const card = el.querySelector(".item-card");  
- if(card) el.scrollBy({left: (card.offsetWidth + 24), behavior: "smooth"});  
+ if(card) el.scrollBy({left: (card.offsetWidth + 24) * 2, behavior: "smooth"});  
  });  
  }  
  }   
@@ -352,16 +352,16 @@ if(e.target.closest("[data-close-modal]")||e.target.id==="product-modal")closePr
 });   
 
 document.addEventListener("keydown",e=>{
-    // Ignoramos el teclado si estás rellenando el formulario de contacto o el carrito
+    // 1. Ignoramos teclado si el usuario está escribiendo datos
     if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;
 
-    // --- NAVEGACIÓN DE CARRUSEL CON TECLADO ---
+    // 2. --- NAVEGACIÓN DE CARRUSEL CON TECLADO ---
     if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
         const sliders = $$(".has-slider");
         let bestSlider = null;
         let maxVisible = 0;
         
-        // Detecta de forma inteligente qué carrusel estás mirando en pantalla
+        // Detectar qué carrusel está más visible en pantalla
         sliders.forEach(slider => {
             const rect = slider.getBoundingClientRect();
             const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
@@ -371,11 +371,11 @@ document.addEventListener("keydown",e=>{
             }
         });
         
-        // Si hay uno visible, mueve exactamente 1 tarjeta por pulsación
+        // Si encontramos uno en pantalla (ocupando al menos 100px), lo movemos
         if (bestSlider && maxVisible > 100) { 
-            e.preventDefault(); 
+            e.preventDefault(); // Evita scroll vertical nativo
             const card = bestSlider.querySelector(".item-card");  
-            const walk = card ? (card.offsetWidth + 24) : 300;
+            const walk = card ? (card.offsetWidth + 24) * 2 : 300;
             bestSlider.scrollBy({left: e.key === "ArrowLeft" ? -walk : walk, behavior: "smooth"});
         }
     }

@@ -88,8 +88,7 @@ button{cursor:pointer;}
 .featured-label{left:12px;background:#eadcf3;color:#76538a}   
 .offer-label{right:12px;background:#ffead8;color:#a65e2d} 
 
-/* MEJORA EN LAS TARJETAS (FLEXBOX ALINEACIÓN PERFECTA) */
-.item-card{position:relative;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 9px 25px rgba(107,78,117,.06);transition:transform .25s,box-shadow .25s; display:flex; flex-direction:column; height:100%;}  
+.item-card{position:relative;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 9px 25px rgba(107,78,117,.06);transition:transform .25s,box-shadow .25s;cursor:pointer; display:flex; flex-direction:column; height:100%;}  
 .item-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
 .item-card:nth-child(odd){background:var(--pink-soft);border-color:#f0d5e1}
 .item-card:nth-child(even){background:var(--lilac-card);border-color:#dfceeb}
@@ -98,7 +97,6 @@ button{cursor:pointer;}
 .item-card:hover .item-image{transform:scale(1.05)}  
 .item-image.placeholder{display:flex;align-items:center;justify-content:center;background:var(--lilac-pale)}  
 
-/* CONTENIDO FLEX QUE EMPUJA LOS BOTONES AL FONDO */
 .item-content{padding:20px;position:relative;z-index:2;background:transparent; display:flex; flex-direction:column; flex:1;}
 .item-content h3{font:600 22px var(--serif);color:var(--lilac-dark);margin:0 0 7px}
 .item-content p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;min-height:calc(1.65em * 3);max-height:calc(1.65em * 3);font-size:13px;color:var(--muted);margin:0;}
@@ -117,7 +115,6 @@ button{cursor:pointer;}
 .item-card:nth-child(odd) .mini-btn {background:var(--lilac-card);border-color:#dfceeb;color:var(--lilac-dark);}
 .item-card:nth-child(even) .mini-btn {background:var(--pink-soft);border-color:#f0d5e1;color:var(--pink-dark);}
 
-/* BOTONES SIEMPRE AL FONDO (margin-top: auto) */
 .item-actions{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:nowrap; margin-top:auto; padding-top:6px;}   
 .item-actions .mini-btn{display:inline-flex;align-items:center;justify-content:center;min-width:112px;white-space:nowrap} 
 
@@ -313,25 +310,8 @@ button{cursor:pointer;}
 .card-grid.is-centered,.product-grid.is-centered,.gallery-grid.is-centered{display:flex;flex-wrap:wrap;justify-content:center;gap:24px;overflow:visible;padding:12px 4px 18px;}   
 .card-grid.has-slider .item-card,.product-grid.has-slider .item-card,.gallery-grid.has-slider .item-card{flex:0 0 calc((100% - 48px)/3);min-width:260px;max-width:none;margin:0;}   
 .card-grid.is-centered .item-card,.product-grid.is-centered .item-card,.gallery-grid.is-centered .item-card{flex:0 1 calc((100% - 48px)/3);min-width:260px;max-width:360px;margin:0;}   
-
-/* --- LÁPIZ MÁGICO PARA ARRASTRAR EL CARRUSEL --- */
-.has-slider {
-    /* Lápiz por defecto al pasar el ratón */
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23fbecf3' stroke='%23bf7895' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z'/%3E%3Cpath fill='%23e6a9bf' d='M15 5l4 4'/%3E%3Cpath fill='%23765b89' d='M2 22l1.5-5.5 4 4z'/%3E%3C/svg%3E") 2 22, pointer;
-}
-.has-slider.dragging {
-    /* Lápiz "pulsado" (cambia el color interior) al arrastrar */
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23e6a9bf' stroke='%23765b89' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z'/%3E%3Cpath fill='%23fbecf3' d='M15 5l4 4'/%3E%3Cpath fill='%23b99acb' d='M2 22l1.5-5.5 4 4z'/%3E%3C/svg%3E") 2 22, pointer;
-    user-select: none;
-    -webkit-user-select: none;
-}
-/* Al arrastrar, desactivamos temporalmente las interacciones interiores para que el texto no se seleccione ni se arrastren las fotos nativamente */
-.has-slider.dragging * {
-    pointer-events: none;
-    user-select: none;
-    -webkit-user-select: none;
-}
-/* --------------------------------------------------- */
+.item-card .item-bottom{justify-content:center;flex-wrap:wrap;gap:9px;}   
+.item-card .detail-link{display:inline-flex;align-items:center;justify-content:center;margin-inline:auto;}   
 
 .add-button{cursor:pointer;}   
 .add-button:disabled{opacity:.45;cursor:not-allowed;}   
