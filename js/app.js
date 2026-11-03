@@ -323,9 +323,15 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
 document.addEventListener("click",e=>{   
  const isMobile = window.innerWidth <= 768;
 
- // PALETA ESTRICTA DE COLORES PASTEL DESATURADOS Y SUAVES (Para Pétalos y Crayones)
- const mutedPastels = ['#c8bccf', '#dcbac5', '#bcccda', '#bed1c7', '#e3cbbd', '#dfc4cd', '#e6dec4', '#c2bdd4', '#dcd0d9', '#d1d8e0'];
+ // PALETA PÉTALOS: blanco roto, rosa palo, morado pastel, lila pastel, amarillo pastel
+ const petalColors = ['#fdfbf7', '#f2d5df', '#d4c5e8', '#e2d4f5', '#fcf4d4'];
  
+ // PALETA CRAYONES: colores originales + rosa palo, lila pastel, amarillo pastel, naranja pastel
+ const crayonColors = [
+     '#c8bccf', '#dcbac5', '#bcccda', '#bed1c7', '#e3cbbd', '#dfc4cd', '#e6dec4', '#c2bdd4', '#dcd0d9', '#d1d8e0', // Originales
+     '#f2d5df', '#e2d4f5', '#fcf4d4', '#ffdcb3' // Nuevos
+ ];
+
  // PALETA ORIGINAL LUMINOSA (Para Ovillos y Corazones: Rojo, Lila, Morado y Rosa)
  const vividPastels = ['#ff9aa2', '#c8a2c8', '#b19cd9', '#ffb3c6'];
 
@@ -336,7 +342,8 @@ document.addEventListener("click",e=>{
      for (let i = 0; i < petalCount; i++) {
          const petal = document.createElement('div');
          petal.className = 'petal-anim';
-         petal.style.background = mutedPastels[Math.floor(Math.random() * mutedPastels.length)];
+         // Usa la nueva paleta de pétalos
+         petal.style.background = petalColors[Math.floor(Math.random() * petalColors.length)];
          petal.style.left = e.pageX + 'px';
          petal.style.top = e.pageY + 'px';
          const angle = Math.random() * Math.PI * 2;
@@ -359,7 +366,8 @@ document.addEventListener("click",e=>{
          for (let i = 0; i < crayonCount; i++) {
              const crayon = document.createElement('div');
              crayon.className = 'crayon-anim-hero'; 
-             crayon.style.color = mutedPastels[Math.floor(Math.random() * mutedPastels.length)];
+             // Usa la paleta extendida para crayones
+             crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
              
              const angle = Math.random() * Math.PI * 2;
              const distance = 250 + Math.random() * 450; 
@@ -367,7 +375,7 @@ document.addEventListener("click",e=>{
              crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
              crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
              
-             // Los añadimos al centro exacto del contenedor, sin usar wrappers que causen cuadrados extraños
+             // Los añadimos al centro exacto del contenedor
              crayon.style.left = '50%';
              crayon.style.top = '50%';
              

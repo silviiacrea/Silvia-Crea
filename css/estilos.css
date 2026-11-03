@@ -217,8 +217,81 @@ button{cursor:pointer;}
  100% { opacity: 0.6; filter: drop-shadow(0 0 6px rgba(255,255,255,1)); }  
 }  
   
-.drawer-backdrop,.modal-backdrop{position:fixed;inset:0;background:rgba(48,36,53,.35);z-index:90;opacity:0;visibility:hidden;transition:.25s}  
+/* ========================================================================== */
+/* SUPERPOSICIÓN DE PRODUCTO (GARANTIZADO CENTRADO Y DENTRO DE LOS LÍMITES)   */
+/* ========================================================================== */
+
+/* Backdrop centrado absoluto a los 4 extremos de la pantalla */
+.modal-backdrop{
+    position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(48,36,53,.35); z-index:120;
+    opacity:0; visibility:hidden; transition:.25s;
+    display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;
+}  
 .drawer-backdrop.open,.modal-backdrop.open{opacity:1;visibility:visible}  
+
+/* La tarjeta centralizada con margen automático */
+.product-modal{
+    position:relative; margin:auto; max-width:780px; width:100%; 
+    max-height:100%; 
+    background:#fff; border-radius:24px; display:grid; grid-template-columns:1fr 1fr; 
+    box-shadow:var(--shadow); transition:background-color 0.3s ease;
+    overflow-y:auto; overflow-x:hidden;
+}  
+.product-modal.theme-pink{background:var(--pink-soft)}  
+.product-modal.theme-lilac{background:var(--lilac-card)}  
+.modal-image-container{width:100%;height:100%;min-height:320px;background:var(--lilac-pale);display:flex;flex-direction:column;position:relative;cursor:zoom-in}  
+.modal-image-container>img{width:100%;height:100%;object-fit:cover}  
+.modal-image-container .placeholder{flex:1;display:flex;align-items:center;justify-content:center}  
+/* Lupa dinámica */  
+.zoom-icon{position:absolute;bottom:15px;left:15px;z-index:10;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0.85;transition:transform 0.2s;pointer-events:none}  
+.modal-image-container:hover .zoom-icon{transform:scale(1.1)}  
+.theme-pink .zoom-icon{background:var(--lilac-card);color:var(--lilac-dark);border:1px solid #dfceeb}  
+.theme-lilac .zoom-icon{background:var(--pink-soft);color:var(--pink-dark);border:1px solid #f0d5e1}  
+/* Botón cerrar modal 1 */  
+.icon-button.modal-close{background:var(--blue-pastel-soft);position:absolute;right:12px;top:12px;z-index:2;line-height:1;padding:0 0 3px 0}  
+.modal-copy{padding:38px;position:relative;z-index:1}  
+.modal-copy::before{content:"";position:absolute;inset:0;background-image:url('https://i.imgur.com/F84jcJa.png');background-repeat:no-repeat;background-position:center;background-size:65%;opacity:0.04;pointer-events:none;z-index:-1}  
+.modal-copy h2{font:600 30px var(--serif);color:var(--lilac-dark)}  
+.modal-copy p{color:var(--muted);white-space:pre-line}  
+  
+/* PRECIO EN EL MODAL */  
+#modal-price { display: flex; flex-direction: column; align-items: flex-start; margin: 15px 0 20px; }  
+#modal-price .old-price-box { min-height: 16px; display: flex; align-items: flex-end; margin-bottom: 2px; }  
+#modal-price del { color: #a79eaa; font-size: 14px; font-weight: 500; }  
+#modal-price .current-price-box { min-height: 24px; display: flex; align-items: center; }  
+#modal-price strong { color: #b69bd2; font-size: 22px; font-weight: 800; line-height: 1; margin: 0; }  
+  
+.modal-copy .eyebrow{font-size:13.5px}  
+  
+/* ========================================================================== */
+/* PANTALLA COMPLETA DE LA IMAGEN (GARANTIZADO CENTRADO ABSOLUTO Y LIMITES)   */
+/* ========================================================================== */
+  
+.fs-modal-backdrop{
+    position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(48,36,53,.88); z-index:900; 
+    opacity:0; visibility:hidden; transition:.3s;
+    display:flex; align-items:center; justify-content:center; padding:25px; box-sizing:border-box;
+}  
+.fs-modal-backdrop.open{opacity:1;visibility:visible}  
+
+/* El contenedor interno limitador */
+.fs-modal-content{
+    position:relative; margin:auto; max-width:100%; max-height:100%; border-radius:24px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 15px 55px rgba(0,0,0,0.25); overflow:hidden; padding:12px; transition:background-color 0.3s ease; box-sizing:border-box;
+}  
+.fs-modal-content.theme-pink{background:var(--pink-soft)}  
+.fs-modal-content.theme-lilac{background:var(--lilac-card)}  
+
+/* La imagen limita su alto al contenedor y se centra sola */
+.fs-modal-image{
+    max-width:100%; max-height:100%; 
+    object-fit:contain; border-radius:16px; z-index:2; position:relative;
+}  
+
+.fs-watermark{position:absolute;inset:0;background-image:url('https://i.imgur.com/F84jcJa.png');background-repeat:no-repeat;background-position:center;background-size:contain;opacity:0.05;pointer-events:none;z-index:3}  
+.fs-modal-close{position:absolute;right:22px;top:22px;z-index:4;background:var(--blue-pastel-soft);border:1px solid #dceafa;}  
+  
 .cart-drawer{position:fixed;right:0;top:0;height:100dvh;width:min(460px,100%);background:rgba(226,211,241,.98);z-index:100;transform:translateX(105%);transition:transform .3s;display:flex;flex-direction:column;padding:25px;box-shadow:-15px 0 45px rgba(67,47,73,.12)}  
 .cart-drawer.open{transform:translateX(0)}  
 .drawer-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #dfceeb;padding-bottom:17px}  
@@ -277,7 +350,7 @@ padding:12px 16px;font-size:15px;text-align:center;background:var(--white-lilac)
  .about-art{min-height:270px;max-width:430px;width:100%;margin:auto}  
  .page-hero{padding:58px 20px 30px}  
  .contact-card,.form-card{padding:25px}  
- .product-modal{grid-template-columns:1fr;max-height:90dvh;overflow:auto}  
+ .product-modal{grid-template-columns:1fr;max-height:100%;overflow:auto}  
  .modal-image-container{height:220px;min-height:0}  
  .fs-modal-close{right:12px; top:12px}  
  .modal-copy{padding:25px}  
@@ -491,78 +564,3 @@ input, textarea, select, [contenteditable] {
     75% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(var(--rot)) scale(var(--scale)); opacity: 1; filter: blur(0px); }
     100% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(var(--rot)) scale(var(--scale)); opacity: 0; filter: blur(5px); }
 }
-
-/* ========================================================================== */
-/* SUPERPOSICIÓN DE PRODUCTO (GARANTIZADO CENTRADO Y DENTRO DE LOS LÍMITES)   */
-/* ========================================================================== */
-
-/* Backdrop centrado con Flexbox, asegurando el contenedor */
-.modal-backdrop{
-    position:fixed; inset:0; background:rgba(48,36,53,.35); z-index:120;
-    opacity:0; visibility:hidden; transition:.25s;
-    display:flex; align-items:center; justify-content:center; padding:20px;
-}  
-.drawer-backdrop.open,.modal-backdrop.open{opacity:1;visibility:visible}  
-
-/* La tarjeta: no excede el alto del dispositivo (100dvh) y añade scroll si es necesario */
-.product-modal{
-    position:relative; max-width:780px; width:100%; 
-    max-height:calc(100dvh - 40px); /* 40px es por el padding del backdrop */
-    background:#fff; border-radius:24px; display:grid; grid-template-columns:1fr 1fr; 
-    box-shadow:var(--shadow); transition:background-color 0.3s ease;
-    overflow-y:auto; overflow-x:hidden;
-}  
-.product-modal.theme-pink{background:var(--pink-soft)}  
-.product-modal.theme-lilac{background:var(--lilac-card)}  
-.modal-image-container{width:100%;height:100%;min-height:320px;background:var(--lilac-pale);display:flex;flex-direction:column;position:relative;cursor:zoom-in}  
-.modal-image-container>img{width:100%;height:100%;object-fit:cover}  
-.modal-image-container .placeholder{flex:1;display:flex;align-items:center;justify-content:center}  
-/* Lupa dinámica */  
-.zoom-icon{position:absolute;bottom:15px;left:15px;z-index:10;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0.85;transition:transform 0.2s;pointer-events:none}  
-.modal-image-container:hover .zoom-icon{transform:scale(1.1)}  
-.theme-pink .zoom-icon{background:var(--lilac-card);color:var(--lilac-dark);border:1px solid #dfceeb}  
-.theme-lilac .zoom-icon{background:var(--pink-soft);color:var(--pink-dark);border:1px solid #f0d5e1}  
-/* Botón cerrar modal 1 */  
-.icon-button.modal-close{background:var(--blue-pastel-soft);position:absolute;right:12px;top:12px;z-index:2;line-height:1;padding:0 0 3px 0}  
-.modal-copy{padding:38px;position:relative;z-index:1}  
-.modal-copy::before{content:"";position:absolute;inset:0;background-image:url('https://i.imgur.com/F84jcJa.png');background-repeat:no-repeat;background-position:center;background-size:65%;opacity:0.04;pointer-events:none;z-index:-1}  
-.modal-copy h2{font:600 30px var(--serif);color:var(--lilac-dark)}  
-.modal-copy p{color:var(--muted);white-space:pre-line}  
-  
-/* PRECIO EN EL MODAL */  
-#modal-price { display: flex; flex-direction: column; align-items: flex-start; margin: 15px 0 20px; }  
-#modal-price .old-price-box { min-height: 16px; display: flex; align-items: flex-end; margin-bottom: 2px; }  
-#modal-price del { color: #a79eaa; font-size: 14px; font-weight: 500; }  
-#modal-price .current-price-box { min-height: 24px; display: flex; align-items: center; }  
-#modal-price strong { color: #b69bd2; font-size: 22px; font-weight: 800; line-height: 1; margin: 0; }  
-  
-.modal-copy .eyebrow{font-size:13.5px}  
-  
-/* ========================================================================== */
-/* PANTALLA COMPLETA DE LA IMAGEN (GARANTIZADO CENTRADO ABSOLUTO Y LIMITES)   */
-/* ========================================================================== */
-  
-.fs-modal-backdrop{
-    position:fixed; inset:0; background:rgba(48,36,53,.88); z-index:900; 
-    opacity:0; visibility:hidden; transition:.3s;
-    display:flex; align-items:center; justify-content:center; padding:25px; /* Flex centrado absoluto */
-}  
-.fs-modal-backdrop.open{opacity:1;visibility:visible}  
-
-/* El contenedor interno respeta los límites de la pantalla al 100% */
-.fs-modal-content{
-    position:relative; max-width:100%; max-height:100%; border-radius:24px;
-    display:flex; align-items:center; justify-content:center;
-    box-shadow:0 15px 55px rgba(0,0,0,0.25); overflow:hidden; padding:12px; transition:background-color 0.3s ease;
-}  
-.fs-modal-content.theme-pink{background:var(--pink-soft)}  
-.fs-modal-content.theme-lilac{background:var(--lilac-card)}  
-
-/* La imagen limita su alto a todo el viewport menos el padding exterior e interior = 74px */
-.fs-modal-image{
-    max-width:100%; max-height:calc(100dvh - 74px); 
-    object-fit:contain; border-radius:16px; z-index:2; position:relative;
-}  
-
-.fs-watermark{position:absolute;inset:0;background-image:url('https://i.imgur.com/F84jcJa.png');background-repeat:no-repeat;background-position:center;background-size:contain;opacity:0.05;pointer-events:none;z-index:3}  
-.fs-modal-close{position:absolute;right:22px;top:22px;z-index:4;background:var(--blue-pastel-soft);border:1px solid #dceafa;}
