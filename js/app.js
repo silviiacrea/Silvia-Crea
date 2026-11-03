@@ -371,6 +371,7 @@ document.addEventListener("click",e=>{
  // 2. --- LOGO INICIO HERO (CRAYONES LIMPIOS) ---
  const heroLogo = e.target.closest(".hero-logo");
  if (heroLogo) {
+     e.preventDefault(); // Previene el salto al procesar el click como enlace
      const container = heroLogo.closest('.hero-art');
      if(container && (!isMobile || document.querySelectorAll('.crayon-anim-hero').length < 24)) {
          const crayonCount = isMobile ? 8 : 20;

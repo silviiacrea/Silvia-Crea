@@ -86,9 +86,12 @@ button{cursor:pointer;}
 .btn-primary{color:#fff;background:linear-gradient(110deg,var(--lilac-dark),var(--pink-dark))}  
 .btn-soft{background:var(--pink-soft);color:var(--pink-dark);border:1px solid #f0d5e1}  
 .btn-header-purple{background:rgba(226,211,241,.94);color:var(--lilac-dark);border:1px solid #d6c5e5}  
-.hero-art{height:390px;position:relative;display:grid;place-items:center}  
-.hero-logo{max-width:340px;width:85%;height:auto;filter:drop-shadow(0 15px 35px rgba(107,78,117,0.15));transform:rotate(2deg);transition:transform 0.4s ease;position:relative;z-index:2;cursor:pointer}  
-.hero-logo:hover{transform:rotate(-1deg) scale(1.03)}  
+
+/* SOLUCIÓN AL SALTO DEL LOGO DE INICIO */
+.hero-art{height:390px;position:relative;display:flex;align-items:center;justify-content:center}  
+.hero-logo{max-width:340px;width:85%;height:auto;filter:drop-shadow(0 15px 35px rgba(107,78,117,0.15));transform:translateZ(0) rotate(2deg);transition:transform 0.4s ease;position:relative;z-index:2;cursor:pointer;will-change:transform}  
+.hero-logo:hover{transform:translateZ(0) rotate(-1deg) scale(1.03)}  
+
 .art-flower,.art-spark{position:absolute;color:var(--pink-dark);font-size:70px;z-index:1}  
 .art-flower{top:10px;left:5%}  
 .art-spark{bottom:12px;right:15%;font-size:45px}  
@@ -233,7 +236,7 @@ button{cursor:pointer;}
     top: 0; left: 0; right: 0; bottom: 0; 
     z-index: 90;
     opacity: 0; visibility: hidden; transition: .25s;
-    display: block; /* Se elimina el flex para usar posicionamiento dinámico absoluto */
+    display: block; 
     box-sizing: border-box;
 }
 .drawer-backdrop { background: rgba(48,36,53,.35); z-index: 90; }
