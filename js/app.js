@@ -1,27 +1,4 @@
 (() => {  
-// --- SISTEMA DE MEMORIA AVANZADO PARA GOOGLE SITES ---  
-const pageMap = {'home': 'index.html', 'shop': 'tienda.html', 'gallery': 'galeria.html', 'about': 'sobre-mi.html', 'orders': 'encargos.html', 'contact': 'contacto.html'};  
-const actualPage = document.body.dataset.page;  
-const currentHtml = pageMap[actualPage] || 'index.html';  
-const savedHtml = sessionStorage.getItem('silviacrea_current_page');  
-  
-let isBackForward = false;  
-if (window.performance) {  
- const navEntries = performance.getEntriesByType("navigation");  
- if (navEntries.length > 0 && navEntries[0].type === "back_forward") isBackForward = true;  
- else if (performance.navigation && performance.navigation.type === 2) isBackForward = true;  
-}  
-  
-if (isBackForward) {  
- sessionStorage.setItem('silviacrea_current_page', currentHtml);  
-} else if (savedHtml && savedHtml !== currentHtml && currentHtml === 'index.html') {  
- window.location.replace(savedHtml);  
- return;   
-} else {  
- sessionStorage.setItem('silviacrea_current_page', currentHtml);  
-}  
-// -----------------------------------------------------  
-  
 const cfg = window.SILVIA_CONFIG || {};   
 const $ = (s, root=document) => root.querySelector(s); const $$ = (s, root=document) => [...root.querySelectorAll(s)];   
 const CART_KEY = "silviacrea_cart_v2";   
@@ -95,7 +72,6 @@ el.classList.remove("has-slider","is-centered");
 el.classList.add(count>3?"has-slider":"is-centered");   
 el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
   
-// --- ARRASTRAR CON RATÓN EN PC (BUG FIXED) ---  
 if (count > 3) {  
  el.style.cursor = 'grab';  
  let isDown = false;  
@@ -142,7 +118,6 @@ if (count > 3) {
  }  
  }, true);  
 }  
-// --------------------------------------------------  
   
 if(count>3 && !el.parentElement.classList.contains("slider-wrapper")){   
 const wrapper = document.createElement("div");   
@@ -318,7 +293,7 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
   
 document.addEventListener("click",e=>{   
 
- // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC (Perfectos) ---
+ // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC ---
  const petalColors = ['#f9d8e4', '#fbecf3', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#e9ddf3', '#c8dbf2', '#d6c5e5', '#f4c2d7'];
  for (let i = 0; i < 18; i++) {
      const petal = document.createElement('div');
@@ -335,41 +310,38 @@ document.addEventListener("click",e=>{
      setTimeout(() => petal.remove(), 3000); 
  }
 
- // 2. --- LOGO INICIO HERO (CRAYONES SALEN DESDE EL CENTRO EXCEPTO LAS LÍNEAS BLANCAS) ---
+ // 2. --- LOGO INICIO HERO (CRAYONES NACEN DE FORMA LIMPIA) ---
  const heroLogo = e.target.closest(".hero-logo");
  if (heroLogo) {
-     const rect = heroLogo.getBoundingClientRect();
-     // Fija las coordenadas exactamente detrás de la imagen del logo en el DOM real
-     const startX = rect.left + rect.width / 2 + window.scrollX;
-     const startY = rect.top + rect.height / 2 + window.scrollY;
-     const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
-     
-     for (let i = 0; i < 20; i++) {
-         const crayon = document.createElement('div');
-         crayon.className = 'crayon-anim-hero'; 
-         crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
-         crayon.style.left = startX + 'px';
-         crayon.style.top = startY + 'px';
-            
-         const wrap = document.createElement('div');
-         wrap.className = 'crayon-anim-wrap';
-         crayon.appendChild(wrap);
-            
-         const angle = Math.random() * Math.PI * 2;
-         const distance = 250 + Math.random() * 450; 
-         crayon.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
-         crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
-         crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
+     const container = heroLogo.closest('.hero-art');
+     if(container) {
+         const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
          
-         document.body.appendChild(crayon);
-         setTimeout(() => crayon.remove(), 6500); 
+         for (let i = 0; i < 20; i++) {
+             const crayon = document.createElement('div');
+             crayon.className = 'crayon-anim-hero'; 
+             crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
+             
+             const wrap = document.createElement('div');
+             wrap.className = 'crayon-anim-wrap';
+             crayon.appendChild(wrap);
+                
+             const angle = Math.random() * Math.PI * 2;
+             const distance = 250 + Math.random() * 450; 
+             crayon.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+             crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+             crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
+             
+             // Se añaden dentro del contenedor (z-index 1 hará que nazcan por debajo del logo)
+             container.appendChild(crayon);
+             setTimeout(() => crayon.remove(), 6500); 
+         }
      }
  }
 
  // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO LENTAMENTE) ---
  const headerBrand = e.target.closest(".site-header .brand");
  if (headerBrand) {
-     // Aquí prevenimos que cambie de página (es decir, permitimos acumular los clics y generar ovillos infinitos)
      e.preventDefault(); 
      
      const rect = headerBrand.getBoundingClientRect();
@@ -411,35 +383,29 @@ document.addEventListener("click",e=>{
          setTimeout(() => yarn.remove(), 7500); 
      }
 
-     if (actualPage !== 'home') {
-         // Si haces múltiples clics, reinicia el contador de redirección para dejarte jugar sin cambiarte de pantalla
+     if (document.body.dataset.page !== 'home') {
+         // Si haces múltiples clics, reinicia el contador de redirección
          clearTimeout(headerBrand.navTimer);
          headerBrand.navTimer = setTimeout(() => {
-             document.body.classList.add("is-leaving"); // Animación de salida al terminar de cliquear
-             setTimeout(() => window.location.href = headerBrand.href, 350); 
-         }, 1500); 
+             window.location.href = headerBrand.href;
+         }, 1200); 
      }
      return;
  }
 
- // 4. --- LOGO FOOTER (CRAYONES 8 SEGUNDOS + SCROLL SMOOTH) ---
+ // 4. --- LOGO FOOTER (CRAYONES DESDE DETRÁS, ESPERAR 3 SEGUNDOS Y SCROLL SMOOTH) ---
  const footerLink = e.target.closest(".footer-brand-img");
  if (footerLink) {
      e.preventDefault();
      if(footerLink.dataset.animScheduled) return;
      footerLink.dataset.animScheduled = "true";
 
-     const rect = footerLink.getBoundingClientRect();
-     const startX = rect.left + rect.width / 2 + window.scrollX;
-     const startY = rect.top + rect.height / 2 + window.scrollY;
      const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
      
      for (let i = 0; i < 40; i++) {
          const crayon = document.createElement('div');
          crayon.className = 'crayon-anim-footer'; 
          crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
-         crayon.style.left = startX + 'px';
-         crayon.style.top = startY + 'px';
             
          const wrap = document.createElement('div');
          wrap.className = 'crayon-anim-wrap';
@@ -451,13 +417,13 @@ document.addEventListener("click",e=>{
          crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
          crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
          
-         document.body.appendChild(crayon);
+         footerLink.appendChild(crayon);
          setTimeout(() => crayon.remove(), 9500); 
      }
 
-     // Tras esperar 3 segundos, simulamos "recargar" haciendo un scroll extra suave al tope actual
+     // Tras esperar 3 segundos, hacemos un scroll smooth a la parte de arriba
      setTimeout(() => {
-         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+         window.scrollTo({ top: 0, behavior: 'smooth' });
      }, 3000);
      
      // Desbloqueamos el botón a los 9 segundos cuando desaparece todo
@@ -472,14 +438,14 @@ document.addEventListener("click",e=>{
  const h2Target = e.target.closest("h2");
  if (h2Target && h2Target.textContent.includes("Soy Silvia Rodríguez")) {
      // Obtenemos la posición de la barra del header para que caigan desde el menú
-     const headerMenu = document.querySelector(".main-nav");
+     const headerMenu = document.querySelector(".main-nav") || document.querySelector(".site-header");
      if(headerMenu) {
          const rect = headerMenu.getBoundingClientRect();
          const startX = rect.left + rect.width / 2;
          const startY = rect.bottom;
          const heartColors = ['#e6a9bf', '#b99acb', '#f4c2d7', '#fbecf3'];
 
-         const count = 10 + Math.floor(Math.random() * 6); // Entre 10 y 15 corazones por cada vez que cliques
+         const count = 10 + Math.floor(Math.random() * 6); // Se puede spamear
          for(let i = 0; i < count; i++) {
              const heart = document.createElement('div');
              heart.className = 'heart-anim';
@@ -487,11 +453,10 @@ document.addEventListener("click",e=>{
              const color = heartColors[Math.floor(Math.random() * heartColors.length)];
              heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
              
-             // Que se esparzan por todo lo ancho de la pantalla
              const tx = (Math.random() - 0.5) * window.innerWidth * 0.9; 
              const dropY = window.innerHeight - startY - 20; 
              const bx = (Math.random() - 0.5) * 80; 
-             const scale = 0.8 + Math.random() * 0.7; // tamaños surtidos
+             const scale = 0.8 + Math.random() * 0.7; 
              
              heart.style.left = startX + 'px';
              heart.style.top = startY + 'px';
@@ -507,28 +472,6 @@ document.addEventListener("click",e=>{
      }
  }
  // --------------------------------------------------------
-
- // CONTROLADOR PARA TRANSICIONES ENTRE PÁGINAS SUAVES
- const link = e.target.closest("a");  
- if (link && link.href) {  
-     const isInternal = link.getAttribute("href").includes(".html") && !link.getAttribute("href").startsWith("http") && link.target !== "_blank";
-     if (isInternal) {  
-         // Evitamos interrumpir las reglas especiales del footer y el header que tienen sus propias animaciones y navegaciones
-         if (link.classList.contains("footer-brand-img") || link.classList.contains("brand")) return;
-         
-         e.preventDefault();
-         sessionStorage.setItem("silviacrea_current_page", link.getAttribute("href"));
-         
-         // Activa la clase que desencadena el Fade Out
-         document.body.classList.add("is-leaving");
-         
-         // Navega pasados 350ms, cuando la pantalla casi haya desaparecido
-         setTimeout(() => {
-             window.location.href = link.href;
-         }, 350);
-         return;
-     }  
- }
   
 if(e.target.closest("[data-open-cart]"))openCart();   
 if(e.target.closest("[data-close-cart]"))closeCart();   

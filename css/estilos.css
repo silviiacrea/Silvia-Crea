@@ -421,6 +421,8 @@ input, textarea, select, [contenteditable] {
 /* Base gráfica común para todos los crayones */
 .crayon-anim-hero, .crayon-anim-footer {
     position: absolute;
+    top: 50%;
+    left: 50%;
     width: 10px;
     height: 36px;
     margin-left: -5px;
@@ -430,12 +432,15 @@ input, textarea, select, [contenteditable] {
     background-color: currentColor;
     transform-origin: center center;
 }
+/* Al ponerlos absolute dentro del grid y anclados al centro con z-index 1, nacen desde detrás del hero-logo */
 .crayon-anim-hero {
-    z-index: 1; /* Esto asegura que salen por debajo del logo Hero (que tiene z-index: 2) */
+    z-index: 1; 
+    animation: crayonRollHero 6s cubic-bezier(0.15, 0.9, 0.35, 1) forwards !important;
 }
+/* El footer debe ir en -1 para que salga por detrás del logo del footer (que es relativo) */
 .crayon-anim-footer {
-    position: fixed; /* Los del footer invaden la pantalla del navegador sin importar el scroll */
-    z-index: 9999; /* Por debajo del footer logo (que tiene 10000) */
+    z-index: -1; 
+    animation: crayonRollFooter 9s cubic-bezier(0.1, 0.8, 0.3, 1) forwards !important;
 }
 .crayon-anim-hero::before, .crayon-anim-footer::before {
     content: '';
@@ -468,24 +473,20 @@ input, textarea, select, [contenteditable] {
     background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.25), rgba(255,255,255,0.25) 3px, transparent 3px, transparent 7px);
 }
 
-/* Animación Crayones Hero - Sin líneas extrañas porque se definen las coordenadas reales */
-.crayon-anim-hero {
-    animation: crayonRollHero 6s cubic-bezier(0.15, 0.9, 0.35, 1) forwards !important;
-}
+/* Animación Crayones Hero - Sin rayas blancas (la opacidad arranca estrictamente en 0) */
 @keyframes crayonRollHero {
-    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; filter: blur(0px); }
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 0; filter: blur(0px); }
+    5% { opacity: 1; filter: blur(0px); }
     70% { opacity: 1; filter: blur(0px); }
     100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); }
 }
 
 /* Animación Crayones Footer - Desvanecimiento tras 6 segundos */
-.crayon-anim-footer {
-    animation: crayonRollFooter 9s cubic-bezier(0.1, 0.8, 0.3, 1) forwards !important;
-}
 @keyframes crayonRollFooter {
-    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; filter: blur(0px); }
-    66% { opacity: 1; filter: blur(0px); } /* Sólidos hasta el segundo 6 exacto */
-    100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); } /* Difuminado en los 3 segs restantes */
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 0; filter: blur(0px); }
+    5% { opacity: 1; filter: blur(0px); }
+    66% { opacity: 1; filter: blur(0px); } /* 6 segundos exactos (66% de 9s) */
+    100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); }
 }
 
 /* Ovillos cayendo y rebotando en la pantalla (Header) */
