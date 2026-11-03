@@ -101,7 +101,6 @@ el.classList.remove("has-slider","is-centered");
 el.classList.add(count>3?"has-slider":"is-centered");   
 el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
   
-// --- ARRASTRAR CON RATÓN EN PC ---  
 if (count > 3) {  
  el.style.cursor = 'grab';  
  let isDown = false;  
@@ -148,7 +147,6 @@ if (count > 3) {
  }  
  }, true);  
 }  
-// --------------------------------------------------  
   
 if(count>3 && !el.parentElement.classList.contains("slider-wrapper")){   
 const wrapper = document.createElement("div");   
@@ -325,8 +323,8 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
 document.addEventListener("click",e=>{   
  const isMobile = window.innerWidth <= 768;
 
- // Paleta de colores unificada y extra grande con 25 tonos pastel variados
- const pastelColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4', '#ffb3ba', '#ffdfba', '#ffffba', '#baffc9', '#bae1ff', '#e0b0ff', '#c2ebd3', '#ffe5b4', '#f0c2e0', '#c6d8ff', '#ffc8a2', '#d4f0f0', '#e3fada', '#fdfd96', '#ffb7b2'];
+ // PALETA ESTRICTA DE COLORES PASTEL DESATURADOS Y SUAVES
+ const mutedPastels = ['#c8bccf', '#dcbac5', '#bcccda', '#bed1c7', '#e3cbbd', '#dfc4cd', '#e6dec4', '#c2bdd4', '#dcd0d9', '#d1d8e0'];
 
  // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC ---
  if (!isMobile || activeMobileClicks < 3) {
@@ -335,7 +333,7 @@ document.addEventListener("click",e=>{
      for (let i = 0; i < petalCount; i++) {
          const petal = document.createElement('div');
          petal.className = 'petal-anim';
-         petal.style.background = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+         petal.style.background = mutedPastels[Math.floor(Math.random() * mutedPastels.length)];
          petal.style.left = e.pageX + 'px';
          petal.style.top = e.pageY + 'px';
          const angle = Math.random() * Math.PI * 2;
@@ -348,7 +346,7 @@ document.addEventListener("click",e=>{
      }
  }
 
- // 2. --- LOGO INICIO HERO (CRAYONES SIN RAYAS BLANCAS) ---
+ // 2. --- LOGO INICIO HERO (CRAYONES LIMPIOS Y RAYADOS) ---
  const heroLogo = e.target.closest(".hero-logo");
  if (heroLogo) {
      const container = heroLogo.closest('.hero-art');
@@ -358,7 +356,7 @@ document.addEventListener("click",e=>{
          for (let i = 0; i < crayonCount; i++) {
              const crayon = document.createElement('div');
              crayon.className = 'crayon-anim-hero'; 
-             crayon.style.color = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+             crayon.style.color = mutedPastels[Math.floor(Math.random() * mutedPastels.length)];
              
              const angle = Math.random() * Math.PI * 2;
              const distance = 250 + Math.random() * 450; 
@@ -366,16 +364,26 @@ document.addEventListener("click",e=>{
              crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
              crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
              
+             // Etiqueta de papel a rayas (restaurada) inyectada dinámicamente
+             const wrap = document.createElement('div');
+             wrap.className = 'crayon-anim-wrap';
+             crayon.appendChild(wrap);
+             
+             // Esto garantiza que todos nazcan en el centro físico de su contenedor 
+             // (y no arrastren coordenadas de la pantalla)
+             crayon.style.left = '50%';
+             crayon.style.top = '50%';
+             
              container.appendChild(crayon);
              setTimeout(() => crayon.remove(), 6500); 
          }
      }
  }
 
- // 3. --- LOGO HEADER (OVILLOS DE LANA ESPONJOSOS) ---
+ // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO) ---
  const headerBrand = e.target.closest(".site-header .brand");
  if (headerBrand) {
-     e.preventDefault(); // Anulamos la navegación para que solo sea decorativo
+     e.preventDefault(); // Anulamos navegación, ahora solo llueven ovillos
      
      if (!isMobile || activeMobileClicks < 3) {
          if (isMobile) { activeMobileClicks++; setTimeout(() => activeMobileClicks--, 7500); }
@@ -385,7 +393,7 @@ document.addEventListener("click",e=>{
              const yarn = document.createElement('div');
              yarn.className = 'yarn-anim';
              
-             const color = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+             const color = mutedPastels[Math.floor(Math.random() * mutedPastels.length)];
              yarn.innerHTML = `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="50" cy="50" r="40" fill="${color}"/>
                 <circle cx="50" cy="50" r="40" fill="black" opacity="0.1"/>
@@ -396,9 +404,8 @@ document.addEventListener("click",e=>{
                 <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round"/>
              </svg>`;
              
-             // Nacen aleatoriamente a lo ancho de toda la pantalla y POR ENCIMA del viewport
              const startX = Math.random() * window.innerWidth;
-             const startY = -40; // Escondidos por arriba
+             const startY = -40; // Ocultos por encima
              
              const tx = (Math.random() - 0.5) * 200; 
              const dropY = window.innerHeight - startY - 20; 
@@ -438,10 +445,9 @@ document.addEventListener("click",e=>{
              const heart = document.createElement('div');
              heart.className = 'heart-anim';
              
-             const color = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+             const color = mutedPastels[Math.floor(Math.random() * mutedPastels.length)];
              heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
              
-             // Nacen escondidos por encima del viewport
              const startX = Math.random() * window.innerWidth; 
              const startY = -40; 
              
@@ -465,14 +471,13 @@ document.addEventListener("click",e=>{
  }
  // --------------------------------------------------------
   
- // CONTROLADOR DE NAVEGACIÓN DIRECTA
+ // CONTROLADOR DE NAVEGACIÓN INSTANTÁNEA (Sin transiciones visuales, respetando recargas)
  const link = e.target.closest("a");  
  if (link && link.href) {  
      const isInternal = link.getAttribute("href").includes(".html") && !link.getAttribute("href").startsWith("http") && link.target !== "_blank";
      if (isInternal) {  
          if (link.classList.contains("brand") || link.classList.contains("footer-brand-img")) return; 
          
-         // Navega instantáneamente como pediste, pero guarda la página en localStorage
          localStorage.setItem("silviacrea_current_page", link.getAttribute("href"));
          window.location.href = link.href;
          e.preventDefault();
