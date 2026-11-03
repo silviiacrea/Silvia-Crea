@@ -95,7 +95,7 @@ el.classList.remove("has-slider","is-centered");
 el.classList.add(count>3?"has-slider":"is-centered");   
 el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
   
-// --- ARRASTRAR CON RATÓN EN PC (DRAG TO SCROLL BUG FIXED) ---  
+// --- ARRASTRAR CON RATÓN EN PC (BUG FIXED) ---  
 if (count > 3) {  
  el.style.cursor = 'grab';  
  let isDown = false;  
@@ -107,12 +107,12 @@ if (count > 3) {
  isDown = true;  
  isDragging = false;  
  el.style.cursor = 'grabbing';
- el.style.userSelect = 'none'; // Previene seleccionar texto al arrastrar
+ el.style.userSelect = 'none'; // Previene que al arrastrar se bloquee copiando texto
  startX = e.pageX - el.offsetLeft;  
  scrollLeft = el.scrollLeft;  
  });  
  
- // Previene quedarse bloqueado si el ratón sale del área del carrusel
+ // Si soltamos el ratón INCLUSO fuera de la zona del carrusel, lo detecta y lo suelta sin quedarse colgado
  window.addEventListener('mouseup', () => { 
      if (isDown) {
          isDown = false; 
@@ -319,7 +319,7 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
   
 document.addEventListener("click",e=>{   
 
- // 1. --- EFECTO PÉTALOS GLOBALES (MÁS LENTOS, MÁS TRANSPARENTES, MENOS DIFUMINADOS) ---
+ // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC (Perfectos) ---
  const petalColors = ['#f9d8e4', '#fbecf3', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#e9ddf3', '#c8dbf2', '#d6c5e5', '#f4c2d7'];
  for (let i = 0; i < 18; i++) {
      const petal = document.createElement('div');
@@ -336,62 +336,99 @@ document.addEventListener("click",e=>{
      setTimeout(() => petal.remove(), 3000); 
  }
 
- // 2. --- HEADER LOGO CLICK (OVILLOS ESPONJOSOS CAYENDO LENTAMENTE) ---
+ // 2. --- LOGO INICIO HERO (CRAYONES SALEN DE DEBAJO DEL LOGO) ---
+ const heroLogo = e.target.closest(".hero-logo");
+ if (heroLogo) {
+     const rect = heroLogo.getBoundingClientRect();
+     // Calculamos el centro de la imagen añadiendo la posición del scroll de la página web
+     const startX = rect.left + rect.width / 2 + window.scrollX;
+     const startY = rect.top + rect.height / 2 + window.scrollY;
+     const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
+     
+     for (let i = 0; i < 20; i++) {
+         const crayon = document.createElement('div');
+         crayon.className = 'crayon-anim-hero'; 
+         crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
+         crayon.style.left = startX + 'px';
+         crayon.style.top = startY + 'px';
+            
+         const wrap = document.createElement('div');
+         wrap.className = 'crayon-anim-wrap';
+         crayon.appendChild(wrap);
+            
+         const angle = Math.random() * Math.PI * 2;
+         const distance = 250 + Math.random() * 450; 
+         crayon.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+         crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+         crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
+         
+         document.body.appendChild(crayon);
+         setTimeout(() => crayon.remove(), 6500); 
+     }
+ }
+
+ // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO LENTAMENTE) ---
  const headerBrand = e.target.closest(".site-header .brand");
  if (headerBrand) {
      e.preventDefault(); 
-     if(headerBrand.classList.contains("animating")) return;
-     headerBrand.classList.add("animating");
+     // El código NO bloquea si está animando, permitiendo spamear el botón y acumular más ovillos
 
      const rect = headerBrand.getBoundingClientRect();
      const startX = rect.left + rect.width / 2;
      const startY = rect.bottom; 
      const yarnColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fbecf3'];
 
-     for(let i = 0; i < 15; i++) {
+     const count = 4 + Math.floor(Math.random() * 4); // Cantidad aleatoria de ovillos por cada clic
+     for(let i = 0; i < count; i++) {
          const yarn = document.createElement('div');
          yarn.className = 'yarn-anim';
          
          const color = yarnColors[Math.floor(Math.random() * yarnColors.length)];
          yarn.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${color}"/><path d="M6 8s3-2 6 0 6 4 6 4M6 12s3-2 6 0 6 4 6 4M6 16s3-2 6 0" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/></svg>`;
          
-         const tx = (Math.random() - 0.5) * window.innerWidth * 0.8; 
-         // Calculamos la parte baja de la pantalla en función de donde esté el navegador (Scroll)
-         const dropY = window.innerHeight - startY - 30; 
-         const bx = (Math.random() - 0.5) * 60; 
+         // Caída suave limitando la velocidad horizontal (0.3 de dispersión máxima respecto a la pantalla)
+         const tx = (Math.random() - 0.5) * window.innerWidth * 0.3; 
+         // Calculamos la coordenada "suelo" en tiempo real desde el viewport, le restamos 20px de margen
+         const dropY = window.innerHeight - startY - 20; 
+         const bx = (Math.random() - 0.5) * 80; 
+         const scale = 0.6 + Math.random() * 0.6; // tamaños surtidos para que sean muy diferentes entre sí
          
          yarn.style.left = startX + 'px';
          yarn.style.top = startY + 'px';
          yarn.style.setProperty('--tx', `${tx}px`);
          yarn.style.setProperty('--drop-y', `${dropY}px`);
          yarn.style.setProperty('--bx', `${bx}px`);
-         yarn.style.setProperty('--rot', `${(Math.random() - 0.5) * 720}deg`);
+         yarn.style.setProperty('--rot', `${(Math.random() - 0.5) * 500}deg`);
+         yarn.style.setProperty('--scale', scale);
          
          document.body.appendChild(yarn);
-         // Todo el ciclo de física (caída de 1.5s, botes de 3.5s y disolución de 2s)
+         // Se eliminan por completo de la memoria a los 7.5s (dura 7s el css)
          setTimeout(() => yarn.remove(), 7500); 
      }
 
-     setTimeout(() => {
-         headerBrand.classList.remove("animating");
-         if (actualPage !== 'home') window.location.href = headerBrand.href;
-     }, 7000); // Se navega una vez concluye toda la animación en pantalla
+     if (actualPage !== 'home') {
+         // Si haces múltiples clics, reinicia el contador de redirección para dejarte jugar sin cambiarte de pantalla
+         clearTimeout(headerBrand.navTimer);
+         headerBrand.navTimer = setTimeout(() => {
+             window.location.href = headerBrand.href;
+         }, 1500); 
+     }
      return;
  }
 
- // 3. --- FOOTER LOGO CLICK (CRAYONES 8 SEGUNDOS + SCROLL SMOOTH) ---
+ // 4. --- LOGO FOOTER (CRAYONES 8 SEGUNDOS + SCROLL SMOOTH) ---
  const footerLink = e.target.closest(".footer-brand-img");
  if (footerLink) {
      e.preventDefault();
-     if(footerLink.classList.contains("animating")) return;
-     footerLink.classList.add("animating");
+     if(footerLink.dataset.navScheduled) return;
+     footerLink.dataset.navScheduled = "true";
 
      const rect = footerLink.getBoundingClientRect();
-     const startX = rect.left + rect.width / 2;
-     const startY = rect.top + rect.height / 2;
+     const startX = rect.left + rect.width / 2 + window.scrollX;
+     const startY = rect.top + rect.height / 2 + window.scrollY;
      const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
      
-     for (let i = 0; i < 40; i++) {
+     for (let i = 0; i < 35; i++) {
          const crayon = document.createElement('div');
          crayon.className = 'crayon-anim-footer'; 
          crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
@@ -403,7 +440,7 @@ document.addEventListener("click",e=>{
          crayon.appendChild(wrap);
             
          const angle = Math.random() * Math.PI * 2;
-         const distance = Math.max(window.innerWidth, window.innerHeight) * (0.6 + Math.random()); 
+         const distance = 400 + Math.random() * 800; // Recorren distancias larguísimas y lentas por toda la web
          crayon.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
          crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
          crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
@@ -412,14 +449,14 @@ document.addEventListener("click",e=>{
          setTimeout(() => crayon.remove(), 9500); 
      }
 
-     // A los 6 segundos de forma suave la página sube a la parte superior
+     // A los 6 segundos exactos, hace scroll ultra smooth a la parte de arriba de la web
      setTimeout(() => {
          window.scrollTo({ top: 0, behavior: 'smooth' });
      }, 6000);
 
-     // Desaparecen y cambia de página a los 9 segundos (6s + 3s desvanecimiento total)
+     // A los 9 segundos (después de 3s extra para que termine el efecto de difuminarse) navega al index
      setTimeout(() => {
-         footerLink.classList.remove("animating");
+         footerLink.dataset.navScheduled = "";
          if (actualPage !== 'home') window.location.href = footerLink.href;
      }, 9000); 
      return;

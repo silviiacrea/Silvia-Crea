@@ -65,7 +65,7 @@ button{cursor:pointer;}
 .btn-soft{background:var(--pink-soft);color:var(--pink-dark);border:1px solid #f0d5e1}  
 .btn-header-purple{background:rgba(226,211,241,.94);color:var(--lilac-dark);border:1px solid #d6c5e5}  
 .hero-art{height:390px;position:relative;display:grid;place-items:center}  
-.hero-logo{max-width:340px;width:85%;height:auto;filter:drop-shadow(0 15px 35px rgba(107,78,117,0.15));transform:rotate(2deg);transition:transform 0.4s ease;position:relative;z-index:2;}  
+.hero-logo{max-width:340px;width:85%;height:auto;filter:drop-shadow(0 15px 35px rgba(107,78,117,0.15));transform:rotate(2deg);transition:transform 0.4s ease;position:relative;z-index:10000;cursor:pointer}  
 .hero-logo:hover{transform:rotate(-1deg) scale(1.03)}  
 .art-flower,.art-spark{position:absolute;color:var(--pink-dark);font-size:70px;z-index:1}  
 .art-flower{top:10px;left:5%}  
@@ -172,7 +172,7 @@ button{cursor:pointer;}
 .form-status{font-size:13px;color:var(--lilac-dark)}  
 .site-footer{text-align:center;padding:45px 20px 40px;background:var(--blue-pastel);border-top:1px solid #c8dbf2;color:#5a6e85}  
 .footer-logo{max-width:160px;height:auto;margin-bottom:10px;transition:transform 0.3s ease;filter:drop-shadow(0 4px 10px rgba(107,78,117,0.1))}  
-.footer-brand-img{display:inline-block;text-decoration:none; border-radius:16px; padding:6px; overflow:hidden;}  
+.footer-brand-img{display:inline-block;text-decoration:none; border-radius:16px; padding:6px; overflow:hidden; position:relative; z-index:10000;}  
 .footer-brand-img:hover .footer-logo{transform:scale(1.05)}  
 .footer-brand{display:block;font:600 30px var(--script);color:var(--lilac-dark);line-height:1;margin-bottom:15px}  
 .footer-brand span{color:var(--pink)}  
@@ -400,7 +400,7 @@ input, textarea, select, [contenteditable] {
 /* ANIMACIÓN DE EFECTOS GLOBALES Y LOGOS                                      */
 /* ========================================================================== */
 
-/* Efecto de pétalos al hacer clic (Más lentos, transparentes y definidos) */
+/* Efecto de pétalos al hacer clic (El perfecto original) */
 .petal-anim {
     position: absolute;
     width: 4px; 
@@ -418,53 +418,21 @@ input, textarea, select, [contenteditable] {
     100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot)) scale(1.5); opacity: 0; filter: blur(0.8px); }
 }
 
-/* Ovillos cayendo y rebotando suavemente en la pantalla (Header) */
-.yarn-anim {
-    position: fixed;
-    width: 26px;
-    height: 26px;
-    z-index: 999999;
-    pointer-events: none;
-    animation: yarnDrop 7s forwards !important;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08));
-}
-.yarn-anim svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-@keyframes yarnDrop {
-    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
-    /* Caída libre suavizada de 1.4s */
-    20% { transform: translate(var(--tx), var(--drop-y)) rotate(calc(var(--rot) * 0.3)); opacity: 1; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); } 
-    /* Comienzan los rebotes de 3.5s en la base de la pantalla */
-    30% { transform: translate(calc(var(--tx) + var(--bx)*0.4), calc(var(--drop-y) - 35px)) rotate(calc(var(--rot) * 0.5)); opacity: 1; animation-timing-function: ease-in; }
-    40% { transform: translate(calc(var(--tx) + var(--bx)*0.7), var(--drop-y)) rotate(calc(var(--rot) * 0.7)); opacity: 1; animation-timing-function: ease-out; }
-    50% { transform: translate(calc(var(--tx) + var(--bx)*1.0), calc(var(--drop-y) - 15px)) rotate(calc(var(--rot) * 0.85)); opacity: 1; animation-timing-function: ease-in; }
-    60% { transform: translate(calc(var(--tx) + var(--bx)*1.2), var(--drop-y)) rotate(var(--rot)); opacity: 1; }
-    /* Se estabilizan y por último se difuminan suavemente */
-    70% { transform: translate(calc(var(--tx) + var(--bx)*1.2), var(--drop-y)) rotate(var(--rot)); opacity: 1; filter: blur(0px); }
-    100% { transform: translate(calc(var(--tx) + var(--bx)*1.2), var(--drop-y)) rotate(var(--rot)); opacity: 0; filter: blur(5px); }
-}
-
-/* Crayones difuminándose por toda la web (Footer) */
-.crayon-anim-footer {
-    position: fixed; 
-    top: 50%;
-    left: 50%;
+/* Base gráfica común para todos los crayones */
+.crayon-anim-hero, .crayon-anim-footer {
+    position: absolute;
     width: 10px;
     height: 36px;
     margin-left: -5px;
     margin-top: -18px;
     border-radius: 2px;
     box-shadow: inset -2px 0 3px rgba(0,0,0,0.08), 0 6px 12px rgba(107,78,117,0.2);
-    z-index: 999999; 
+    z-index: 9999; /* Sale siempre desde debajo de los logos (que tienen z-index:10000) */
     pointer-events: none;
     background-color: currentColor;
     transform-origin: center center;
-    animation: crayonRollFooter 9s cubic-bezier(0.15, 0.8, 0.35, 1) forwards !important;
 }
-.crayon-anim-footer::before {
+.crayon-anim-hero::before, .crayon-anim-footer::before {
     content: '';
     position: absolute;
     top: -9px;
@@ -475,7 +443,7 @@ input, textarea, select, [contenteditable] {
     border-right: 5px solid transparent;
     border-bottom: 9px solid currentColor;
 }
-.crayon-anim-footer::after {
+.crayon-anim-hero::after, .crayon-anim-footer::after {
     content: '';
     position: absolute;
     top: -10px;
@@ -486,22 +454,70 @@ input, textarea, select, [contenteditable] {
     border-radius: 2px 2px 0 0;
     opacity: 0.8;
 }
-.crayon-anim-footer .crayon-anim-wrap {
+.crayon-anim-wrap {
     position: absolute;
     top: 8px;
     bottom: 8px;
     left: 0;
     right: 0;
-    background: repeating-linear-gradient(
-        to bottom,
-        rgba(255,255,255,0.25),
-        rgba(255,255,255,0.25) 3px,
-        transparent 3px,
-        transparent 7px
-    );
+    background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.25), rgba(255,255,255,0.25) 3px, transparent 3px, transparent 7px);
+}
+
+/* Crayones del Inicio (6 segundos de duración total) */
+.crayon-anim-hero {
+    animation: crayonRollHero 6s cubic-bezier(0.15, 0.9, 0.35, 1) forwards !important;
+}
+@keyframes crayonRollHero {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; filter: blur(0px); }
+    70% { opacity: 1; filter: blur(0px); }
+    100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); }
+}
+
+/* Crayones del Footer (9 segundos en total) */
+.crayon-anim-footer {
+    animation: crayonRollFooter 9s cubic-bezier(0.1, 0.8, 0.3, 1) forwards !important;
 }
 @keyframes crayonRollFooter {
     0% { transform: translate(0, 0) rotate(0deg); opacity: 1; filter: blur(0px); }
-    66% { opacity: 1; filter: blur(0px); } /* Sólidos hasta el segundo 6 */
-    100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); } /* Difuminado final */
+    66% { opacity: 1; filter: blur(0px); } /* Sólidos hasta el segundo 6 exacto */
+    100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); } /* Se difuminan los últimos 3 segs */
+}
+
+/* Ovillos cayendo y rebotando en la pantalla (Header) */
+.yarn-anim {
+    position: fixed; /* Siempre fijos respecto a la pantalla del navegador (Viewport) */
+    width: 26px;
+    height: 26px;
+    margin-left: -13px;
+    margin-top: -13px;
+    z-index: 999999;
+    pointer-events: none;
+    animation: yarnDrop 7s forwards !important;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+}
+.yarn-anim svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+@keyframes yarnDrop {
+    0% { transform: translate(0, 0) rotate(0deg) scale(var(--scale)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); /* ease-in de caída real */ }
+    
+    /* Caída libre y suave -> el % indica el progreso del tiempo, var(--drop-y) es la distancia matemáticamente exacta hasta abajo */
+    35% { transform: translate(calc(var(--tx) * 0.4), var(--drop-y)) rotate(calc(var(--rot) * 0.4)); opacity: 1; animation-timing-function: cubic-bezier(0, 0, 0.2, 1); /* ease-out subiendo al rebote */ } 
+    
+    /* Primer rebote alto (blandito) */
+    48% { transform: translate(calc(var(--tx) * 0.7 + var(--bx)*0.4), calc(var(--drop-y) - 65px)) rotate(calc(var(--rot) * 0.6)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
+    
+    /* Cae de nuevo */
+    58% { transform: translate(calc(var(--tx) * 0.9 + var(--bx)*0.8), var(--drop-y)) rotate(calc(var(--rot) * 0.8)); opacity: 1; animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+    
+    /* Segundo rebote más bajo */
+    66% { transform: translate(calc(var(--tx) + var(--bx)*1.2), calc(var(--drop-y) - 20px)) rotate(calc(var(--rot) * 0.9)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
+    
+    /* Cae, termina de rodar y se estabiliza */
+    75% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(var(--rot)) scale(var(--scale)); opacity: 1; filter: blur(0px); }
+    
+    /* Se difuminan despacio y en el sitio los últimos segundos */
+    100% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(var(--rot)) scale(var(--scale)); opacity: 0; filter: blur(5px); }
 }
