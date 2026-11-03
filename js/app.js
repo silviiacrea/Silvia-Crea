@@ -267,7 +267,7 @@ if(cart.length > 0) {
 const backdrop = document.createElement("div");   
 backdrop.className = "modal-backdrop open";   
 backdrop.style.zIndex = "200";   
-backdrop.innerHTML = `<div class="confirm-modal" role="dialog" aria-modal="true">   
+backdrop.innerHTML = `<div class="confirm-modal" role="dialog" aria-modal="true" style="background:var(--blue-pastel-soft); border: 1px solid #c3d7f0;">   
 <h3>¿Vaciar carrito?</h3>   
 <p>Se eliminarán todos los productos que has añadido.</p>   
 <div class="confirm-btns">   
@@ -302,11 +302,11 @@ function showCustomAlert(title, message) {
  const backdrop = document.createElement("div");  
  backdrop.className = "modal-backdrop open";  
  backdrop.style.zIndex = "200";  
- backdrop.innerHTML = `<div class="confirm-modal" role="dialog" aria-modal="true">  
+ backdrop.innerHTML = `<div class="confirm-modal" role="dialog" aria-modal="true" style="background:var(--lilac-card); border: 1px solid #dfceeb;">  
  <h3 style="color:var(--lilac-dark); font-size: 24px;">${title}</h3>  
  <p style="color:var(--muted);">${message}</p>  
  <div class="confirm-btns">  
- <button class="btn btn-primary" onclick="this.closest('.modal-backdrop').remove()">Aceptar</button>  
+ <button class="btn" onclick="this.closest('.modal-backdrop').remove()" style="background:var(--pink-soft); color:var(--pink-dark); border:1px solid #f0d5e1;">Aceptar</button>  
  </div>  
  </div>`;  
  document.body.appendChild(backdrop);  
