@@ -24,6 +24,28 @@ if (isBackForward) {
  localStorage.setItem('silviacrea_current_page', currentHtml);  
 }  
 // -----------------------------------------------------  
+
+// CALCULADOR EXACTO DE COORDENADAS DE LA PANTALLA
+// Este bloque evalúa dónde pincha exactamente el usuario y se lo manda al CSS
+// para que dibuje el modal en el centro visual exacto en ese mismo instante.
+function updateViewVars(e) {
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const pageY = e.touches ? e.touches[0].pageY : e.pageY;
+    if (clientY === undefined || pageY === undefined) return;
+    
+    // Distancia desde el tope absoluto de la web hasta lo que está viendo el usuario
+    const scrollTop = Math.max(0, pageY - clientY);
+    // Altura real visible de su pantalla
+    const vHeight = window.visualViewport ? window.visualViewport.height : Math.min(window.innerHeight, window.screen.height);
+    
+    // Transmitir al CSS para centrar dinámicamente
+    document.documentElement.style.setProperty('--center-y', `${scrollTop + (vHeight / 2)}px`);
+    document.documentElement.style.setProperty('--scroll-y', `${scrollTop}px`);
+    document.documentElement.style.setProperty('--view-h', `${vHeight}px`);
+}
+document.addEventListener("click", updateViewVars, true);
+document.addEventListener("touchstart", updateViewVars, {passive: true, capture: true});
+// -----------------------------------------------------  
   
 const cfg = window.SILVIA_CONFIG || {};   
 const $ = (s, root=document) => root.querySelector(s); const $$ = (s, root=document) => [...root.querySelectorAll(s)];   
@@ -245,7 +267,7 @@ if(cart.length > 0) {
 const backdrop = document.createElement("div");   
 backdrop.className = "modal-backdrop open";   
 backdrop.style.zIndex = "200";   
-backdrop.innerHTML = `<div class="confirm-modal" role="dialog" aria-modal="true" style="background:var(--blue-pastel-soft); border-color:#c3d7f0;">   
+backdrop.innerHTML = `<div class="confirm-modal" role="dialog" aria-modal="true">   
 <h3>¿Vaciar carrito?</h3>   
 <p>Se eliminarán todos los productos que has añadido.</p>   
 <div class="confirm-btns">   
@@ -280,7 +302,7 @@ function showCustomAlert(title, message) {
  const backdrop = document.createElement("div");  
  backdrop.className = "modal-backdrop open";  
  backdrop.style.zIndex = "200";  
- backdrop.innerHTML = `<div class="confirm-modal" role="dialog" aria-modal="true" style="background:var(--blue-pastel-soft); border-color:#c3d7f0;">  
+ backdrop.innerHTML = `<div class="confirm-modal" role="dialog" aria-modal="true">  
  <h3 style="color:var(--lilac-dark); font-size: 24px;">${title}</h3>  
  <p style="color:var(--muted);">${message}</p>  
  <div class="confirm-btns">  
@@ -320,16 +342,11 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
 document.addEventListener("click",e=>{   
  const isMobile = window.innerWidth <= 768;
 
- // PALETA PÉTALOS: blanco roto, rosa palo, morado pastel, lila pastel, amarillo pastel
  const petalColors = ['#fdfbf7', '#f2d5df', '#d4c5e8', '#e2d4f5', '#fcf4d4'];
- 
- // PALETA CRAYONES: colores originales + rosa palo, lila pastel, amarillo pastel, naranja pastel
  const crayonColors = [
-     '#c8bccf', '#dcbac5', '#bcccda', '#bed1c7', '#e3cbbd', '#dfc4cd', '#e6dec4', '#c2bdd4', '#dcd0d9', '#d1d8e0', // Originales
-     '#f2d5df', '#e2d4f5', '#fcf4d4', '#ffdcb3' // Nuevos
+     '#c8bccf', '#dcbac5', '#bcccda', '#bed1c7', '#e3cbbd', '#dfc4cd', '#e6dec4', '#c2bdd4', '#dcd0d9', '#d1d8e0', 
+     '#f2d5df', '#e2d4f5', '#fcf4d4', '#ffdcb3' 
  ];
-
- // PALETA ORIGINAL LUMINOSA (Para Ovillos y Corazones: Rojo, Lila, Morado y Rosa)
  const vividPastels = ['#ff9aa2', '#c8a2c8', '#b19cd9', '#ffb3c6'];
 
  // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC ---
@@ -508,14 +525,14 @@ if(pModal.classList.contains("theme-pink")) fsContent.classList.add("theme-pink"
  }  
 }  
   
-if(e.target.closest("[data-close-fs]") || e.target.id === "fs-modal") {  
+if(e.target.closest("[data-close-fs]") || e.target.id === "fs-modal" || e.target.classList.contains("fs-modal-backdrop")) {  
  $("#fs-modal")?.classList.remove("open");  
  $("#fs-modal")?.setAttribute("aria-hidden", "true");  
 }  
    
 const qty=e.target.closest("[data-qty]");if(qty){const item=cart[Number(qty.dataset.index)];item.qty=Math.max(1,item.qty+Number(qty.dataset.qty));const p=products.find(x=>x.name===item.name);if(p)item.qty=Math.min(item.qty,p.stock);updateCart();}   
 const rem=e.target.closest("[data-remove]");if(rem){cart.splice(Number(rem.dataset.remove),1);updateCart();}   
-if(e.target.closest("[data-close-modal]")||e.target.id==="product-modal")closeProduct();   
+if(e.target.closest("[data-close-modal]")||e.target.id==="product-modal"||e.target.classList.contains("modal-backdrop"))closeProduct();   
 });   
   
 document.addEventListener("keydown",e=>{  

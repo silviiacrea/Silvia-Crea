@@ -24,6 +24,12 @@ a, button, input, textarea, [tabindex], [role="button"], .item-card {
  -webkit-tap-highlight-color: rgba(226, 237, 248, 0.45);   
 }  
   
+/* FIJAMOS EL CONTENEDOR PARA REFERENCIAS ABSOLUTAS DINÁMICAS */
+html, body {
+    position: relative;
+    min-height: 100vh;
+}
+  
 html{scroll-behavior:smooth}   
   
 body{   
@@ -218,27 +224,44 @@ button{cursor:pointer;}
 }  
   
 /* ========================================================================== */
-/* SUPERPOSICIÓN DE PRODUCTO (GARANTIZADO CENTRADO Y DENTRO DE LOS LÍMITES)   */
+/* SISTEMA DE SUPERPOSICIONES PERFECTO (CENTRADO ABSOLUTO MATEMÁTICO)         */
 /* ========================================================================== */
 
-/* Backdrop centrado absoluto a los 4 extremos de la pantalla */
-.modal-backdrop{
-    position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(48,36,53,.35); z-index:120;
-    opacity:0; visibility:hidden; transition:.25s;
-    display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;
-}  
-.drawer-backdrop.open,.modal-backdrop.open{opacity:1;visibility:visible}  
+/* Fondos que cubren TODO el documento independientemente de su altura */
+.drawer-backdrop, .modal-backdrop, .fs-modal-backdrop {
+    position: absolute; 
+    top: 0; left: 0; right: 0; bottom: 0; 
+    z-index: 90;
+    opacity: 0; visibility: hidden; transition: .25s;
+    display: block; /* Se elimina el flex para usar posicionamiento dinámico absoluto */
+    box-sizing: border-box;
+}
+.drawer-backdrop { background: rgba(48,36,53,.35); z-index: 90; }
+.modal-backdrop { background: rgba(48,36,53,.35); z-index: 120; }
+.fs-modal-backdrop { background: rgba(48,36,53,.88); z-index: 900; transition: .3s; }
 
-/* La tarjeta centralizada con margen automático */
-.product-modal{
-    position:relative; margin:auto; max-width:780px; width:100%; 
-    max-height:100%; 
-    background:#fff; border-radius:24px; display:grid; grid-template-columns:1fr 1fr; 
-    box-shadow:var(--shadow); transition:background-color 0.3s ease;
-    overflow-y:auto; overflow-x:hidden;
-}  
+.drawer-backdrop.open, .modal-backdrop.open, .fs-modal-backdrop.open { opacity: 1; visibility: visible; }
+
+/* Contenedores que buscan la altura exacta del scroll al hacer clic */
+.product-modal, .fs-modal-content, .confirm-modal {
+    position: absolute;
+    /* Se posicionan matemáticamente usando las variables generadas por Javascript al hacer clic */
+    top: var(--center-y, 50vh); 
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centrado absoluto perfecto sobre el punto calculado */
+    margin: 0; /* Anula auto */
+    box-sizing: border-box;
+}
+
+.product-modal {
+    max-width: 780px; width: calc(100% - 40px);
+    max-height: calc(var(--view-h, 100vh) - 40px);
+    background: #fff; border-radius: 24px; display: grid; grid-template-columns: 1fr 1fr; 
+    box-shadow: var(--shadow); transition: background-color 0.3s ease; overflow-y: auto; overflow-x: hidden;
+}
 .product-modal.theme-pink{background:var(--pink-soft)}  
 .product-modal.theme-lilac{background:var(--lilac-card)}  
+
 .modal-image-container{width:100%;height:100%;min-height:320px;background:var(--lilac-pale);display:flex;flex-direction:column;position:relative;cursor:zoom-in}  
 .modal-image-container>img{width:100%;height:100%;object-fit:cover}  
 .modal-image-container .placeholder{flex:1;display:flex;align-items:center;justify-content:center}  
@@ -264,35 +287,40 @@ button{cursor:pointer;}
 .modal-copy .eyebrow{font-size:13.5px}  
   
 /* ========================================================================== */
-/* PANTALLA COMPLETA DE LA IMAGEN (GARANTIZADO CENTRADO ABSOLUTO Y LIMITES)   */
+/* PANTALLA COMPLETA DE LA IMAGEN (MODAL FS)                                  */
 /* ========================================================================== */
-  
-.fs-modal-backdrop{
-    position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(48,36,53,.88); z-index:900; 
-    opacity:0; visibility:hidden; transition:.3s;
-    display:flex; align-items:center; justify-content:center; padding:25px; box-sizing:border-box;
-}  
-.fs-modal-backdrop.open{opacity:1;visibility:visible}  
 
-/* El contenedor interno limitador */
-.fs-modal-content{
-    position:relative; margin:auto; max-width:100%; max-height:100%; border-radius:24px;
-    display:flex; align-items:center; justify-content:center;
-    box-shadow:0 15px 55px rgba(0,0,0,0.25); overflow:hidden; padding:12px; transition:background-color 0.3s ease; box-sizing:border-box;
-}  
+.fs-modal-content {
+    max-width: calc(100% - 40px); 
+    max-height: calc(var(--view-h, 100vh) - 40px);
+    border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 15px 55px rgba(0,0,0,0.25); overflow: hidden; padding: 12px; transition: background-color 0.3s ease;
+}
 .fs-modal-content.theme-pink{background:var(--pink-soft)}  
 .fs-modal-content.theme-lilac{background:var(--lilac-card)}  
 
-/* La imagen limita su alto al contenedor y se centra sola */
-.fs-modal-image{
-    max-width:100%; max-height:100%; 
-    object-fit:contain; border-radius:16px; z-index:2; position:relative;
+.fs-modal-image {
+    max-width: 100%; max-height: 100%; 
+    object-fit: contain; border-radius: 16px; z-index: 2; position: relative;
 }  
 
 .fs-watermark{position:absolute;inset:0;background-image:url('https://i.imgur.com/F84jcJa.png');background-repeat:no-repeat;background-position:center;background-size:contain;opacity:0.05;pointer-events:none;z-index:3}  
 .fs-modal-close{position:absolute;right:22px;top:22px;z-index:4;background:var(--blue-pastel-soft);border:1px solid #dceafa;}  
   
-.cart-drawer{position:fixed;right:0;top:0;height:100dvh;width:min(460px,100%);background:rgba(226,211,241,.98);z-index:100;transform:translateX(105%);transition:transform .3s;display:flex;flex-direction:column;padding:25px;box-shadow:-15px 0 45px rgba(67,47,73,.12)}  
+/* ========================================================================== */
+/* CARRITO (AJUSTE MATEMÁTICO DINÁMICO AL SCROLL)                             */
+/* ========================================================================== */
+.cart-drawer {
+    position: absolute;
+    top: var(--scroll-y, 0px); /* Nace siempre al principio de la vista actual del usuario */
+    right: 0;
+    height: var(--view-h, 100vh);
+    width: min(460px,100%);
+    background: rgba(226,211,241,.98); z-index: 100; 
+    transform: translateX(105%); transition: transform .3s;
+    display: flex; flex-direction: column; padding: 25px; box-shadow: -15px 0 45px rgba(67,47,73,.12);
+} 
 .cart-drawer.open{transform:translateX(0)}  
 .drawer-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #dfceeb;padding-bottom:17px}  
 .drawer-head h2{font:600 30px var(--serif);color:var(--lilac-dark);margin:0}  
@@ -313,8 +341,19 @@ button{cursor:pointer;}
 .cart-summary p{font-size:11px;color:var(--lilac-dark)}  
 .full-width{width:100%}  
 
-.toast{position:fixed;bottom:25px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--lilac-dark);color:#fff;padding:11px 20px;border-radius:30px;z-index:150;transition:.25s;font-size:13px}  
-.toast.show{opacity:1;transform:translate(-50%,0)}  
+/* ========================================================================== */
+/* NOTIFICACIONES TOAST (CENTRADAS EN LA PANTALLA)                            */
+/* ========================================================================== */
+.toast {
+    position: absolute;
+    top: calc(var(--scroll-y, 0px) + var(--view-h, 100vh) - 30px); /* Aparezca abajo en la vista real del usuario */
+    left: 50%;
+    transform: translate(-50%, 20px);
+    opacity: 0; pointer-events: none; background: var(--lilac-dark); color: #fff; padding: 11px 20px; border-radius: 30px; z-index: 150; transition: .25s; font-size: 13px;
+}
+.toast.show {
+    opacity: 1; transform: translate(-50%, -20px);
+}
 .loading-note{grid-column:1/-1;text-align:center;color:var(--muted);padding:40px}   
   
 @media(max-width:900px){.header-inner{gap:12px}.brand{min-width:170px}.main-nav{gap:12px}.main-nav a{font-size:13px}.hero{min-height:500px}.card-grid,.product-grid,.gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}   
@@ -350,7 +389,7 @@ padding:12px 16px;font-size:15px;text-align:center;background:var(--white-lilac)
  .about-art{min-height:270px;max-width:430px;width:100%;margin:auto}  
  .page-hero{padding:58px 20px 30px}  
  .contact-card,.form-card{padding:25px}  
- .product-modal{grid-template-columns:1fr;max-height:100%;overflow:auto}  
+ .product-modal{grid-template-columns:1fr;}  
  .modal-image-container{height:220px;min-height:0}  
  .fs-modal-close{right:12px; top:12px}  
  .modal-copy{padding:25px}  
@@ -388,7 +427,7 @@ padding:12px 16px;font-size:15px;text-align:center;background:var(--white-lilac)
 .empty-btn-style{font-size: 13px !important; font-weight: 700 !important; color: var(--lilac-dark) !important; margin-left: auto !important; margin-right: 12px !important; padding: 6px 12px !important; border-radius: 20px !important; border: 1px solid #f0d5e1 !important; background: var(--pink-soft) !important; transition: background 0.2s, transform 0.2s !important; overflow: hidden !important;}   
 .empty-btn-style:hover{background: var(--lilac-pale) !important; transform: translateY(-1px) !important;}   
   
-.confirm-modal {position: relative;max-width: 380px;width: 90%;background: var(--blue-pastel-soft);border-radius: 24px;padding: 35px 25px;text-align: center;box-shadow: var(--shadow);border: 1px solid #c3d7f0;}   
+.confirm-modal {position: absolute; /* Reubicado en el bloque principal para centrado exacto */}   
 .confirm-modal h3 {font: 600 24px var(--serif);color: var(--lilac-dark);margin: 0 0 10px;}   
 .confirm-modal p {color: var(--muted);font-size: 14px;margin-bottom: 25px;}   
 .confirm-btns {display: flex;justify-content: center;gap: 15px;}   
@@ -476,7 +515,6 @@ input, textarea, select, [contenteditable] {
     pointer-events: none;
     background-color: currentColor;
     
-    /* Etiqueta de papel original a rayas pintada directamente con CSS, no usa elementos div extra */
     background-image: 
         linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)), /* Borde superior etiqueta */
         linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), /* Borde inferior etiqueta */
