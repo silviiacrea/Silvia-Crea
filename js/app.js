@@ -23,7 +23,7 @@ if (isBackForward) {
 // -----------------------------------------------------  
   
 const cfg = window.SILVIA_CONFIG || {};   
-const $ = (s, root=document) => root.querySelector(s); const $$ = (s, root=document) => [...root.querySelectorAll(s)];   
+const $= (s, root=document) => root.querySelector(s); const$$ = (s, root=document) => [...root.querySelectorAll(s)];   
 const CART_KEY = "silviacrea_cart_v2";   
 let products = [], specialties = [], gallery = [], cart = loadCart(), modalProduct = null, toastTimer;   
   
@@ -95,7 +95,7 @@ el.classList.remove("has-slider","is-centered");
 el.classList.add(count>3?"has-slider":"is-centered");   
 el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
   
-// --- ARRASTRAR CON LÁPIZ (MÁS LENTO Y PRECISO) ---  
+// --- ARRASTRAR CON MARIPOSA ---  
 if (count > 3) {  
  let isDown = false;  
  let startX;  
@@ -105,19 +105,30 @@ if (count > 3) {
  el.addEventListener('mousedown', (e) => {  
  isDown = true;  
  isDragging = false;  
- el.classList.add('dragging'); // Bloquea el texto y cambia el cursor al lápiz clickeado  
+ el.classList.add('grabbing-intent'); // Muestra la mariposa solo al mantener click
  startX = e.pageX - el.offsetLeft;  
  scrollLeft = el.scrollLeft;  
  });  
- el.addEventListener('mouseleave', () => { isDown = false; el.classList.remove('dragging'); });  
- el.addEventListener('mouseup', () => { isDown = false; el.classList.remove('dragging'); });  
+ el.addEventListener('mouseleave', () => { 
+ isDown = false; 
+ el.classList.remove('grabbing-intent', 'dragging'); 
+ });  
+ el.addEventListener('mouseup', () => { 
+ isDown = false; 
+ el.classList.remove('grabbing-intent', 'dragging'); 
+ });  
  el.addEventListener('mousemove', (e) => {  
  if(!isDown) return;  
  e.preventDefault();  
  const x = e.pageX - el.offsetLeft;  
- const walk = (x - startX) * 0.8; // Antes era 1.5. Ahora hay que mover más el ratón, es más suave y controlable.  
- if (Math.abs(walk) > 5) isDragging = true;   
-el.scrollLeft = scrollLeft - walk;  
+ const walk = (x - startX) * 0.8; 
+ if (Math.abs(walk) > 5) {
+   isDragging = true;
+   el.classList.add('dragging'); // Solo si arrastra desactiva eventos hijos
+ }
+ if (isDragging) {
+   el.scrollLeft = scrollLeft - walk;  
+ }
  });  
    
 // Si realmente estábamos arrastrando, anulamos el "clic" accidental en la tarjeta  
@@ -349,21 +360,7 @@ if(pModal.classList.contains("theme-pink")) fsContent.classList.add("theme-pink"
   
 if(e.target.closest("[data-close-fs]") || e.target.id === "fs-modal") {  
  $("#fs-modal")?.classList.remove("open");  
- $("#fs-modal")?.setAttribute("aria-hidden", "true");  
-}  
-   
-const qty=e.target.closest("[data-qty]");if(qty){const item=cart[Number(qty.dataset.index)];item.qty=Math.max(1,item.qty+Number(qty.dataset.qty));const p=products.find(x=>x.name===item.name);if(p)item.qty=Math.min(item.qty,p.stock);updateCart();}   
-const rem=e.target.closest("[data-remove]");if(rem){cart.splice(Number(rem.dataset.remove),1);updateCart();}   
-if(e.target.closest("[data-close-modal]")||e.target.id==="product-modal")closeProduct();   
-});   
-  
-document.addEventListener("keydown",e=>{  
- // Ignoramos el teclado si estás rellenando el formulario de contacto o el carrito  
- if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;  
-  
- // --- NAVEGACIÓN DE CARRUSEL CON TECLADO ---  
- if (e.key === "ArrowLeft" || e.key === "ArrowRight") {  
- const sliders = $$(".has-slider");  
+ $("#fs-modal")?.setAttribute("aria-hidden", "true"); }  const qty=e.target.closest("[data-qty]");if(qty){const item=cart[Number(qty.dataset.index)];item.qty=Math.max(1,item.qty+Number(qty.dataset.qty));const p=products.find(x=>x.name===item.name);if(p)item.qty=Math.min(item.qty,p.stock);updateCart();} const rem=e.target.closest("[data-remove]");if(rem){cart.splice(Number(rem.dataset.remove),1);updateCart();} if(e.target.closest("[data-close-modal]")\vert{}\vert{}e.target.id==="product-modal")closeProduct(); });  document.addEventListener("keydown",e=>{ // Ignoramos el teclado si estás rellenando el formulario de contacto o el carrito if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;  // --- NAVEGACIÓN DE CARRUSEL CON TECLADO --- if (e.key === "ArrowLeft" \vert{}\vert{} e.key === "ArrowRight") { const sliders = $$(".has-slider");  
  let bestSlider = null;  
  let maxVisible = 0;  
    
