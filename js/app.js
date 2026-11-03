@@ -1,9 +1,11 @@
 (() => {  
-// --- SISTEMA DE MEMORIA AVANZADO PARA GOOGLE SITES ---  
+// --- SISTEMA DE MEMORIA AVANZADO PARA GOOGLE SITES (CON LOCALSTORAGE) ---  
 const pageMap = {'home': 'index.html', 'shop': 'tienda.html', 'gallery': 'galeria.html', 'about': 'sobre-mi.html', 'orders': 'encargos.html', 'contact': 'contacto.html'};  
 const actualPage = document.body.dataset.page;  
 const currentHtml = pageMap[actualPage] || 'index.html';  
-// Utilizamos localStorage para asegurar que Google Sites recuerde la pestaña al hacer recargas completas
+
+// Utilizamos localStorage en lugar de sessionStorage para que si el usuario de Google Sites
+// refresca (F5), se mantenga siempre la página en la que estaba sin volver a la home obligatoriamente.
 const savedHtml = localStorage.getItem('silviacrea_current_page');  
   
 let isBackForward = false;  
@@ -96,7 +98,6 @@ el.classList.remove("has-slider","is-centered");
 el.classList.add(count>3?"has-slider":"is-centered");   
 el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
   
-// --- ARRASTRAR CON RATÓN EN PC (BUG FIXED) ---  
 if (count > 3) {  
  el.style.cursor = 'grab';  
  let isDown = false;  
@@ -143,7 +144,6 @@ if (count > 3) {
  }  
  }, true);  
 }  
-// --------------------------------------------------  
   
 if(count>3 && !el.parentElement.classList.contains("slider-wrapper")){   
 const wrapper = document.createElement("div");   
@@ -319,7 +319,7 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
   
 document.addEventListener("click",e=>{   
 
- // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC ---
+ // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC (Perfectos) ---
  const petalColors = ['#f9d8e4', '#fbecf3', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#e9ddf3', '#c8dbf2', '#d6c5e5', '#f4c2d7'];
  for (let i = 0; i < 18; i++) {
      const petal = document.createElement('div');
@@ -336,7 +336,7 @@ document.addEventListener("click",e=>{
      setTimeout(() => petal.remove(), 3000); 
  }
 
- // 2. --- LOGO INICIO HERO (CRAYONES SIN RAYAS, NACEN LIMPIOS) ---
+ // 2. --- LOGO INICIO HERO (CRAYONES SIN RAYAS BLANCAS, SALEN LIMPIAMENTE DESDE DEBAJO) ---
  const heroLogo = e.target.closest(".hero-logo");
  if (heroLogo) {
      const container = heroLogo.closest('.hero-art');
@@ -360,11 +360,10 @@ document.addEventListener("click",e=>{
      }
  }
 
- // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO LENTAMENTE DESDE TODO EL HEADER) ---
+ // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO LENTAMENTE DESDE EL HEADER) ---
  const headerBrand = e.target.closest(".site-header .brand");
  if (headerBrand) {
-     // Previene que se recargue o se navegue a la página home al cliquear el logo
-     e.preventDefault(); 
+     e.preventDefault(); // Anulamos la navegación para que solo sea un huevo de pascua decorativo
      
      const yarnColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fbecf3'];
 
@@ -386,7 +385,7 @@ document.addEventListener("click",e=>{
          
          // Nacen aleatoriamente a lo ancho de toda la pantalla y POR ENCIMA del viewport para que caigan desde fuera
          const startX = Math.random() * window.innerWidth;
-         const startY = -40; // Escondidos
+         const startY = -40; // Escondidos en la parte superior
          
          const tx = (Math.random() - 0.5) * 200; 
          const dropY = window.innerHeight - startY - 20; 
@@ -404,23 +403,22 @@ document.addEventListener("click",e=>{
          document.body.appendChild(yarn);
          setTimeout(() => yarn.remove(), 7500); 
      }
-     
-     // El clic al logo solo suelta los ovillos, se cancela todo tipo de navegación.
      return;
  }
 
- // 4. --- LOGO FOOTER (DESACTIVADO, YA NO HACE NADA) ---
+ // 4. --- LOGO FOOTER INACTIVO ---
  const footerLink = e.target.closest(".footer-brand-img");
  if (footerLink) {
      e.preventDefault();
-     return; // Cancela cualquier enlace y no dispara animación
+     // Desactivado como solicitaste: no hace absolutamente nada al clickar
+     return;
  }
 
  // 5. --- LLUVIA DE CORAZONES EN "SOY SILVIA RODRIGUEZ" DESDE TODO EL HEADER ---
  const h2Target = e.target.closest("h2");
  if (h2Target && h2Target.textContent.includes("Soy Silvia Rodríguez")) {
      const heartColors = ['#e6a9bf', '#b99acb', '#f4c2d7', '#fbecf3'];
-     const count = 10 + Math.floor(Math.random() * 6); // Se puede spamear con clics
+     const count = 10 + Math.floor(Math.random() * 6); // Cuantos más clics, más corazones caen
      
      for(let i = 0; i < count; i++) {
          const heart = document.createElement('div');
@@ -429,9 +427,9 @@ document.addEventListener("click",e=>{
          const color = heartColors[Math.floor(Math.random() * heartColors.length)];
          heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
          
-         // Nacen aleatoriamente a lo ancho de la pantalla por encima del viewport
+         // Nacen escondidos por encima del viewport
          const startX = Math.random() * window.innerWidth; 
-         const startY = -40; // Escondidos
+         const startY = -40; 
          
          const tx = (Math.random() - 0.5) * window.innerWidth * 0.9; 
          const dropY = window.innerHeight - startY - 20; 
@@ -452,15 +450,14 @@ document.addEventListener("click",e=>{
  }
  // --------------------------------------------------------
   
- // CONTROLADOR DE NAVEGACIÓN NORMAL (Navegación al instante para evitar agresividad visual)
+ // CONTROLADOR DE NAVEGACIÓN NORMAL DIRECTA (Sin transiciones agresivas)
  const link = e.target.closest("a");  
  if (link && link.href) {  
      const isInternal = link.getAttribute("href").includes(".html") && !link.getAttribute("href").startsWith("http") && link.target !== "_blank";
      if (isInternal) {  
-         // Evitamos interrumpir al logo del header y al logo del footer
+         // Evitamos interrumpir a los logos
          if (link.classList.contains("brand") || link.classList.contains("footer-brand-img")) return; 
          
-         // Guarda la página y navega de inmediato, como lo hacía originalmente
          localStorage.setItem("silviacrea_current_page", link.getAttribute("href"));
          window.location.href = link.href;
          e.preventDefault();
