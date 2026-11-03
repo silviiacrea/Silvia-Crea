@@ -13,14 +13,11 @@ if (window.performance) {
 }
 
 if (isBackForward) {
-    // Si usó el botón Atrás/Adelante, aceptamos la página y actualizamos memoria
     sessionStorage.setItem('silviacrea_current_page', currentHtml);
 } else if (savedHtml && savedHtml !== currentHtml && currentHtml === 'index.html') {
-    // Si Google Sites nos ha devuelto a la fuerza a index.html (por un F5), volvemos a donde estábamos
     window.location.replace(savedHtml);
-    return; // Detenemos la ejecución de esta página porque ya nos vamos
+    return; 
 } else {
-    // Navegación normal
     sessionStorage.setItem('silviacrea_current_page', currentHtml);
 }
 // -----------------------------------------------------
@@ -91,12 +88,49 @@ function openProduct(p,isProduct=false,idx=0){
 } 
 
 function closeProduct(){$("#product-modal")?.classList.remove("open");$("#product-modal")?.setAttribute("aria-hidden","true");document.body.style.overflow="";}   
+
 function prepareSlider(el,count){   
 if(!el)return;   
 el.classList.remove("has-slider","is-centered");   
 el.classList.add(count>3?"has-slider":"is-centered");   
 el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
   
+// --- ARRASTRAR CON RATÓN EN PC (DRAG TO SCROLL) ---
+if (count > 3) {
+    el.style.cursor = 'grab';
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    let isDragging = false;
+
+    el.addEventListener('mousedown', (e) => {
+        isDown = true;
+        isDragging = false;
+        el.style.cursor = 'grabbing';
+        startX = e.pageX - el.offsetLeft;
+        scrollLeft = el.scrollLeft;
+    });
+    el.addEventListener('mouseleave', () => { isDown = false; el.style.cursor = 'grab'; });
+    el.addEventListener('mouseup', () => { isDown = false; el.style.cursor = 'grab'; });
+    el.addEventListener('mousemove', (e) => {
+        if(!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - el.offsetLeft;
+        const walk = (x - startX) * 1.5; // Velocidad de arrastre
+        if (Math.abs(walk) > 10) isDragging = true; // Si se mueve más de 10px, es arrastre y no clic
+        el.scrollLeft = scrollLeft - walk;
+    });
+    
+    // Bloquear el clic si la intención real era arrastrar
+    el.addEventListener('click', (e) => {
+        if (isDragging) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, true);
+}
+// --------------------------------------------------
+
 if(count>3 && !el.parentElement.classList.contains("slider-wrapper")){  
  const wrapper = document.createElement("div");  
  wrapper.className = "slider-wrapper";  
@@ -126,6 +160,7 @@ btnLeft.addEventListener("click", () => {
  });  
  }  
  }   
+
 function card(p,kind,index){   
 const image=safeImg(p.image), desc=p.description||p.desc||"";   
 const isProduct=kind==="product";   
@@ -269,7 +304,6 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
 }   
   
 document.addEventListener("click",e=>{   
-// Guardar página para el sistema de memoria
 const link = e.target.closest("a");
 if (link) {
     const href = link.getAttribute("href");
@@ -316,7 +350,41 @@ const qty=e.target.closest("[data-qty]");if(qty){const item=cart[Number(qty.data
 const rem=e.target.closest("[data-remove]");if(rem){cart.splice(Number(rem.dataset.remove),1);updateCart();}   
 if(e.target.closest("[data-close-modal]")||e.target.id==="product-modal")closeProduct();   
 });   
-document.addEventListener("keydown",e=>{const c=e.target.closest("[data-card-kind]");if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault();const i=Number(c.dataset.index),kind=c.dataset.cardKind;openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product",i);}});   
+
+document.addEventListener("keydown",e=>{
+    // 1. Ignoramos teclado si el usuario está escribiendo datos
+    if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;
+
+    // 2. --- NAVEGACIÓN DE CARRUSEL CON TECLADO ---
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        const sliders = $$(".has-slider");
+        let bestSlider = null;
+        let maxVisible = 0;
+        
+        // Detectar qué carrusel está más visible en pantalla
+        sliders.forEach(slider => {
+            const rect = slider.getBoundingClientRect();
+            const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+            if (visibleHeight > maxVisible) {
+                maxVisible = visibleHeight;
+                bestSlider = slider;
+            }
+        });
+        
+        // Si encontramos uno en pantalla (ocupando al menos 100px), lo movemos
+        if (bestSlider && maxVisible > 100) { 
+            e.preventDefault(); // Evita scroll vertical nativo
+            const card = bestSlider.querySelector(".item-card");  
+            const walk = card ? (card.offsetWidth + 24) * 2 : 300;
+            bestSlider.scrollBy({left: e.key === "ArrowLeft" ? -walk : walk, behavior: "smooth"});
+        }
+    }
+    // ----------------------------------------------
+
+    const c=e.target.closest("[data-card-kind]");
+    if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault();const i=Number(c.dataset.index),kind=c.dataset.cardKind;openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product",i);}
+});   
+
 document.addEventListener("input",e=>{const el=e.target.closest("[data-comment]");if(el){cart[Number(el.dataset.comment)].comment=el.value;saveCart();}});   
 $("#modal-add")?.addEventListener("click",()=>{if(modalProduct){const p=products.find(x=>x.name===modalProduct.name);if(p)addProduct(p);closeProduct();}});   
 $("#continue-order")?.addEventListener("click",()=>{   
