@@ -107,12 +107,11 @@ if (count > 3) {
  isDown = true;  
  isDragging = false;  
  el.style.cursor = 'grabbing';
- el.style.userSelect = 'none'; // Previene que al arrastrar se bloquee copiando texto
+ el.style.userSelect = 'none'; 
  startX = e.pageX - el.offsetLeft;  
  scrollLeft = el.scrollLeft;  
  });  
  
- // Si soltamos el ratón INCLUSO fuera de la zona del carrusel, lo detecta y lo suelta sin quedarse colgado
  window.addEventListener('mouseup', () => { 
      if (isDown) {
          isDown = false; 
@@ -384,11 +383,20 @@ document.addEventListener("click",e=>{
          yarn.className = 'yarn-anim';
          
          const color = yarnColors[Math.floor(Math.random() * yarnColors.length)];
-         yarn.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${color}"/><path d="M6 8s3-2 6 0 6 4 6 4M6 12s3-2 6 0 6 4 6 4M6 16s3-2 6 0" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/></svg>`;
+         // Diseño súper detallado del ovillo de lana con brillos y sombra y un hilo colgando
+         yarn.innerHTML = `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="40" fill="${color}"/>
+            <circle cx="50" cy="50" r="40" fill="black" opacity="0.1"/>
+            <path d="M 14 35 Q 50 20 86 35 M 10 50 Q 50 40 90 50 M 14 65 Q 50 60 86 65" stroke="rgba(255,255,255,0.4)" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M 35 14 Q 20 50 35 86 M 50 10 Q 35 50 50 90 M 65 14 Q 50 50 65 86" stroke="rgba(0,0,0,0.15)" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M 25 20 Q 50 5 75 20 M 25 80 Q 50 95 75 80" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="rgba(0,0,0,0.1)" stroke-width="5" fill="none" stroke-linecap="round" transform="translate(1,2)"/>
+            <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round"/>
+         </svg>`;
          
          // Caída suave limitando la velocidad horizontal (0.3 de dispersión máxima respecto a la pantalla)
          const tx = (Math.random() - 0.5) * window.innerWidth * 0.3; 
-         // Calculamos la coordenada "suelo" en tiempo real desde el viewport, le restamos 20px de margen
+         // Calculamos la parte baja de la pantalla en función de donde esté el navegador (Scroll)
          const dropY = window.innerHeight - startY - 20; 
          const bx = (Math.random() - 0.5) * 80; 
          const scale = 0.6 + Math.random() * 0.6; // tamaños surtidos para que sean muy diferentes entre sí
@@ -585,6 +593,33 @@ $(".drawer-head .eyebrow").textContent = "Un último paso";
 });   
 $("#contact-form")?.addEventListener("submit",sendContact);   
 $("#year").textContent=new Date().getFullYear();initMenu();updateCart();   
+
+// Inyectamos el panda exclusivamente en la página "Sobre mí"
+if(actualPage === 'about') {
+    const panda = document.createElement('img');
+    panda.src = 'https://i.imgur.com/HLR9rAV.png';
+    panda.className = 'panda-mascot';
+    panda.alt = 'Panda decorativo';
+    document.body.appendChild(panda);
+
+    panda.addEventListener('click', (e) => {
+        if(panda.classList.contains('panda-jump')) return;
+        panda.classList.add('panda-jump');
+        setTimeout(() => panda.classList.remove('panda-jump'), 800);
+        
+        const heartColors = ['#e6a9bf', '#b99acb', '#f4c2d7'];
+        for(let i=0; i<4; i++){
+            const heart = document.createElement('div');
+            heart.innerHTML = '💖';
+            heart.className = 'panda-heart';
+            heart.style.left = (e.clientX - 20 + Math.random()*40) + 'px';
+            heart.style.top = (e.clientY - 40 + Math.random()*20) + 'px';
+            document.body.appendChild(heart);
+            setTimeout(()=>heart.remove(), 1500);
+        }
+    });
+}
+
 if($("#products-grid"))loadProducts().catch(()=>showLoadError("#products-grid"));   
 if($("#specialties-grid"))loadSpecialties().catch(()=>showLoadError("#specialties-grid"));   
 if($("#gallery-grid"))loadGallery().catch(()=>showLoadError("#gallery-grid"));   
