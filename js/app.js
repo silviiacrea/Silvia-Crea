@@ -4,8 +4,8 @@ const pageMap = {'home': 'index.html', 'shop': 'tienda.html', 'gallery': 'galeri
 const actualPage = document.body.dataset.page;  
 const currentHtml = pageMap[actualPage] || 'index.html';  
 
-// Utilizamos localStorage en lugar de sessionStorage para que si el usuario de Google Sites
-// refresca (F5), se mantenga siempre la página en la que estaba sin volver a la home obligatoriamente.
+// Utilizamos localStorage para que si el usuario recarga la página (F5), 
+// Google Sites lea esta variable y le mantenga en la misma sección donde estaba.
 const savedHtml = localStorage.getItem('silviacrea_current_page');  
   
 let isBackForward = false;  
@@ -318,10 +318,12 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
 }   
   
 document.addEventListener("click",e=>{   
+ const isMobile = window.innerWidth <= 768; // Detector de optimización para móviles
 
- // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC (Perfectos) ---
+ // 1. --- EFECTO PÉTALOS GLOBALES (Rendimiento adaptativo) ---
  const petalColors = ['#f9d8e4', '#fbecf3', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#e9ddf3', '#c8dbf2', '#d6c5e5', '#f4c2d7'];
- for (let i = 0; i < 18; i++) {
+ const petalCount = isMobile ? 8 : 18;
+ for (let i = 0; i < petalCount; i++) {
      const petal = document.createElement('div');
      petal.className = 'petal-anim';
      petal.style.background = petalColors[Math.floor(Math.random() * petalColors.length)];
@@ -336,14 +338,14 @@ document.addEventListener("click",e=>{
      setTimeout(() => petal.remove(), 3000); 
  }
 
- // 2. --- LOGO INICIO HERO (CRAYONES SIN RAYAS BLANCAS, SALEN LIMPIAMENTE DESDE DEBAJO) ---
+ // 2. --- LOGO INICIO HERO (CRAYONES LIMPIOS) ---
  const heroLogo = e.target.closest(".hero-logo");
  if (heroLogo) {
      const container = heroLogo.closest('.hero-art');
      if(container) {
          const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
-         
-         for (let i = 0; i < 20; i++) {
+         const crayonCount = isMobile ? 8 : 20;
+         for (let i = 0; i < crayonCount; i++) {
              const crayon = document.createElement('div');
              crayon.className = 'crayon-anim-hero'; 
              crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
@@ -354,20 +356,24 @@ document.addEventListener("click",e=>{
              crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
              crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
              
+             const wrap = document.createElement('div');
+             wrap.className = 'crayon-anim-wrap';
+             crayon.appendChild(wrap);
+             
              container.appendChild(crayon);
              setTimeout(() => crayon.remove(), 6500); 
          }
      }
  }
 
- // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO LENTAMENTE DESDE EL HEADER) ---
+ // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO) ---
  const headerBrand = e.target.closest(".site-header .brand");
  if (headerBrand) {
-     e.preventDefault(); // Anulamos la navegación para que solo sea un huevo de pascua decorativo
+     e.preventDefault(); 
      
      const yarnColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fbecf3'];
+     const count = isMobile ? (2 + Math.floor(Math.random() * 2)) : (4 + Math.floor(Math.random() * 4));
 
-     const count = 4 + Math.floor(Math.random() * 4); // Cantidad aleatoria de ovillos por cada clic
      for(let i = 0; i < count; i++) {
          const yarn = document.createElement('div');
          yarn.className = 'yarn-anim';
@@ -383,9 +389,8 @@ document.addEventListener("click",e=>{
             <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round"/>
          </svg>`;
          
-         // Nacen aleatoriamente a lo ancho de toda la pantalla y POR ENCIMA del viewport para que caigan desde fuera
          const startX = Math.random() * window.innerWidth;
-         const startY = -40; // Escondidos en la parte superior
+         const startY = -40; // Escondidos en la parte superior del todo
          
          const tx = (Math.random() - 0.5) * 200; 
          const dropY = window.innerHeight - startY - 20; 
@@ -406,19 +411,18 @@ document.addEventListener("click",e=>{
      return;
  }
 
- // 4. --- LOGO FOOTER INACTIVO ---
+ // 4. --- LOGO FOOTER (INACTIVO COMPLETAMENTE) ---
  const footerLink = e.target.closest(".footer-brand-img");
  if (footerLink) {
      e.preventDefault();
-     // Desactivado como solicitaste: no hace absolutamente nada al clickar
-     return;
+     return; 
  }
 
- // 5. --- LLUVIA DE CORAZONES EN "SOY SILVIA RODRIGUEZ" DESDE TODO EL HEADER ---
+ // 5. --- LLUVIA DE CORAZONES EN "SOY SILVIA RODRIGUEZ" ---
  const h2Target = e.target.closest("h2");
  if (h2Target && h2Target.textContent.includes("Soy Silvia Rodríguez")) {
      const heartColors = ['#e6a9bf', '#b99acb', '#f4c2d7', '#fbecf3'];
-     const count = 10 + Math.floor(Math.random() * 6); // Cuantos más clics, más corazones caen
+     const count = isMobile ? (5 + Math.floor(Math.random() * 3)) : (10 + Math.floor(Math.random() * 6));
      
      for(let i = 0; i < count; i++) {
          const heart = document.createElement('div');
@@ -427,7 +431,6 @@ document.addEventListener("click",e=>{
          const color = heartColors[Math.floor(Math.random() * heartColors.length)];
          heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
          
-         // Nacen escondidos por encima del viewport
          const startX = Math.random() * window.innerWidth; 
          const startY = -40; 
          
@@ -450,14 +453,14 @@ document.addEventListener("click",e=>{
  }
  // --------------------------------------------------------
   
- // CONTROLADOR DE NAVEGACIÓN NORMAL DIRECTA (Sin transiciones agresivas)
+ // CONTROLADOR DE NAVEGACIÓN NORMAL (Navegación al instante, sin recargas raras)
  const link = e.target.closest("a");  
  if (link && link.href) {  
      const isInternal = link.getAttribute("href").includes(".html") && !link.getAttribute("href").startsWith("http") && link.target !== "_blank";
      if (isInternal) {  
-         // Evitamos interrumpir a los logos
          if (link.classList.contains("brand") || link.classList.contains("footer-brand-img")) return; 
          
+         // Guardo la nueva URL en el localStorage
          localStorage.setItem("silviacrea_current_page", link.getAttribute("href"));
          window.location.href = link.href;
          e.preventDefault();
