@@ -3,9 +3,9 @@
 }   
 
 /* SISTEMA UNIVERSAL DE PULSACIONES (Pantallas táctiles y móviles) */
-*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;} /* Elimina el resaltado feo por defecto en toda la web */
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;} 
 a, button, input, textarea, [tabindex], [role="button"], .item-card {
-    -webkit-tap-highlight-color: rgba(226, 237, 248, 0.45); /* Asigna nuestro azul pastel suave a todo lo interactivo */
+    -webkit-tap-highlight-color: rgba(226, 237, 248, 0.45); 
 }
 
 html{scroll-behavior:smooth}  
@@ -34,7 +34,6 @@ button{cursor:pointer;}
   
 .site-header{position:relative;z-index:50;background:rgba(226,211,241,.94);backdrop-filter:blur(16px);border-bottom:1px solid rgba(192,169,215,.65);box-shadow:0 5px 22px rgba(112,84,139,.07)}  
 .header-inner{max-width:1180px;margin:auto;padding:12px 24px;display:flex;align-items:center;gap:26px}
-/* Redondeo para que el clic táctil en el logo sea perfecto */
 .brand{display:flex;align-items:center;gap:10px;min-width:205px; border-radius:16px; padding:4px 8px; margin-left:-8px; overflow:hidden;}
 .header-logo{height:42px;width:auto;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(107,78,117,0.1));transition:transform 0.2s}
 .header-logo:hover{transform:scale(1.05)}
@@ -86,15 +85,18 @@ button{cursor:pointer;}
 .featured-label{left:12px;background:#eadcf3;color:#76538a}   
 .offer-label{right:12px;background:#ffead8;color:#a65e2d} 
 
-.item-card{position:relative;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 9px 25px rgba(107,78,117,.06);transition:transform .25s,box-shadow .25s;cursor:pointer}  
+/* MEJORA EN LAS TARJETAS (FLEXBOX ALINEACIÓN PERFECTA) */
+.item-card{position:relative;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 9px 25px rgba(107,78,117,.06);transition:transform .25s,box-shadow .25s;cursor:pointer; display:flex; flex-direction:column; height:100%;}  
 .item-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
 .item-card:nth-child(odd){background:var(--pink-soft);border-color:#f0d5e1}
 .item-card:nth-child(even){background:var(--lilac-card);border-color:#dfceeb}
-.image-wrapper{width:100%;aspect-ratio:4/3;overflow:hidden;background:var(--lilac-pale);display:block}  
+.image-wrapper{width:100%;aspect-ratio:4/3;overflow:hidden;background:var(--lilac-pale);display:block; flex-shrink:0;}  
 .item-image{width:100%;height:100%;object-fit:cover;transition:transform 4.5s ease-out}  
 .item-card:hover .item-image{transform:scale(1.05)}  
 .item-image.placeholder{display:flex;align-items:center;justify-content:center;background:var(--lilac-pale)}  
-.item-content{padding:20px;position:relative;z-index:2;background:transparent}
+
+/* CONTENIDO FLEX QUE EMPUJA LOS BOTONES AL FONDO */
+.item-content{padding:20px;position:relative;z-index:2;background:transparent; display:flex; flex-direction:column; flex:1;}
 .item-content h3{font:600 22px var(--serif);color:var(--lilac-dark);margin:0 0 7px}
 .item-content p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;min-height:calc(1.65em * 3);max-height:calc(1.65em * 3);font-size:13px;color:var(--muted);margin:0;}
 
@@ -112,8 +114,10 @@ button{cursor:pointer;}
 .item-card:nth-child(odd) .mini-btn {background:var(--lilac-card);border-color:#dfceeb;color:var(--lilac-dark);}
 .item-card:nth-child(even) .mini-btn {background:var(--pink-soft);border-color:#f0d5e1;color:var(--pink-dark);}
 
-.item-actions{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:nowrap;margin-top:4px;}   
+/* BOTONES SIEMPRE AL FONDO (margin-top: auto) */
+.item-actions{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:nowrap; margin-top:auto; padding-top:6px;}   
 .item-actions .mini-btn{display:inline-flex;align-items:center;justify-content:center;min-width:112px;white-space:nowrap} 
+
 .center-action{text-align:center;margin-top:32px}
 .cta-band{display:flex;align-items:center;justify-content:space-between;gap:24px;background:linear-gradient(110deg,#f1e7f4,#fff0f3);border:1px solid var(--line);border-radius:28px;padding:35px 42px;margin-top:20px;margin-bottom:70px}
 .cta-band h2{margin:6px 0}
@@ -159,7 +163,6 @@ button{cursor:pointer;}
 .contact-card .eyebrow{font-size:15px;margin-bottom:0px;}
 .contact-card p{color:var(--muted)}
 
-/* Borde redondeado para el enlace de correo y recortes en el footer */
 .contact-email{display:inline-block;color:var(--pink-dark);font-weight:700;font-size:18px;margin:10px 0; border-radius:8px; padding:4px 8px; margin-left:-8px; overflow:hidden;}
 .small-note{font-size:12px}
 .form-card{background:var(--pink-soft);border:1px solid #f0d5e1;border-radius:24px;padding:32px;box-shadow:0 8px 28px rgba(107,78,117,.05)}
