@@ -95,7 +95,7 @@ el.classList.remove("has-slider","is-centered");
 el.classList.add(count>3?"has-slider":"is-centered");   
 el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
   
-// --- ARRASTRAR CON MARIPOSA ---  
+// --- ARRASTRAR CON MARIPOSA SEGURO ---  
 if (count > 3) {  
  let isDown = false;  
  let startX;  
@@ -105,33 +105,35 @@ if (count > 3) {
  el.addEventListener('mousedown', (e) => {  
  isDown = true;  
  isDragging = false;  
- el.classList.add('grabbing-intent'); // Muestra la mariposa solo al mantener click
+ el.classList.add('grabbing-intent'); 
  startX = e.pageX - el.offsetLeft;  
  scrollLeft = el.scrollLeft;  
  });  
- el.addEventListener('mouseleave', () => { 
- isDown = false; 
- el.classList.remove('grabbing-intent', 'dragging'); 
- });  
- el.addEventListener('mouseup', () => { 
- isDown = false; 
- el.classList.remove('grabbing-intent', 'dragging'); 
- });  
+  
+ const stopDrag = () => {
+ if(!isDown) return;
+ isDown = false;
+ el.classList.remove('grabbing-intent');
+ setTimeout(() => { isDragging = false; }, 50);
+ };
+  
+ el.addEventListener('mouseleave', stopDrag);  
+ window.addEventListener('mouseup', stopDrag);  
+  
  el.addEventListener('mousemove', (e) => {  
  if(!isDown) return;  
  e.preventDefault();  
  const x = e.pageX - el.offsetLeft;  
  const walk = (x - startX) * 0.8; 
  if (Math.abs(walk) > 5) {
-   isDragging = true;
-   el.classList.add('dragging'); // Solo si arrastra desactiva eventos hijos
+ isDragging = true;
  }
  if (isDragging) {
-   el.scrollLeft = scrollLeft - walk;  
+ el.scrollLeft = scrollLeft - walk;  
  }
  });  
    
-// Si realmente estábamos arrastrando, anulamos el "clic" accidental en la tarjeta  
+// Suprime el click si realmente se arrastró la tarjeta
  el.addEventListener('click', (e) => {  
  if (isDragging) {  
  e.preventDefault();  
@@ -160,7 +162,6 @@ btnRight.setAttribute("aria-label", "Siguiente");
 wrapper.appendChild(btnLeft);   
 wrapper.appendChild(btnRight);   
   
-// Ahora mueve 1 sola tarjeta a la vez  
 btnLeft.addEventListener("click", () => {   
 const card = el.querySelector(".item-card");   
 if(card) el.scrollBy({left: -(card.offsetWidth + 24), behavior: "smooth"});   
@@ -183,8 +184,7 @@ const hasOffer = p.offer&&p.offerPrice!==undefined;
    
 metaHtml = `<div class="item-meta">  
  <div class="price-wrapper">  
- <div class="old-price-box">${(hasOffer && !isOut) ? `<del>${euro(p.price)}</del>` : ''}</div>  
- <div class="current-price-box">${isOut ? '<span class="stock-out">Agotado</span>' : `<strong>${euro(hasOffer?p.offerPrice:p.price)}</strong>`}</div>  
+ <div class="old-price-box">${(hasOffer && !isOut) ? `<del>${euro(p.price)}</del>` : ''}</div> <div class="current-price-box">${isOut ? '<span class="stock-out">Agotado</span>' : `<strong>${euro(hasOffer?p.offerPrice:p.price)}</strong>`}</div>  
  </div>  
  <div class="stock-box">${(lowStock && !isOut) ? '<span class="low-stock">Pocas unidades</span>' : ''}</div>  
  </div>`;  
@@ -225,7 +225,11 @@ btn?.addEventListener("click",()=>{const open=nav.classList.toggle("open");btn.s
   
 const cartTrigger = $(".cart-trigger");   
 if(cartTrigger) {   
-  const isTouch = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches);
+  let isTouch = false;
+  try {
+    isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+  } catch(e) {}
+  
   const currentCount = cartTrigger.querySelector(".cart-count")?.textContent || "0";
   if (isTouch) {
     cartTrigger.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cart-svg-icon" style="margin-right:2px"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg><b class="cart-count">${currentCount}</b>`;
@@ -360,11 +364,10 @@ if(pModal.classList.contains("theme-pink")) fsContent.classList.add("theme-pink"
   
 if(e.target.closest("[data-close-fs]") || e.target.id === "fs-modal") {  
  $("#fs-modal")?.classList.remove("open");  
- $("#fs-modal")?.setAttribute("aria-hidden", "true"); }  const qty=e.target.closest("[data-qty]");if(qty){const item=cart[Number(qty.dataset.index)];item.qty=Math.max(1,item.qty+Number(qty.dataset.qty));const p=products.find(x=>x.name===item.name);if(p)item.qty=Math.min(item.qty,p.stock);updateCart();} const rem=e.target.closest("[data-remove]");if(rem){cart.splice(Number(rem.dataset.remove),1);updateCart();} if(e.target.closest("[data-close-modal]")\vert{}\vert{}e.target.id==="product-modal")closeProduct(); });  document.addEventListener("keydown",e=>{ // Ignoramos el teclado si estás rellenando el formulario de contacto o el carrito if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;  // --- NAVEGACIÓN DE CARRUSEL CON TECLADO --- if (e.key === "ArrowLeft" \vert{}\vert{} e.key === "ArrowRight") { const sliders = $$(".has-slider");  
+ $("#fs-modal")?.setAttribute("aria-hidden", "true"); }  const qty=e.target.closest("[data-qty]");if(qty){const item=cart[Number(qty.dataset.index)];item.qty=Math.max(1,item.qty+Number(qty.dataset.qty));const p=products.find(x=>x.name===item.name);if(p)item.qty=Math.min(item.qty,p.stock);updateCart();} const rem=e.target.closest("[data-remove]");if(rem){cart.splice(Number(rem.dataset.remove),1);updateCart();} if(e.target.closest("[data-close-modal]")\vert{}\vert{}e.target.id==="product-modal")closeProduct(); });  document.addEventListener("keydown",e=>{ if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;  if (e.key === "ArrowLeft" \vert{}\vert{} e.key === "ArrowRight") { const sliders = $$(".has-slider");  
  let bestSlider = null;  
  let maxVisible = 0;  
    
-// Detecta de forma inteligente qué carrusel estás mirando en pantalla  
  sliders.forEach(slider => {  
  const rect = slider.getBoundingClientRect();  
  const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);  
@@ -374,7 +377,6 @@ if(e.target.closest("[data-close-fs]") || e.target.id === "fs-modal") {
  }  
  });  
    
-// Si hay uno visible, mueve exactamente 1 tarjeta por pulsación  
  if (bestSlider && maxVisible > 100) {   
 e.preventDefault();   
 const card = bestSlider.querySelector(".item-card");   
@@ -382,7 +384,6 @@ const walk = card ? (card.offsetWidth + 24) : 300;
  bestSlider.scrollBy({left: e.key === "ArrowLeft" ? -walk : walk, behavior: "smooth"});  
  }  
  }  
- // ----------------------------------------------  
   
  const c=e.target.closest("[data-card-kind]");  
  if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault();const i=Number(c.dataset.index),kind=c.dataset.cardKind;openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product",i);}  
