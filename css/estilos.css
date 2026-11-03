@@ -99,6 +99,12 @@ button,input,textarea{font:inherit}
     margin: 0 !important;
     padding: 0 !important;
 }
+
+/* Oculta la palabra "Carrito" SIEMPRE en móviles/tablets (incluso al pedir versión ordenador) */  
+@media (hover: none) and (pointer: coarse) {  
+ .cart-trigger span { display: none !important; }  
+ .cart-trigger { padding: 8px 14px !important; gap: 6px !important; }
+}  
   
 .menu-toggle{display:none;border:0;background:transparent;padding:8px;border-radius:14px;overflow:hidden}  
 .menu-toggle span{display:block;width:23px;height:2px;background:var(--lilac-dark);margin:5px}   
