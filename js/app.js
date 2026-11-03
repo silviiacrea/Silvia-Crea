@@ -1,4 +1,27 @@
 (() => {  
+// --- SISTEMA DE MEMORIA AVANZADO PARA GOOGLE SITES ---  
+const pageMap = {'home': 'index.html', 'shop': 'tienda.html', 'gallery': 'galeria.html', 'about': 'sobre-mi.html', 'orders': 'encargos.html', 'contact': 'contacto.html'};  
+const actualPage = document.body.dataset.page;  
+const currentHtml = pageMap[actualPage] || 'index.html';  
+const savedHtml = sessionStorage.getItem('silviacrea_current_page');  
+  
+let isBackForward = false;  
+if (window.performance) {  
+ const navEntries = performance.getEntriesByType("navigation");  
+ if (navEntries.length > 0 && navEntries[0].type === "back_forward") isBackForward = true;  
+ else if (performance.navigation && performance.navigation.type === 2) isBackForward = true;  
+}  
+  
+if (isBackForward) {  
+ sessionStorage.setItem('silviacrea_current_page', currentHtml);  
+} else if (savedHtml && savedHtml !== currentHtml && currentHtml === 'index.html') {  
+ window.location.replace(savedHtml);  
+ return;   
+} else {  
+ sessionStorage.setItem('silviacrea_current_page', currentHtml);  
+}  
+// -----------------------------------------------------  
+  
 const cfg = window.SILVIA_CONFIG || {};   
 const $ = (s, root=document) => root.querySelector(s); const $$ = (s, root=document) => [...root.querySelectorAll(s)];   
 const CART_KEY = "silviacrea_cart_v2";   
@@ -72,6 +95,7 @@ el.classList.remove("has-slider","is-centered");
 el.classList.add(count>3?"has-slider":"is-centered");   
 el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
   
+// --- ARRASTRAR CON RATÓN EN PC (BUG FIXED) ---  
 if (count > 3) {  
  el.style.cursor = 'grab';  
  let isDown = false;  
@@ -118,6 +142,7 @@ if (count > 3) {
  }  
  }, true);  
 }  
+// --------------------------------------------------  
   
 if(count>3 && !el.parentElement.classList.contains("slider-wrapper")){   
 const wrapper = document.createElement("div");   
@@ -293,7 +318,7 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
   
 document.addEventListener("click",e=>{   
 
- // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC ---
+ // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC (Perfectos) ---
  const petalColors = ['#f9d8e4', '#fbecf3', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#e9ddf3', '#c8dbf2', '#d6c5e5', '#f4c2d7'];
  for (let i = 0; i < 18; i++) {
      const petal = document.createElement('div');
@@ -310,7 +335,7 @@ document.addEventListener("click",e=>{
      setTimeout(() => petal.remove(), 3000); 
  }
 
- // 2. --- LOGO INICIO HERO (CRAYONES NACEN DE FORMA LIMPIA) ---
+ // 2. --- LOGO INICIO HERO (CRAYONES NACEN DE FORMA LIMPIA Y SIN LINEAS BLANCAS) ---
  const heroLogo = e.target.closest(".hero-logo");
  if (heroLogo) {
      const container = heroLogo.closest('.hero-art');
@@ -333,20 +358,18 @@ document.addEventListener("click",e=>{
              crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
              
              // Se añaden dentro del contenedor (z-index 1 hará que nazcan por debajo del logo)
+             // Y gracias a los keyframes con opacidad 0 al nacer no dejan líneas blancas
              container.appendChild(crayon);
              setTimeout(() => crayon.remove(), 6500); 
          }
      }
  }
 
- // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO LENTAMENTE) ---
+ // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO LENTAMENTE DESDE TODO EL HEADER) ---
  const headerBrand = e.target.closest(".site-header .brand");
  if (headerBrand) {
      e.preventDefault(); 
      
-     const rect = headerBrand.getBoundingClientRect();
-     const startX = rect.left + rect.width / 2;
-     const startY = rect.bottom; 
      const yarnColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fbecf3'];
 
      const count = 4 + Math.floor(Math.random() * 4); // Cantidad aleatoria de ovillos por cada clic
@@ -365,8 +388,12 @@ document.addEventListener("click",e=>{
             <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round"/>
          </svg>`;
          
-         const tx = (Math.random() - 0.5) * window.innerWidth * 0.4; 
-         // Calculamos la parte baja de la pantalla en el viewport
+         // Nacen aleatoriamente a lo ancho de toda la pantalla y POR ENCIMA para que caigan por detrás del header
+         const startX = Math.random() * window.innerWidth;
+         const startY = -40; // Totalmente escondidos por arriba
+         
+         const tx = (Math.random() - 0.5) * 200; // Desviación horizontal durante la caída
+         // Calculamos la distancia de caída hasta el borde inferior de la pantalla
          const dropY = window.innerHeight - startY - 20; 
          const bx = (Math.random() - 0.5) * 80; 
          const scale = 0.6 + Math.random() * 0.6; 
@@ -393,15 +420,16 @@ document.addEventListener("click",e=>{
      return;
  }
 
- // 4. --- LOGO FOOTER (CRAYONES DESDE DETRÁS, ESPERAR 3 SEGUNDOS Y SCROLL SMOOTH) ---
+ // 4. --- LOGO FOOTER (CRAYONES SALIENDO DESDE DETRÁS DEL PROPIO LOGO) ---
  const footerLink = e.target.closest(".footer-brand-img");
  if (footerLink) {
      e.preventDefault();
      if(footerLink.dataset.animScheduled) return;
      footerLink.dataset.animScheduled = "true";
-
+     
      const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
      
+     // Para salir desde debajo del logo del footer
      for (let i = 0; i < 40; i++) {
          const crayon = document.createElement('div');
          crayon.className = 'crayon-anim-footer'; 
@@ -434,45 +462,58 @@ document.addEventListener("click",e=>{
      return;
  }
 
- // 5. --- LLUVIA DE CORAZONES EN "SOY SILVIA RODRIGUEZ" DESDE EL HEADER ---
+ // 5. --- LLUVIA DE CORAZONES EN "SOY SILVIA RODRIGUEZ" DESDE TODO EL HEADER ---
  const h2Target = e.target.closest("h2");
  if (h2Target && h2Target.textContent.includes("Soy Silvia Rodríguez")) {
-     // Obtenemos la posición de la barra del header para que caigan desde el menú
-     const headerMenu = document.querySelector(".main-nav") || document.querySelector(".site-header");
-     if(headerMenu) {
-         const rect = headerMenu.getBoundingClientRect();
-         const startX = rect.left + rect.width / 2;
-         const startY = rect.bottom;
-         const heartColors = ['#e6a9bf', '#b99acb', '#f4c2d7', '#fbecf3'];
-
-         const count = 10 + Math.floor(Math.random() * 6); // Se puede spamear
-         for(let i = 0; i < count; i++) {
-             const heart = document.createElement('div');
-             heart.className = 'heart-anim';
-             
-             const color = heartColors[Math.floor(Math.random() * heartColors.length)];
-             heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
-             
-             const tx = (Math.random() - 0.5) * window.innerWidth * 0.9; 
-             const dropY = window.innerHeight - startY - 20; 
-             const bx = (Math.random() - 0.5) * 80; 
-             const scale = 0.8 + Math.random() * 0.7; 
-             
-             heart.style.left = startX + 'px';
-             heart.style.top = startY + 'px';
-             heart.style.setProperty('--tx', `${tx}px`);
-             heart.style.setProperty('--drop-y', `${dropY}px`);
-             heart.style.setProperty('--bx', `${bx}px`);
-             heart.style.setProperty('--rot', `${(Math.random() - 0.5) * 360}deg`);
-             heart.style.setProperty('--scale', scale);
-             
-             document.body.appendChild(heart);
-             setTimeout(() => heart.remove(), 7500); 
-         }
+     const heartColors = ['#e6a9bf', '#b99acb', '#f4c2d7', '#fbecf3'];
+     const count = 10 + Math.floor(Math.random() * 6); // Se puede spamear con clics
+     
+     for(let i = 0; i < count; i++) {
+         const heart = document.createElement('div');
+         heart.className = 'heart-anim';
+         
+         const color = heartColors[Math.floor(Math.random() * heartColors.length)];
+         heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
+         
+         // Nacen aleatoriamente a lo ancho de la pantalla por encima del viewport
+         const startX = Math.random() * window.innerWidth; 
+         const startY = -40; // Totalmente escondidos
+         
+         const tx = (Math.random() - 0.5) * window.innerWidth * 0.9; 
+         const dropY = window.innerHeight - startY - 20; 
+         const bx = (Math.random() - 0.5) * 80; 
+         const scale = 0.8 + Math.random() * 0.7; 
+         
+         heart.style.left = startX + 'px';
+         heart.style.top = startY + 'px';
+         heart.style.setProperty('--tx', `${tx}px`);
+         heart.style.setProperty('--drop-y', `${dropY}px`);
+         heart.style.setProperty('--bx', `${bx}px`);
+         heart.style.setProperty('--rot', `${(Math.random() - 0.5) * 360}deg`);
+         heart.style.setProperty('--scale', scale);
+         
+         document.body.appendChild(heart);
+         setTimeout(() => heart.remove(), 7500); 
      }
  }
  // --------------------------------------------------------
   
+ // CONTROLADOR DE NAVEGACIÓN NORMAL (SIN TRANSICIONES AGRESIVAS)
+ const link = e.target.closest("a");  
+ if (link && link.href) {  
+     const isInternal = link.getAttribute("href").includes(".html") && !link.getAttribute("href").startsWith("http") && link.target !== "_blank";
+     if (isInternal) {  
+         // Evitamos interrumpir al logo del header (que tiene su propio timer para cargar tras soltar ovillos)
+         if (link.classList.contains("brand")) return; 
+         
+         // Navega instantáneamente como antes
+         sessionStorage.setItem("silviacrea_current_page", link.getAttribute("href"));
+         window.location.href = link.href;
+         e.preventDefault();
+         return;
+     }  
+ }
+
 if(e.target.closest("[data-open-cart]"))openCart();   
 if(e.target.closest("[data-close-cart]"))closeCart();   
 const add=e.target.closest("[data-add]");if(add){e.stopPropagation();addProduct(products[Number(add.dataset.add)]);return;}   

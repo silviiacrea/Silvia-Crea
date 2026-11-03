@@ -2,6 +2,22 @@
 --svg-emojis: url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg font-size='20' opacity='0.08'%3E%3Ctext x='40' y='50' transform='rotate(-12 40 50)'%3E🧶%3C/text%3E%3Ctext x='200' y='70' transform='rotate(15 200 70)'%3E🦋%3C/text%3E%3Ctext x='350' y='40' transform='rotate(-5 350 40)'%3E✏️%3C/text%3E%3Ctext x='100' y='160' transform='rotate(22 100 160)'%3E🎨%3C/text%3E%3Ctext x='280' y='190' transform='rotate(-18 280 190)'%3E🧵%3C/text%3E%3Ctext x='50' y='290' transform='rotate(10 50 290)'%3E🖌️%3C/text%3E%3Ctext x='220' y='320' transform='rotate(-20 220 320)'%3E🧶%3C/text%3E%3Ctext x='360' y='260' transform='rotate(8 360 260)'%3E🦋%3C/text%3E%3Ctext x='140' y='370' transform='rotate(-10 140 370)'%3E🧵%3C/text%3E%3C/g%3E%3C/svg%3E");  
 }   
   
+/* TRANSICIÓN FLUIDA ENTRE PÁGINAS */
+body {   
+    animation: pageFadeIn 0.4s ease-out forwards;
+}
+body.is-leaving {
+    animation: pageFadeOut 0.35s ease-in forwards;
+}
+@keyframes pageFadeIn {
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes pageFadeOut {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-12px); }
+}
+
 /* SISTEMA UNIVERSAL DE PULSACIONES (Pantallas táctiles y móviles) */  
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}   
 a, button, input, textarea, [tabindex], [role="button"], .item-card {  
@@ -419,10 +435,8 @@ input, textarea, select, [contenteditable] {
 }
 
 /* Base gráfica común para todos los crayones */
-.crayon-anim-hero, .crayon-anim-footer {
+.crayon-anim-hero {
     position: absolute;
-    top: 50%;
-    left: 50%;
     width: 10px;
     height: 36px;
     margin-left: -5px;
@@ -431,18 +445,9 @@ input, textarea, select, [contenteditable] {
     pointer-events: none;
     background-color: currentColor;
     transform-origin: center center;
+    z-index: 1; /* Sale siempre desde debajo del logo Hero (que tiene z-index: 2) */
 }
-/* Al ponerlos absolute dentro del grid y anclados al centro con z-index 1, nacen desde detrás del hero-logo */
-.crayon-anim-hero {
-    z-index: 1; 
-    animation: crayonRollHero 6s cubic-bezier(0.15, 0.9, 0.35, 1) forwards !important;
-}
-/* El footer debe ir en -1 para que salga por detrás del logo del footer (que es relativo) */
-.crayon-anim-footer {
-    z-index: -1; 
-    animation: crayonRollFooter 9s cubic-bezier(0.1, 0.8, 0.3, 1) forwards !important;
-}
-.crayon-anim-hero::before, .crayon-anim-footer::before {
+.crayon-anim-hero::before {
     content: '';
     position: absolute;
     top: -9px;
@@ -453,7 +458,7 @@ input, textarea, select, [contenteditable] {
     border-right: 5px solid transparent;
     border-bottom: 9px solid currentColor;
 }
-.crayon-anim-hero::after, .crayon-anim-footer::after {
+.crayon-anim-hero::after {
     content: '';
     position: absolute;
     top: -10px;
@@ -474,6 +479,9 @@ input, textarea, select, [contenteditable] {
 }
 
 /* Animación Crayones Hero - Sin rayas blancas (la opacidad arranca estrictamente en 0) */
+.crayon-anim-hero {
+    animation: crayonRollHero 6s cubic-bezier(0.15, 0.9, 0.35, 1) forwards !important;
+}
 @keyframes crayonRollHero {
     0% { transform: translate(0, 0) rotate(0deg); opacity: 0; filter: blur(0px); }
     5% { opacity: 1; filter: blur(0px); }
@@ -481,32 +489,35 @@ input, textarea, select, [contenteditable] {
     100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); }
 }
 
-/* Animación Crayones Footer - Desvanecimiento tras 6 segundos */
-@keyframes crayonRollFooter {
-    0% { transform: translate(0, 0) rotate(0deg); opacity: 0; filter: blur(0px); }
-    5% { opacity: 1; filter: blur(0px); }
-    66% { opacity: 1; filter: blur(0px); } /* 6 segundos exactos (66% de 9s) */
-    100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); }
-}
 
-/* Ovillos cayendo y rebotando en la pantalla (Header) */
+/* Corazones y Ovillos de Lana (Gravedad y Rebote desde arriba) */
+.yarn-anim, .heart-anim {
+    position: fixed; 
+    z-index: 45; /* Pasan ocultos por detrás del header (que tiene z-index 50) */
+    pointer-events: none;
+    animation: itemDrop 7.5s forwards !important;
+}
 .yarn-anim {
-    position: fixed; /* Siempre fijos respecto a la pantalla del navegador (Viewport) */
     width: 36px; 
-    height: 44px; 
+    height: 44px;
     margin-left: -18px;
     margin-top: -22px;
-    z-index: 999999;
-    pointer-events: none;
-    animation: yarnDrop 7s forwards !important;
     filter: drop-shadow(0 6px 8px rgba(0,0,0,0.15));
 }
-.yarn-anim svg {
+.heart-anim {
+    width: 24px; 
+    height: 24px;
+    margin-left: -12px;
+    margin-top: -12px;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+}
+.yarn-anim svg, .heart-anim svg {
     width: 100%;
     height: 100%;
     display: block;
 }
-@keyframes yarnDrop {
+/* Física de caída libre suavizada y múltiples rebotes hasta desvanecer */
+@keyframes itemDrop {
     0% { transform: translate(0, 0) rotate(0deg) scale(var(--scale)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
     35% { transform: translate(calc(var(--tx) * 0.4), var(--drop-y)) rotate(calc(var(--rot) * 0.4)); opacity: 1; animation-timing-function: cubic-bezier(0, 0, 0.2, 1); } 
     48% { transform: translate(calc(var(--tx) * 0.7 + var(--bx)*0.4), calc(var(--drop-y) - 65px)) rotate(calc(var(--rot) * 0.6)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
@@ -514,31 +525,4 @@ input, textarea, select, [contenteditable] {
     66% { transform: translate(calc(var(--tx) + var(--bx)*1.2), calc(var(--drop-y) - 20px)) rotate(calc(var(--rot) * 0.9)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
     75% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(var(--rot)) scale(var(--scale)); opacity: 1; filter: blur(0px); }
     100% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(var(--rot)) scale(var(--scale)); opacity: 0; filter: blur(5px); }
-}
-
-/* Lluvia de corazones cayendo desde el menú (Sobre Mi) */
-.heart-anim {
-    position: fixed; 
-    width: 28px;
-    height: 28px;
-    margin-left: -14px;
-    margin-top: -14px;
-    z-index: 999999;
-    pointer-events: none;
-    animation: heartDrop 8s forwards !important;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.12));
-}
-.heart-anim svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-@keyframes heartDrop {
-    0% { transform: translate(0, 0) rotate(var(--rot)) scale(var(--scale)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
-    35% { transform: translate(calc(var(--tx) * 0.4), var(--drop-y)) rotate(calc(var(--rot) + 90deg)); opacity: 1; animation-timing-function: cubic-bezier(0, 0, 0.2, 1); } 
-    50% { transform: translate(calc(var(--tx) * 0.7 + var(--bx)*0.4), calc(var(--drop-y) - 80px)) rotate(calc(var(--rot) + 180deg)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
-    65% { transform: translate(calc(var(--tx) + var(--bx)*0.8), var(--drop-y)) rotate(calc(var(--rot) + 270deg)); opacity: 1; animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
-    75% { transform: translate(calc(var(--tx) + var(--bx)*1.2), calc(var(--drop-y) - 30px)) rotate(calc(var(--rot) + 360deg)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
-    85% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(calc(var(--rot) + 400deg)) scale(var(--scale)); opacity: 1; filter: blur(0px); }
-    100% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(calc(var(--rot) + 450deg)) scale(var(--scale)); opacity: 0; filter: blur(6px); }
 }
