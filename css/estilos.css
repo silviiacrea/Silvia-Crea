@@ -469,26 +469,6 @@ input, textarea, select, [contenteditable] {
     border-radius: 2px 2px 0 0;
     opacity: 0.8;
 }
-.crayon-anim-wrap {
-    position: absolute;
-    top: 8px;
-    bottom: 8px;
-    left: 0;
-    right: 0;
-    background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.25), rgba(255,255,255,0.25) 3px, transparent 3px, transparent 7px);
-}
-
-/* Animación Crayones Hero - Sin rayas blancas (la opacidad arranca estrictamente en 0) */
-.crayon-anim-hero {
-    animation: crayonRollHero 6s cubic-bezier(0.15, 0.9, 0.35, 1) forwards !important;
-}
-@keyframes crayonRollHero {
-    0% { transform: translate(0, 0) rotate(0deg); opacity: 0; filter: blur(0px); }
-    5% { opacity: 1; filter: blur(0px); }
-    70% { opacity: 1; filter: blur(0px); }
-    100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); }
-}
-
 
 /* Corazones y Ovillos de Lana (Gravedad y Rebote desde arriba) */
 .yarn-anim, .heart-anim {
