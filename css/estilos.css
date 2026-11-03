@@ -2,6 +2,22 @@
 --svg-emojis: url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg font-size='20' opacity='0.08'%3E%3Ctext x='40' y='50' transform='rotate(-12 40 50)'%3E🧶%3C/text%3E%3Ctext x='200' y='70' transform='rotate(15 200 70)'%3E🦋%3C/text%3E%3Ctext x='350' y='40' transform='rotate(-5 350 40)'%3E✏️%3C/text%3E%3Ctext x='100' y='160' transform='rotate(22 100 160)'%3E🎨%3C/text%3E%3Ctext x='280' y='190' transform='rotate(-18 280 190)'%3E🧵%3C/text%3E%3Ctext x='50' y='290' transform='rotate(10 50 290)'%3E🖌️%3C/text%3E%3Ctext x='220' y='320' transform='rotate(-20 220 320)'%3E🧶%3C/text%3E%3Ctext x='360' y='260' transform='rotate(8 360 260)'%3E🦋%3C/text%3E%3Ctext x='140' y='370' transform='rotate(-10 140 370)'%3E🧵%3C/text%3E%3C/g%3E%3C/svg%3E");  
 }   
   
+/* TRANSICIÓN FLUIDA ENTRE PÁGINAS */
+body {   
+    animation: pageFadeIn 0.4s ease-out forwards;
+}
+body.is-leaving {
+    animation: pageFadeOut 0.35s ease-in forwards;
+}
+@keyframes pageFadeIn {
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes pageFadeOut {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-12px); }
+}
+
 /* SISTEMA UNIVERSAL DE PULSACIONES (Pantallas táctiles y móviles) */  
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}   
 a, button, input, textarea, [tabindex], [role="button"], .item-card {  
@@ -98,6 +114,8 @@ button{cursor:pointer;}
 .item-image.placeholder{display:flex;align-items:center;justify-content:center;background:var(--lilac-pale)}   
   
 .item-content{padding:20px;position:relative;z-index:2;background:transparent; display:flex; flex-direction:column; flex:1;}  
+
+/* CENTRADO DE TEXTO EN LAS TARJETAS */
 .item-content h3{font:600 22px var(--serif);color:var(--lilac-dark);margin:0 0 7px; text-align:center;}  
 .item-content p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;min-height:calc(1.65em * 3);max-height:calc(1.65em * 3);font-size:13px;color:var(--muted);margin:0; text-align:center;}  
   
@@ -343,7 +361,6 @@ padding:12px 16px;font-size:15px;text-align:center;background:var(--white-lilac)
 /* CURSORES PERSONALIZADOS SVG (Sakura Tamaño Intermedio + Bolígrafo)         */
 /* ========================================================================== */
 body, html {  
-    /* Tamaño intermedio exacto (22x22px con punto de anclaje en el centro 11 11) */
     cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 32 32'%3E%3Cdefs%3E%3Cg id='p'%3E%3Cpath d='M16 16 C6 5 10 0 16 3 C22 0 26 5 16 16' fill='%23fbecf3' stroke='%23e6a9bf' stroke-width='0.75'/%3E%3Cpath d='M16 16 C10 8 12 4 16 6 C20 4 22 8 16 16' fill='%23f9d8e4'/%3E%3Cline x1='16' y1='16' x2='16' y2='7' stroke='%23b99acb' stroke-width='0.75'/%3E%3Ccircle cx='16' cy='7' r='1' fill='%23b99acb'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23p'/%3E%3Cuse href='%23p' transform='rotate(72 16 16)'/%3E%3Cuse href='%23p' transform='rotate(144 16 16)'/%3E%3Cuse href='%23p' transform='rotate(216 16 16)'/%3E%3Cuse href='%23p' transform='rotate(288 16 16)'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23e6a9bf'/%3E%3C/svg%3E") 11 11, auto !important;  
 }  
 a, button, .item-card, .slider-btn, .mini-btn, .cart-trigger, .modal-close, .hero-logo, .footer-brand-img, .brand, h2 {  
@@ -375,7 +392,7 @@ input, textarea, select, [contenteditable] {
     100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot)) scale(1.5); opacity: 0; filter: blur(0.8px); }
 }
 
-/* CRAYONES: Etiqueta original con lineas rayadas devuelta, sin bordes raros */
+/* CRAYONES: Etiqueta original perfecta CREADA A TRAVÉS DE CSS (SIN HTML) para evitar cuadros blancos detrás del logo */
 .crayon-anim-hero, .crayon-anim-footer {
     position: absolute;
     width: 10px;
@@ -385,8 +402,18 @@ input, textarea, select, [contenteditable] {
     border-radius: 2px;
     pointer-events: none;
     background-color: currentColor;
+    
+    /* Etiqueta de papel original a rayas pintada directamente con CSS, no usa elementos div extra */
+    background-image: 
+        linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)), /* Borde superior etiqueta */
+        linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), /* Borde inferior etiqueta */
+        repeating-linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.35) 2px, transparent 2px, transparent 5px); /* Rayas de papel */
+    background-size: 100% 1px, 100% 1px, 100% 20px;
+    background-position: top 8px left 0, bottom 8px left 0, center;
+    background-repeat: no-repeat;
+    
     transform-origin: center center;
-    z-index: 1; /* Sale siempre desde debajo de los logos */
+    z-index: 1; /* Sale siempre desde debajo del logo */
 }
 .crayon-anim-footer {
     position: fixed; 
@@ -416,20 +443,10 @@ input, textarea, select, [contenteditable] {
     border-radius: 2px 2px 0 0;
     opacity: 0.8;
 }
-/* Etiqueta de papel original restaurada (rayas) */
-.crayon-anim-wrap {
-    position: absolute;
-    top: 8px;
-    bottom: 8px;
-    left: 0;
-    right: 0;
-    background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.25), rgba(255,255,255,0.25) 3px, transparent 3px, transparent 7px);
-}
 
-/* Animación Crayones Hero - Opacidad progresiva para eliminar el cuadrado blanco detrás del logo */
+/* Animación Crayones Hero - Opacidad progresiva super limpia para evitar destellos blancos */
 .crayon-anim-hero {
     animation: crayonRollHero 6s cubic-bezier(0.15, 0.9, 0.35, 1) forwards !important;
-    opacity: 0; 
 }
 @keyframes crayonRollHero {
     0% { transform: translate(0, 0) rotate(0deg); opacity: 0; filter: blur(0px); }

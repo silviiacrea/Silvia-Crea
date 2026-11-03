@@ -346,7 +346,7 @@ document.addEventListener("click",e=>{
      }
  }
 
- // 2. --- LOGO INICIO HERO (CRAYONES LIMPIOS Y RAYADOS) ---
+ // 2. --- LOGO INICIO HERO (CRAYONES LIMPIOS, CREADOS VÍA CSS) ---
  const heroLogo = e.target.closest(".hero-logo");
  if (heroLogo) {
      const container = heroLogo.closest('.hero-art');
@@ -364,13 +364,7 @@ document.addEventListener("click",e=>{
              crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
              crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
              
-             // Etiqueta de papel a rayas (restaurada) inyectada dinámicamente
-             const wrap = document.createElement('div');
-             wrap.className = 'crayon-anim-wrap';
-             crayon.appendChild(wrap);
-             
-             // Esto garantiza que todos nazcan en el centro físico de su contenedor 
-             // (y no arrastren coordenadas de la pantalla)
+             // Los añadimos al centro exacto del contenedor, sin usar wrappers que causen cuadrados extraños
              crayon.style.left = '50%';
              crayon.style.top = '50%';
              
@@ -383,7 +377,7 @@ document.addEventListener("click",e=>{
  // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO) ---
  const headerBrand = e.target.closest(".site-header .brand");
  if (headerBrand) {
-     e.preventDefault(); // Anulamos navegación, ahora solo llueven ovillos
+     e.preventDefault(); // Anulamos la navegación para que solo sea decorativo
      
      if (!isMobile || activeMobileClicks < 3) {
          if (isMobile) { activeMobileClicks++; setTimeout(() => activeMobileClicks--, 7500); }
@@ -404,8 +398,9 @@ document.addEventListener("click",e=>{
                 <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round"/>
              </svg>`;
              
+             // Nacen aleatoriamente a lo ancho de toda la pantalla y POR ENCIMA del viewport
              const startX = Math.random() * window.innerWidth;
-             const startY = -40; // Ocultos por encima
+             const startY = -40; // Escondidos por arriba
              
              const tx = (Math.random() - 0.5) * 200; 
              const dropY = window.innerHeight - startY - 20; 
@@ -448,6 +443,7 @@ document.addEventListener("click",e=>{
              const color = mutedPastels[Math.floor(Math.random() * mutedPastels.length)];
              heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
              
+             // Nacen escondidos por encima del viewport
              const startX = Math.random() * window.innerWidth; 
              const startY = -40; 
              
@@ -471,13 +467,14 @@ document.addEventListener("click",e=>{
  }
  // --------------------------------------------------------
   
- // CONTROLADOR DE NAVEGACIÓN INSTANTÁNEA (Sin transiciones visuales, respetando recargas)
+ // CONTROLADOR DE NAVEGACIÓN DIRECTA
  const link = e.target.closest("a");  
  if (link && link.href) {  
      const isInternal = link.getAttribute("href").includes(".html") && !link.getAttribute("href").startsWith("http") && link.target !== "_blank";
      if (isInternal) {  
          if (link.classList.contains("brand") || link.classList.contains("footer-brand-img")) return; 
          
+         // Navega instantáneamente sin transiciones, guardando la página actual en localStorage
          localStorage.setItem("silviacrea_current_page", link.getAttribute("href"));
          window.location.href = link.href;
          e.preventDefault();
