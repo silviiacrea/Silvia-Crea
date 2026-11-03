@@ -30,9 +30,6 @@ const $ = (s, root=document) => root.querySelector(s); const $$ = (s, root=docum
 const CART_KEY = "silviacrea_cart_v2";   
 let products = [], specialties = [], gallery = [], cart = loadCart(), modalProduct = null, toastTimer;   
   
-// Limitador de rendimiento en móviles (solo permite 3 tandas de animación activas al mismo tiempo)
-let activeMobileClicks = 0;
-  
 function csvUrl(sheet){return `https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet)}`;}   
 function parseCSV(text){   
 const rows=[]; let row=[], cell="", quoted=false;   
@@ -336,13 +333,11 @@ document.addEventListener("click",e=>{
  const vividPastels = ['#ff9aa2', '#c8a2c8', '#b19cd9', '#ffb3c6'];
 
  // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC ---
- if (!isMobile || activeMobileClicks < 3) {
-     if (isMobile) { activeMobileClicks++; setTimeout(() => activeMobileClicks--, 3000); }
+ if (!isMobile || document.querySelectorAll('.petal-anim').length < 24) {
      const petalCount = isMobile ? 8 : 18;
      for (let i = 0; i < petalCount; i++) {
          const petal = document.createElement('div');
          petal.className = 'petal-anim';
-         // Usa la nueva paleta de pétalos
          petal.style.background = petalColors[Math.floor(Math.random() * petalColors.length)];
          petal.style.left = e.pageX + 'px';
          petal.style.top = e.pageY + 'px';
@@ -356,17 +351,15 @@ document.addEventListener("click",e=>{
      }
  }
 
- // 2. --- LOGO INICIO HERO (CRAYONES LIMPIOS, CREADOS VÍA CSS) ---
+ // 2. --- LOGO INICIO HERO (CRAYONES LIMPIOS) ---
  const heroLogo = e.target.closest(".hero-logo");
  if (heroLogo) {
      const container = heroLogo.closest('.hero-art');
-     if(container && (!isMobile || activeMobileClicks < 3)) {
-         if (isMobile) { activeMobileClicks++; setTimeout(() => activeMobileClicks--, 6500); }
+     if(container && (!isMobile || document.querySelectorAll('.crayon-anim-hero').length < 24)) {
          const crayonCount = isMobile ? 8 : 20;
          for (let i = 0; i < crayonCount; i++) {
              const crayon = document.createElement('div');
              crayon.className = 'crayon-anim-hero'; 
-             // Usa la paleta extendida para crayones
              crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
              
              const angle = Math.random() * Math.PI * 2;
@@ -375,7 +368,6 @@ document.addEventListener("click",e=>{
              crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
              crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
              
-             // Los añadimos al centro exacto del contenedor
              crayon.style.left = '50%';
              crayon.style.top = '50%';
              
@@ -388,11 +380,9 @@ document.addEventListener("click",e=>{
  // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO) ---
  const headerBrand = e.target.closest(".site-header .brand");
  if (headerBrand) {
-     e.preventDefault(); // Anulamos la navegación para que solo sea decorativo
+     e.preventDefault();
      
-     if (!isMobile || activeMobileClicks < 3) {
-         if (isMobile) { activeMobileClicks++; setTimeout(() => activeMobileClicks--, 7500); }
-         
+     if (!isMobile || document.querySelectorAll('.yarn-anim').length < 9) {
          const count = isMobile ? (2 + Math.floor(Math.random() * 2)) : (4 + Math.floor(Math.random() * 4));
          for(let i = 0; i < count; i++) {
              const yarn = document.createElement('div');
@@ -409,9 +399,8 @@ document.addEventListener("click",e=>{
                 <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round"/>
              </svg>`;
              
-             // Nacen aleatoriamente a lo ancho de toda la pantalla y POR ENCIMA del viewport
              const startX = Math.random() * window.innerWidth;
-             const startY = -40; // Escondidos por arriba
+             const startY = -40;
              
              const tx = (Math.random() - 0.5) * 200; 
              const dropY = window.innerHeight - startY - 20; 
@@ -443,9 +432,7 @@ document.addEventListener("click",e=>{
  // 5. --- LLUVIA DE CORAZONES EN "SOY SILVIA RODRIGUEZ" ---
  const h2Target = e.target.closest("h2");
  if (h2Target && h2Target.textContent.includes("Soy Silvia Rodríguez")) {
-     if (!isMobile || activeMobileClicks < 3) {
-         if (isMobile) { activeMobileClicks++; setTimeout(() => activeMobileClicks--, 7500); }
-         
+     if (!isMobile || document.querySelectorAll('.heart-anim').length < 21) {
          const count = isMobile ? (5 + Math.floor(Math.random() * 3)) : (10 + Math.floor(Math.random() * 6));
          for(let i = 0; i < count; i++) {
              const heart = document.createElement('div');
@@ -454,7 +441,6 @@ document.addEventListener("click",e=>{
              const color = vividPastels[Math.floor(Math.random() * vividPastels.length)];
              heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
              
-             // Nacen escondidos por encima del viewport
              const startX = Math.random() * window.innerWidth; 
              const startY = -40; 
              
