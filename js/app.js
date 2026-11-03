@@ -30,6 +30,9 @@ const $ = (s, root=document) => root.querySelector(s); const $$ = (s, root=docum
 const CART_KEY = "silviacrea_cart_v2";   
 let products = [], specialties = [], gallery = [], cart = loadCart(), modalProduct = null, toastTimer;   
   
+// Limitador de rendimiento en móviles (solo permite 3 tandas de animación activas al mismo tiempo)
+let activeMobileClicks = 0;
+  
 function csvUrl(sheet){return `https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet)}`;}   
 function parseCSV(text){   
 const rows=[]; let row=[], cell="", quoted=false;   
@@ -98,7 +101,7 @@ el.classList.remove("has-slider","is-centered");
 el.classList.add(count>3?"has-slider":"is-centered");   
 el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
   
-// --- ARRASTRAR CON RATÓN EN PC (BUG FIXED) ---  
+// --- ARRASTRAR CON RATÓN EN PC ---  
 if (count > 3) {  
  el.style.cursor = 'grab';  
  let isDown = false;  
@@ -320,37 +323,42 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
 }   
   
 document.addEventListener("click",e=>{   
- const isMobile = window.innerWidth <= 768; // Detector de optimización para móviles
+ const isMobile = window.innerWidth <= 768;
 
- // 1. --- EFECTO PÉTALOS GLOBALES (Rendimiento adaptativo) ---
- const petalColors = ['#f9d8e4', '#fbecf3', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#e9ddf3', '#c8dbf2', '#d6c5e5', '#f4c2d7'];
- const petalCount = isMobile ? 8 : 18;
- for (let i = 0; i < petalCount; i++) {
-     const petal = document.createElement('div');
-     petal.className = 'petal-anim';
-     petal.style.background = petalColors[Math.floor(Math.random() * petalColors.length)];
-     petal.style.left = e.pageX + 'px';
-     petal.style.top = e.pageY + 'px';
-     const angle = Math.random() * Math.PI * 2;
-     const dist = 60 + Math.random() * 150; 
-     petal.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
-     petal.style.setProperty('--ty', `${Math.sin(angle) * dist + 50}px`); 
-     petal.style.setProperty('--rot', `${(Math.random() - 0.5) * 1080}deg`);
-     document.body.appendChild(petal);
-     setTimeout(() => petal.remove(), 3000); 
+ // Paleta de colores unificada y extra grande con 25 tonos pastel variados
+ const pastelColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4', '#ffb3ba', '#ffdfba', '#ffffba', '#baffc9', '#bae1ff', '#e0b0ff', '#c2ebd3', '#ffe5b4', '#f0c2e0', '#c6d8ff', '#ffc8a2', '#d4f0f0', '#e3fada', '#fdfd96', '#ffb7b2'];
+
+ // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC ---
+ if (!isMobile || activeMobileClicks < 3) {
+     if (isMobile) { activeMobileClicks++; setTimeout(() => activeMobileClicks--, 3000); }
+     const petalCount = isMobile ? 8 : 18;
+     for (let i = 0; i < petalCount; i++) {
+         const petal = document.createElement('div');
+         petal.className = 'petal-anim';
+         petal.style.background = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+         petal.style.left = e.pageX + 'px';
+         petal.style.top = e.pageY + 'px';
+         const angle = Math.random() * Math.PI * 2;
+         const dist = 60 + Math.random() * 150; 
+         petal.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+         petal.style.setProperty('--ty', `${Math.sin(angle) * dist + 50}px`); 
+         petal.style.setProperty('--rot', `${(Math.random() - 0.5) * 1080}deg`);
+         document.body.appendChild(petal);
+         setTimeout(() => petal.remove(), 3000); 
+     }
  }
 
- // 2. --- LOGO INICIO HERO (CRAYONES LIMPIOS GENERADOS SOLO VÍA CSS, SIN WRAPPER HTML) ---
+ // 2. --- LOGO INICIO HERO (CRAYONES SIN RAYAS BLANCAS) ---
  const heroLogo = e.target.closest(".hero-logo");
  if (heroLogo) {
      const container = heroLogo.closest('.hero-art');
-     if(container) {
-         const crayonColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fffaf5', '#fbecf3', '#f4c2d7', '#c8dbf2', '#e9ddf3', '#f9d8e4'];
+     if(container && (!isMobile || activeMobileClicks < 3)) {
+         if (isMobile) { activeMobileClicks++; setTimeout(() => activeMobileClicks--, 6500); }
          const crayonCount = isMobile ? 8 : 20;
          for (let i = 0; i < crayonCount; i++) {
              const crayon = document.createElement('div');
              crayon.className = 'crayon-anim-hero'; 
-             crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
+             crayon.style.color = pastelColors[Math.floor(Math.random() * pastelColors.length)];
              
              const angle = Math.random() * Math.PI * 2;
              const distance = 250 + Math.random() * 450; 
@@ -364,102 +372,107 @@ document.addEventListener("click",e=>{
      }
  }
 
- // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO DE VERDAD AL PULSAR SILVIA CREA ARTE Y MANUALIDADES) ---
+ // 3. --- LOGO HEADER (OVILLOS DE LANA ESPONJOSOS) ---
  const headerBrand = e.target.closest(".site-header .brand");
  if (headerBrand) {
-     e.preventDefault(); // Anulamos la navegación para que solo deje caer la lana
+     e.preventDefault(); // Anulamos la navegación para que solo sea decorativo
      
-     const yarnColors = ['#b99acb', '#e6a9bf', '#e2edf8', '#f0e7f4', '#fbecf3'];
-     const count = isMobile ? (2 + Math.floor(Math.random() * 2)) : (4 + Math.floor(Math.random() * 4));
-
-     for(let i = 0; i < count; i++) {
-         const yarn = document.createElement('div');
-         yarn.className = 'yarn-anim';
+     if (!isMobile || activeMobileClicks < 3) {
+         if (isMobile) { activeMobileClicks++; setTimeout(() => activeMobileClicks--, 7500); }
          
-         const color = yarnColors[Math.floor(Math.random() * yarnColors.length)];
-         yarn.innerHTML = `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="50" r="40" fill="${color}"/>
-            <circle cx="50" cy="50" r="40" fill="black" opacity="0.1"/>
-            <path d="M 14 35 Q 50 20 86 35 M 10 50 Q 50 40 90 50 M 14 65 Q 50 60 86 65" stroke="rgba(255,255,255,0.4)" stroke-width="5" fill="none" stroke-linecap="round"/>
-            <path d="M 35 14 Q 20 50 35 86 M 50 10 Q 35 50 50 90 M 65 14 Q 50 50 65 86" stroke="rgba(0,0,0,0.15)" stroke-width="5" fill="none" stroke-linecap="round"/>
-            <path d="M 25 20 Q 50 5 75 20 M 25 80 Q 50 95 75 80" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
-            <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="rgba(0,0,0,0.1)" stroke-width="5" fill="none" stroke-linecap="round" transform="translate(1,2)"/>
-            <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round"/>
-         </svg>`;
-         
-         const startX = Math.random() * window.innerWidth;
-         const startY = -40; // Escondidos en la parte superior del todo
-         
-         const tx = (Math.random() - 0.5) * 200; 
-         const dropY = window.innerHeight - startY - 20; 
-         const bx = (Math.random() - 0.5) * 80; 
-         const scale = 0.6 + Math.random() * 0.6; 
-         
-         yarn.style.left = startX + 'px';
-         yarn.style.top = startY + 'px';
-         yarn.style.setProperty('--tx', `${tx}px`);
-         yarn.style.setProperty('--drop-y', `${dropY}px`);
-         yarn.style.setProperty('--bx', `${bx}px`);
-         yarn.style.setProperty('--rot', `${(Math.random() - 0.5) * 500}deg`);
-         yarn.style.setProperty('--scale', scale);
-         
-         document.body.appendChild(yarn);
-         setTimeout(() => yarn.remove(), 7500); 
+         const count = isMobile ? (2 + Math.floor(Math.random() * 2)) : (4 + Math.floor(Math.random() * 4));
+         for(let i = 0; i < count; i++) {
+             const yarn = document.createElement('div');
+             yarn.className = 'yarn-anim';
+             
+             const color = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+             yarn.innerHTML = `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="40" fill="${color}"/>
+                <circle cx="50" cy="50" r="40" fill="black" opacity="0.1"/>
+                <path d="M 14 35 Q 50 20 86 35 M 10 50 Q 50 40 90 50 M 14 65 Q 50 60 86 65" stroke="rgba(255,255,255,0.4)" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path d="M 35 14 Q 20 50 35 86 M 50 10 Q 35 50 50 90 M 65 14 Q 50 50 65 86" stroke="rgba(0,0,0,0.15)" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path d="M 25 20 Q 50 5 75 20 M 25 80 Q 50 95 75 80" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="rgba(0,0,0,0.1)" stroke-width="5" fill="none" stroke-linecap="round" transform="translate(1,2)"/>
+                <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round"/>
+             </svg>`;
+             
+             // Nacen aleatoriamente a lo ancho de toda la pantalla y POR ENCIMA del viewport
+             const startX = Math.random() * window.innerWidth;
+             const startY = -40; // Escondidos por arriba
+             
+             const tx = (Math.random() - 0.5) * 200; 
+             const dropY = window.innerHeight - startY - 20; 
+             const bx = (Math.random() - 0.5) * 80; 
+             const scale = 0.6 + Math.random() * 0.6; 
+             
+             yarn.style.left = startX + 'px';
+             yarn.style.top = startY + 'px';
+             yarn.style.setProperty('--tx', `${tx}px`);
+             yarn.style.setProperty('--drop-y', `${dropY}px`);
+             yarn.style.setProperty('--bx', `${bx}px`);
+             yarn.style.setProperty('--rot', `${(Math.random() - 0.5) * 500}deg`);
+             yarn.style.setProperty('--scale', scale);
+             
+             document.body.appendChild(yarn);
+             setTimeout(() => yarn.remove(), 7500); 
+         }
      }
      return;
  }
 
- // 4. --- LOGO FOOTER (INACTIVO) ---
+ // 4. --- LOGO FOOTER (TOTALMENTE INACTIVO) ---
  const footerLink = e.target.closest(".footer-brand-img");
  if (footerLink) {
-     e.preventDefault(); // Desactivado
+     e.preventDefault(); 
      return; 
  }
 
  // 5. --- LLUVIA DE CORAZONES EN "SOY SILVIA RODRIGUEZ" ---
  const h2Target = e.target.closest("h2");
  if (h2Target && h2Target.textContent.includes("Soy Silvia Rodríguez")) {
-     const heartColors = ['#e6a9bf', '#b99acb', '#f4c2d7', '#fbecf3'];
-     const count = isMobile ? (5 + Math.floor(Math.random() * 3)) : (10 + Math.floor(Math.random() * 6));
-     
-     for(let i = 0; i < count; i++) {
-         const heart = document.createElement('div');
-         heart.className = 'heart-anim';
+     if (!isMobile || activeMobileClicks < 3) {
+         if (isMobile) { activeMobileClicks++; setTimeout(() => activeMobileClicks--, 7500); }
          
-         const color = heartColors[Math.floor(Math.random() * heartColors.length)];
-         heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
-         
-         // Caen desde el header de forma aleatoria
-         const startX = Math.random() * window.innerWidth; 
-         const startY = -40; 
-         
-         const tx = (Math.random() - 0.5) * window.innerWidth * 0.9; 
-         const dropY = window.innerHeight - startY - 20; 
-         const bx = (Math.random() - 0.5) * 80; 
-         const scale = 0.8 + Math.random() * 0.7; 
-         
-         heart.style.left = startX + 'px';
-         heart.style.top = startY + 'px';
-         heart.style.setProperty('--tx', `${tx}px`);
-         heart.style.setProperty('--drop-y', `${dropY}px`);
-         heart.style.setProperty('--bx', `${bx}px`);
-         heart.style.setProperty('--rot', `${(Math.random() - 0.5) * 360}deg`);
-         heart.style.setProperty('--scale', scale);
-         
-         document.body.appendChild(heart);
-         setTimeout(() => heart.remove(), 7500); 
+         const count = isMobile ? (5 + Math.floor(Math.random() * 3)) : (10 + Math.floor(Math.random() * 6));
+         for(let i = 0; i < count; i++) {
+             const heart = document.createElement('div');
+             heart.className = 'heart-anim';
+             
+             const color = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+             heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
+             
+             // Nacen escondidos por encima del viewport
+             const startX = Math.random() * window.innerWidth; 
+             const startY = -40; 
+             
+             const tx = (Math.random() - 0.5) * window.innerWidth * 0.9; 
+             const dropY = window.innerHeight - startY - 20; 
+             const bx = (Math.random() - 0.5) * 80; 
+             const scale = 0.8 + Math.random() * 0.7; 
+             
+             heart.style.left = startX + 'px';
+             heart.style.top = startY + 'px';
+             heart.style.setProperty('--tx', `${tx}px`);
+             heart.style.setProperty('--drop-y', `${dropY}px`);
+             heart.style.setProperty('--bx', `${bx}px`);
+             heart.style.setProperty('--rot', `${(Math.random() - 0.5) * 360}deg`);
+             heart.style.setProperty('--scale', scale);
+             
+             document.body.appendChild(heart);
+             setTimeout(() => heart.remove(), 7500); 
+         }
      }
  }
  // --------------------------------------------------------
   
- // CONTROLADOR DE NAVEGACIÓN NORMAL (Navegación al instante y memoria en Google Sites)
+ // CONTROLADOR DE NAVEGACIÓN DIRECTA
  const link = e.target.closest("a");  
  if (link && link.href) {  
      const isInternal = link.getAttribute("href").includes(".html") && !link.getAttribute("href").startsWith("http") && link.target !== "_blank";
      if (isInternal) {  
          if (link.classList.contains("brand") || link.classList.contains("footer-brand-img")) return; 
          
-         // Guardo la nueva URL en el localStorage
+         // Navega instantáneamente como pediste, pero guarda la página en localStorage
          localStorage.setItem("silviacrea_current_page", link.getAttribute("href"));
          window.location.href = link.href;
          e.preventDefault();
