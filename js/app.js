@@ -377,14 +377,101 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
 }finally{btn.disabled=false;btn.textContent="Enviar solicitud de pedido";}   
 }   
   
+// Efectos decorativos recuperados con un presupuesto global de partículas.
+// Solo se animan transform y opacity: sin blur, filtros dinámicos ni bucles JS.
+const decorParticles = (() => {
+  const active = {petal:0, crayon:0, yarn:0, heart:0};
+  const limits = {petal:18, crayon:12, yarn:5, heart:8};
+  const maxTotal = 26;
+  const colors = {
+    petal:['#fdfbf7','#f2d5df','#d4c5e8','#e2d4f5','#fcf4d4'],
+    crayon:['#c8bccf','#dcbac5','#bcccda','#bed1c7','#e3cbbd','#dfc4cd','#e6dec4','#c2bdd4','#dcd0d9','#d1d8e0','#f2d5df','#e2d4f5','#fcf4d4','#ffdcb3'],
+    vivid:['#ff9aa2','#c8a2c8','#b19cd9','#ffb3c6']
+  };
+  const total = () => active.petal+active.crayon+active.yarn+active.heart;
+  function add(kind,node,parent=document.body){
+    if(active[kind]>=limits[kind] || total()>=maxTotal) return false;
+    active[kind]++;
+    node.addEventListener('animationend',()=>{node.remove();active[kind]=Math.max(0,active[kind]-1);},{once:true});
+    parent.appendChild(node);
+    return true;
+  }
+  const rand = (a,b)=>a+Math.random()*(b-a);
+  function petals(e){
+    const count=window.innerWidth<=768?4:6;
+    const frag=document.createDocumentFragment();
+    for(let i=0;i<count && active.petal<limits.petal && total()<maxTotal;i++){
+      const n=document.createElement('i'); n.className='petal-anim';
+      n.style.background=colors.petal[(Math.random()*colors.petal.length)|0];
+      n.style.left=e.clientX+'px'; n.style.top=e.clientY+'px';
+      const a=rand(0,Math.PI*2),d=rand(35,105);
+      n.style.setProperty('--tx',(Math.cos(a)*d)+'px');
+      n.style.setProperty('--ty',(Math.sin(a)*d+28)+'px');
+      n.style.setProperty('--rot',rand(-540,540)+'deg');
+      if(add('petal',n,frag)){} 
+    }
+    document.body.appendChild(frag);
+  }
+  function crayons(container){
+    if(!container)return;
+    const count=window.innerWidth<=768?5:7;
+    const frag=document.createDocumentFragment();
+    for(let i=0;i<count && active.crayon<limits.crayon && total()<maxTotal;i++){
+      const n=document.createElement('div'); n.className='crayon-anim-hero';
+      n.style.color=colors.crayon[(Math.random()*colors.crayon.length)|0];
+      const a=rand(0,Math.PI*2),d=rand(150,360);
+      n.style.setProperty('--tx',(Math.cos(a)*d)+'px');
+      n.style.setProperty('--ty',(Math.sin(a)*d)+'px');
+      n.style.setProperty('--rot',rand(-540,540)+'deg');
+      n.style.left='50%'; n.style.top='50%';
+      add('crayon',n,frag);
+    }
+    container.appendChild(frag);
+  }
+  function falling(kind){
+    const count=kind==='yarn'?(window.innerWidth<=768?2:3):(window.innerWidth<=768?3:5);
+    const frag=document.createDocumentFragment();
+    for(let i=0;i<count && active[kind]<limits[kind] && total()<maxTotal;i++){
+      const n=document.createElement('div'); n.className=kind==='yarn'?'yarn-anim':'heart-anim';
+      const color=colors.vivid[(Math.random()*colors.vivid.length)|0];
+      if(kind==='yarn'){
+        n.innerHTML=`<svg viewBox="0 0 100 120" aria-hidden="true"><circle cx="50" cy="50" r="40" fill="${color}"/><path d="M14 35Q50 20 86 35M10 50Q50 40 90 50M14 65Q50 60 86 65M35 14Q20 50 35 86M50 10Q35 50 50 90M65 14Q50 50 65 86M25 20Q50 5 75 20M25 80Q50 95 75 80" stroke="rgba(255,255,255,.48)" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M50 88C55 105 40 115 65 115" stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`;
+      }else{
+        n.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
+      }
+      n.style.left=rand(8,92)+'vw'; n.style.top='-48px';
+      n.style.setProperty('--tx',rand(-100,100)+'px');
+      n.style.setProperty('--drop-y',(window.innerHeight+70)+'px');
+      n.style.setProperty('--bx',rand(-35,35)+'px');
+      n.style.setProperty('--rot',rand(-220,220)+'deg');
+      n.style.setProperty('--scale',rand(.65,1.05));
+      add(kind,n,frag);
+    }
+    document.body.appendChild(frag);
+  }
+  return {petals,crayons,falling};
+})();
+
 document.addEventListener("click",e=>{
+ decorParticles.petals(e);
+ const heroLogo=e.target.closest('.hero-logo');
+ if(heroLogo) decorParticles.crayons(heroLogo.closest('.hero-art'));
+ const headerBrand=e.target.closest('.site-header .brand');
+ if(headerBrand){
+   decorParticles.falling('yarn');
+   // En inicio, el logo actúa como disparador del efecto sin recargar la página.
+   if(document.body.dataset.page==='home') e.preventDefault();
+ }
+ const aboutHeading=e.target.closest('h2');
+ if(aboutHeading && aboutHeading.textContent.includes('Soy Silvia Rodríguez')) decorParticles.falling('heart');
+
  // CONTROLADOR DE NAVEGACIÓN DIRECTA
  const link = e.target.closest("a");  
  if (link && link.href) {  
      const isInternal = link.getAttribute("href").includes(".html") && !link.getAttribute("href").startsWith("http") && link.target !== "_blank";
      if (isInternal) {  
-          
-         
+         // En inicio, pulsar el logotipo solo dispara la animación de ovillos.
+         if (link.classList.contains("brand") && document.body.dataset.page === "home") return;
          // Navega instantáneamente sin transiciones, guardando la página actual en localStorage
          localStorage.setItem("silviacrea_current_page", link.getAttribute("href"));
          window.location.href = link.href;

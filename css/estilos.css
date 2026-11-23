@@ -56,7 +56,7 @@ button{cursor:pointer;}
 .site-header{position:relative;z-index:50;background:rgba(226,211,241,.94);backdrop-filter:none;border-bottom:1px solid rgba(192,169,215,.65);box-shadow:0 5px 22px rgba(112,84,139,.07)}   
 .header-inner{max-width:1180px;margin:auto;padding:12px 24px;display:flex;align-items:center;gap:26px}  
 .brand{display:flex;align-items:center;gap:10px;min-width:205px; border-radius:16px; padding:4px 8px; margin-left:-8px; overflow:hidden; cursor:pointer;}  
-.header-logo{height:42px;width:auto;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(107,78,117,0.1));transition:transform 0.2s}  
+.header-logo{height:42px;width:auto;object-fit:contain;filter:none;transition:transform 0.2s}  
 .header-logo:hover{transform:scale(1.05)}  
 .brand strong{display:block;font:600 28px var(--script);color:var(--lilac-dark);line-height:1;margin-bottom:2px}  
 .brand small{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--pink-dark)}  
@@ -88,8 +88,8 @@ button{cursor:pointer;}
 
 /* SOLUCIÓN AL SALTO DEL LOGO DE INICIO */
 .hero-art{height:390px;position:relative;display:flex;align-items:center;justify-content:center}  
-.hero-logo{max-width:340px;width:85%;height:auto;filter:drop-shadow(0 15px 35px rgba(107,78,117,0.15));transform:translateZ(0) rotate(2deg);transition:transform 0.4s ease;position:relative;z-index:2;cursor:pointer;will-change:transform}  
-.hero-logo:hover{transform:translateZ(0) rotate(-1deg) scale(1.03)}  
+.hero-logo{max-width:340px;width:85%;height:auto;filter:none;transform:rotate(2deg);transition:transform .25s ease;position:relative;z-index:2;cursor:pointer}
+.hero-logo:hover{transform:rotate(-1deg) scale(1.02)}  
 
 .art-flower,.art-spark{position:absolute;color:var(--pink-dark);font-size:70px;z-index:1}  
 .art-flower{top:10px;left:5%}  
@@ -197,7 +197,7 @@ button{cursor:pointer;}
 .form-card input:focus,.form-card textarea:focus{border-color:var(--lilac);box-shadow:0 0 0 3px rgba(185,154,203,.15)}  
 .form-status{font-size:13px;color:var(--lilac-dark)}  
 .site-footer{text-align:center;padding:45px 20px 40px;background:var(--blue-pastel);border-top:1px solid #c8dbf2;color:#5a6e85}  
-.footer-logo{max-width:160px;height:auto;margin-bottom:10px;transition:transform 0.3s ease;filter:drop-shadow(0 4px 10px rgba(107,78,117,0.1))}  
+.footer-logo{max-width:160px;height:auto;margin-bottom:10px;transition:transform 0.3s ease;filter:none}  
 
 /* Z-INDEX ARREGLADO PARA EL FOOTER */
 .footer-brand-img{display:inline-block;text-decoration:none; border-radius:16px; padding:6px; overflow:hidden; position:relative; z-index:10; cursor:pointer;}  
@@ -214,18 +214,15 @@ button{cursor:pointer;}
 .sparkles {  
  background-image: url("data:image/svg+xml,%3Csvg width='600' height='600' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M0,-15 L2,-3 L15,0 L2,3 L0,15 L-2,3 L-15,0 L-2,-3 Z' transform='translate(150, 200) scale(0.35)'/%3E%3Cpath d='M0,-20 L2.5,-4 L20,0 L2.5,4 L0,20 L-2.5,4 L-20,0 L-2.5,-4 Z' transform='translate(450, 450) scale(0.2)'/%3E%3C/g%3E%3C/svg%3E");  
  background-size: 600px 600px;  
- animation: twinkle 3.5s ease-in-out infinite alternate;  
+ opacity:.34;  
 }  
 .sparkles::after {  
  content: "";  
  background-image: url("data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M0,-12 L1.5,-2 L12,0 L1.5,2 L0,12 L-1.5,2 L-12,0 L-1.5,-2 Z' transform='translate(400, 100) scale(0.25)'/%3E%3Cpath d='M0,-18 L2,-3.5 L18,0 L2,3.5 L0,18 L-2,3.5 L-18,0 L-2,-3.5 Z' transform='translate(200, 600) scale(0.15)'/%3E%3C/g%3E%3C/svg%3E");  
  background-size: 800px 800px;  
- animation: twinkle 5s ease-in-out infinite alternate-reverse;  
+ opacity:.28;  
 }  
-@keyframes twinkle {  
- 0% { opacity: 0; filter: drop-shadow(0 0 1px rgba(255,255,255,0.2)); }  
- 100% { opacity: 0.6; filter: drop-shadow(0 0 6px rgba(255,255,255,1)); }  
-}  
+/* Destellos estáticos: se conserva el detalle visual sin repintar toda la pantalla. */  
   
 /* ========================================================================== */
 /* SISTEMA DE SUPERPOSICIONES PERFECTO (CENTRADO ABSOLUTO MATEMÁTICO)         */
@@ -498,122 +495,19 @@ input, textarea, select, [contenteditable] {
 /* ANIMACIÓN DE EFECTOS GLOBALES Y LOGOS                                      */
 /* ========================================================================== */
 
-/* Efecto de pétalos al hacer clic */
-.petal-anim {
-    position: absolute;
-    width: 4px; 
-    height: 6px;
-    border-radius: 50% 0 50% 0; 
-    pointer-events: none;
-    z-index: 99999;
-    box-shadow: 0px 1px 3px rgba(185, 154, 203, 0.4);
-    opacity: 0.85; 
-    animation: petalFall 2.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
-}
-@keyframes petalFall {
-    0% { transform: translate(-50%, -50%) rotate(0deg) scale(0.6); opacity: 0.85; filter: blur(0px); }
-    30% { opacity: 0.85; }
-    100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot)) scale(1.5); opacity: 0; filter: blur(0.8px); }
-}
-
-/* CRAYONES: Etiqueta original perfecta CREADA A TRAVÉS DE CSS (SIN HTML) para evitar cuadros blancos detrás del logo */
-.crayon-anim-hero, .crayon-anim-footer {
-    position: absolute;
-    width: 10px;
-    height: 36px;
-    margin-left: -5px;
-    margin-top: -18px;
-    border-radius: 2px;
-    pointer-events: none;
-    background-color: currentColor;
-    
-    background-image: 
-        linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)), /* Borde superior etiqueta */
-        linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), /* Borde inferior etiqueta */
-        repeating-linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.35) 2px, transparent 2px, transparent 5px); /* Rayas de papel */
-    background-size: 100% 1px, 100% 1px, 100% 20px;
-    background-position: top 8px left 0, bottom 8px left 0, center;
-    background-repeat: no-repeat;
-    
-    transform-origin: center center;
-    z-index: 1; /* Sale siempre desde debajo del logo */
-}
-.crayon-anim-footer {
-    position: fixed; 
-    z-index: 9999; 
-}
-/* Punta */
-.crayon-anim-hero::before, .crayon-anim-footer::before {
-    content: '';
-    position: absolute;
-    top: -9px;
-    left: 0;
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 9px solid currentColor;
-}
-/* Mina */
-.crayon-anim-hero::after, .crayon-anim-footer::after {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: 3px;
-    width: 4px;
-    height: 2px;
-    background-color: currentColor;
-    border-radius: 2px 2px 0 0;
-    opacity: 0.8;
-}
-
-/* Animación Crayones Hero - Opacidad progresiva super limpia para evitar destellos blancos */
-.crayon-anim-hero {
-    animation: crayonRollHero 6s cubic-bezier(0.15, 0.9, 0.35, 1) forwards !important;
-}
-@keyframes crayonRollHero {
-    0% { transform: translate(0, 0) rotate(0deg); opacity: 0; filter: blur(0px); }
-    5% { opacity: 1; filter: blur(0px); }
-    70% { opacity: 1; filter: blur(0px); }
-    100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; filter: blur(6px); }
-}
-
-/* Corazones y Ovillos de Lana (Gravedad y Rebote desde arriba) */
-.yarn-anim, .heart-anim {
-    position: fixed; 
-    z-index: 45; /* Pasan ocultos por detrás del header (que tiene z-index 50) */
-    pointer-events: none;
-    animation: itemDrop 7.5s forwards !important;
-}
-.yarn-anim {
-    width: 36px; 
-    height: 44px;
-    margin-left: -18px;
-    margin-top: -22px;
-    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.1));
-}
-.heart-anim {
-    width: 24px; 
-    height: 24px;
-    margin-left: -12px;
-    margin-top: -12px;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-}
-.yarn-anim svg, .heart-anim svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-/* Física de caída libre suavizada y múltiples rebotes hasta desvanecer */
-@keyframes itemDrop {
-    0% { transform: translate(0, 0) rotate(0deg) scale(var(--scale)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
-    35% { transform: translate(calc(var(--tx) * 0.4), var(--drop-y)) rotate(calc(var(--rot) * 0.4)); opacity: 1; animation-timing-function: cubic-bezier(0, 0, 0.2, 1); } 
-    48% { transform: translate(calc(var(--tx) * 0.7 + var(--bx)*0.4), calc(var(--drop-y) - 65px)) rotate(calc(var(--rot) * 0.6)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
-    58% { transform: translate(calc(var(--tx) * 0.9 + var(--bx)*0.8), var(--drop-y)) rotate(calc(var(--rot) * 0.8)); opacity: 1; animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
-    66% { transform: translate(calc(var(--tx) + var(--bx)*1.2), calc(var(--drop-y) - 20px)) rotate(calc(var(--rot) * 0.9)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
-    75% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(var(--rot)) scale(var(--scale)); opacity: 1; filter: blur(0px); }
-    100% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(var(--rot)) scale(var(--scale)); opacity: 0; filter: blur(5px); }
-}
+/* Partículas decorativas: animación ligera, limitada desde app.js.
+   Solo transform y opacity para funcionar también por composición software. */
+.petal-anim{position:fixed;width:4px;height:6px;border-radius:50% 0 50% 0;pointer-events:none;z-index:99999;opacity:.88;animation:petalFall 2.2s ease-out forwards;}
+@keyframes petalFall{0%{transform:translate(-50%,-50%) rotate(0) scale(.7);opacity:.9}100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) rotate(var(--rot)) scale(1.25);opacity:0}}
+.crayon-anim-hero{position:absolute;width:9px;height:32px;margin:-16px 0 0 -4px;border-radius:2px;pointer-events:none;background:currentColor;background-image:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.55)),repeating-linear-gradient(to bottom,rgba(255,255,255,.28) 0 2px,transparent 2px 5px);background-size:100% 1px,100% 20px;background-position:top 7px left,center;background-repeat:no-repeat;z-index:1;animation:crayonRollHero 3.8s cubic-bezier(.2,.75,.35,1) forwards;}
+.crayon-anim-hero:before{content:'';position:absolute;top:-8px;left:0;width:0;height:0;border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-bottom:8px solid currentColor}
+.crayon-anim-hero:after{content:'';position:absolute;top:-9px;left:3px;width:3px;height:2px;background:currentColor;border-radius:2px 2px 0 0}
+@keyframes crayonRollHero{0%{transform:translate(0,0) rotate(0);opacity:0}8%{opacity:1}78%{opacity:1}100%{transform:translate(var(--tx),var(--ty)) rotate(var(--rot));opacity:0}}
+.yarn-anim,.heart-anim{position:fixed;z-index:45;pointer-events:none;animation:itemDrop 4.6s ease-in-out forwards}
+.yarn-anim{width:32px;height:40px;margin:-20px 0 0 -16px}
+.heart-anim{width:22px;height:22px;margin:-11px 0 0 -11px}
+.yarn-anim svg,.heart-anim svg{width:100%;height:100%;display:block}
+@keyframes itemDrop{0%{transform:translate(0,0) rotate(0) scale(var(--scale));opacity:0}8%{opacity:1}68%{transform:translate(calc(var(--tx)*.7),var(--drop-y)) rotate(calc(var(--rot)*.7)) scale(var(--scale));opacity:1}82%{transform:translate(calc(var(--tx) + var(--bx)),calc(var(--drop-y) - 24px)) rotate(var(--rot)) scale(var(--scale));opacity:1}100%{transform:translate(calc(var(--tx) + var(--bx)),var(--drop-y)) rotate(var(--rot)) scale(var(--scale));opacity:0}}
 
 /* --- Rendimiento y accesibilidad --- */
 /* Evita fondos fijos, filtros de ruido y transformaciones permanentes que penalizan
@@ -636,7 +530,7 @@ input, textarea, select, [contenteditable] {
   .item-card .item-content { padding:13px 14px 15px; }
 }
 
-.shop-access { display:flex; align-items:center; justify-content:space-between; gap:30px; background:linear-gradient(120deg,#f1e8f7,#fff3f7); border-radius:28px; margin:34px auto; max-width:1180px; padding:clamp(26px,5vw,58px); }
+.shop-access { display:flex; align-items:center; justify-content:space-between; gap:30px; background:transparent; border-radius:0; margin:0 auto; max-width:1180px; padding:76px 24px; }
 .shop-access-copy { max-width:620px; }
 .shop-access h2 { font:600 clamp(27px,4vw,40px) var(--serif); color:var(--lilac-dark); margin:8px 0 12px; }
 .shop-access-art { font-size:clamp(60px,10vw,110px); color:var(--pink-dark); opacity:.82; white-space:nowrap; }
@@ -652,11 +546,8 @@ input, textarea, select, [contenteditable] {
    - Las animaciones puntuales (pétalos, crayones, corazones, ovillos) se mantienen.
    ========================================================================== */
 
-/* El navegador puede aislar la pintura de las tarjetas sin alterar su aspecto. */
-.item-image {
-  display: block;
-  backface-visibility: hidden;
-}
+/* Evitar capas forzadas: el navegador decide cómo componer cada elemento. */
+.item-image { display:block; }
 
 /* Evita que una pestaña en segundo plano siga calculando efectos decorativos.
    La clase se activa/desactiva desde rendimiento.js; no se pierde el progreso. */
@@ -765,58 +656,6 @@ html.silvia-tab-hidden *::after {
  .category-tile{transition:none;}
 }
 
-
-/* ==========================================================================
-   INICIO — SECCIONES VISUALMENTE SEPARADAS, ROSA/LILA ALTERNADO
-   ========================================================================== */
-body[data-page="home"] main#contenido {
-  display:flex;
-  flex-direction:column;
-  gap:clamp(22px,3.2vw,42px);
-  padding:clamp(18px,2.8vw,34px) 18px clamp(28px,4vw,52px);
-}
-body[data-page="home"] .home-panel {
-  width:min(100%,1180px);
-  max-width:1180px;
-  margin:0 auto;
-  border-radius:30px;
-  overflow:hidden;
-  border:1px solid rgba(185,154,203,.22);
-  box-shadow:0 10px 28px rgba(107,78,117,.055);
-}
-body[data-page="home"] .hero.home-panel {
-  padding:clamp(42px,6vw,78px) clamp(24px,4vw,42px);
-  min-height:520px;
-}
-body[data-page="home"] .intro-section.home-panel,
-body[data-page="home"] .tinted.home-panel {
-  padding:clamp(38px,5vw,66px) clamp(22px,4vw,42px);
-}
-body[data-page="home"] .home-panel-pink {
-  background:linear-gradient(135deg,#fff0f5 0%,#fbeaf2 100%);
-  border-color:#f0d5e1;
-}
-body[data-page="home"] .home-panel-lilac {
-  background:linear-gradient(135deg,#f3eafa 0%,#e9ddf3 100%);
-  border-color:#dfceeb;
-}
-body[data-page="home"] .shop-access.home-panel {
-  margin:0 auto;
-  padding:clamp(32px,5vw,60px);
-}
-body[data-page="home"] .tinted.home-panel {
-  max-width:1180px;
-  padding-left:clamp(22px,4vw,42px);
-  padding-right:clamp(22px,4vw,42px);
-}
-body[data-page="home"] .cta-band.home-panel {
-  padding:clamp(32px,4vw,52px);
-}
-@media(max-width:700px) {
-  body[data-page="home"] main#contenido { gap:18px; padding:14px 12px 30px; }
-  body[data-page="home"] .home-panel { border-radius:22px; }
-  body[data-page="home"] .hero.home-panel { min-height:0; padding:38px 20px; }
-}
 
 /* Rendimiento en equipos sin aceleración gráfica: no forzar blur ni capas permanentes. */
 @media (hover:none), (max-width:700px) {
