@@ -291,7 +291,7 @@ button{cursor:pointer;}
 /* Botón cerrar modal 1 */  
 .icon-button.modal-close{background:var(--blue-pastel-soft);position:absolute;right:12px;top:12px;z-index:2;line-height:1;padding:0 0 3px 0}  
 .modal-copy{padding:38px;position:relative;z-index:1}  
-.modal-copy::before{content:"";position:absolute;inset:0;background-image:url('https://i.imgur.com/F84jcJa.png');background-repeat:no-repeat;background-position:center;background-size:65%;opacity:0.04;pointer-events:none;z-index:-1}  
+.modal-copy::before{content:"";position:absolute;inset:0;background-image:url('../assets/logo%20web.png');background-repeat:no-repeat;background-position:center;background-size:65%;opacity:0.04;pointer-events:none;z-index:-1}  
 .modal-copy h2{font:600 30px var(--serif);color:var(--lilac-dark)}  
 .modal-copy p{color:var(--muted);white-space:pre-line}  
   
@@ -323,7 +323,7 @@ button{cursor:pointer;}
     object-fit: contain; border-radius: 16px; z-index: 2; position: relative;
 }  
 
-.fs-watermark{position:absolute;inset:0;background-image:url('https://i.imgur.com/F84jcJa.png');background-repeat:no-repeat;background-position:center;background-size:contain;opacity:0.05;pointer-events:none;z-index:3}  
+.fs-watermark{position:absolute;inset:0;background-image:url('../assets/logo%20web.png');background-repeat:no-repeat;background-position:center;background-size:contain;opacity:0.05;pointer-events:none;z-index:3}  
 .fs-modal-close{position:absolute;right:22px;top:22px;z-index:4;background:var(--blue-pastel-soft);border:1px solid #dceafa;}  
   
 /* ========================================================================== */
@@ -614,4 +614,154 @@ input, textarea, select, [contenteditable] {
     66% { transform: translate(calc(var(--tx) + var(--bx)*1.2), calc(var(--drop-y) - 20px)) rotate(calc(var(--rot) * 0.9)); opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
     75% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(var(--rot)) scale(var(--scale)); opacity: 1; filter: blur(0px); }
     100% { transform: translate(calc(var(--tx) + var(--bx)*1.5), var(--drop-y)) rotate(var(--rot)) scale(var(--scale)); opacity: 0; filter: blur(5px); }
+}
+
+/* --- Rendimiento y accesibilidad --- */
+/* Evita fondos fijos, filtros de ruido y transformaciones permanentes que penalizan
+   equipos con ahorro de energía o sin aceleración gráfica. */
+.item-card, .site-header, .cart-drawer, .modal-backdrop { will-change:auto !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
+}
+/* Tarjetas: la fotografía es el elemento protagonista. */
+.item-card { display:flex; flex-direction:column; }
+.item-card .image-wrapper { flex: 0 0 auto; height:clamp(230px, 30vw, 390px); overflow:hidden; }
+.item-card .item-image { width:100%; height:100%; object-fit:cover; display:block; }
+.item-card .item-content { flex:1 1 auto; padding:16px 18px 18px; }
+.item-card .item-content h3 { margin-top:0; }
+.dynamic-category-filter { display:flex; flex-wrap:wrap; justify-content:center; gap:9px; margin:0 auto 24px; }
+.category-chip { border:1px solid var(--line); background:rgba(255,255,255,.82); color:var(--lilac-dark); border-radius:999px; padding:9px 16px; font:600 14px var(--sans); cursor:pointer; }
+.category-chip.active { background:var(--lilac-dark); color:#fff; border-color:var(--lilac-dark); }
+@media (max-width:640px) {
+  .item-card .image-wrapper { height:clamp(220px, 76vw, 340px); }
+  .item-card .item-content { padding:13px 14px 15px; }
+}
+
+.shop-access { display:flex; align-items:center; justify-content:space-between; gap:30px; background:linear-gradient(120deg,#f1e8f7,#fff3f7); border-radius:28px; margin:34px auto; max-width:1180px; padding:clamp(26px,5vw,58px); }
+.shop-access-copy { max-width:620px; }
+.shop-access h2 { font:600 clamp(27px,4vw,40px) var(--serif); color:var(--lilac-dark); margin:8px 0 12px; }
+.shop-access-art { font-size:clamp(60px,10vw,110px); color:var(--pink-dark); opacity:.82; white-space:nowrap; }
+.shop-access-art span { font-size:.8em; }
+@media(max-width:640px){.shop-access{flex-direction:column;align-items:flex-start}.shop-access-art{align-self:center}}
+
+
+
+/* ==========================================================================
+   OPTIMIZACIÓN DE RENDIMIENTO — CONSERVA LA IDENTIDAD VISUAL Y LOS EFECTOS
+   - No elimina animaciones, transiciones, brillos, partículas ni desenfoques.
+   - Las animaciones continuas se pausan fuera de pantalla y al cambiar de pestaña.
+   - Las animaciones puntuales (pétalos, crayones, corazones, ovillos) se mantienen.
+   ========================================================================== */
+
+/* El navegador puede aislar la pintura de las tarjetas sin alterar su aspecto. */
+.item-image {
+  display: block;
+  backface-visibility: hidden;
+}
+
+/* Evita que una pestaña en segundo plano siga calculando efectos decorativos.
+   La clase se activa/desactiva desde rendimiento.js; no se pierde el progreso. */
+html.silvia-tab-hidden *,
+html.silvia-tab-hidden *::before,
+html.silvia-tab-hidden *::after {
+  animation-play-state: paused !important;
+}
+
+/* Solo pausa los efectos infinitos que están lejos del viewport.
+   Las animaciones de entrada/salida de una sola ejecución no se interrumpen. */
+.perf-pause-infinite {
+  animation-play-state: paused !important;
+}
+
+/* Transiciones suaves sin forzar capas permanentes en todos los elementos. */
+.item-card,
+.btn,
+.text-button,
+.main-nav a,
+.header-logo,
+.footer-logo {
+  transform-style: flat;
+}
+
+/* Compatibilidad: se respeta la preferencia explícita de movimiento reducido
+   del sistema operativo por accesibilidad. El ahorro de energía por sí solo
+   no desactiva los efectos. */
+
+
+/* Categorías: tarjetas compactas y táctiles, con miniatura y navegación a su página */
+.category-tiles{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(118px,158px));
+  justify-content:center;
+  gap:12px;
+  margin:0 auto 30px;
+  width:100%;
+}
+.category-tile{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  min-height:132px;
+  padding:10px 9px 12px;
+  border:1px solid rgba(182,155,210,.32);
+  border-radius:17px;
+  background:rgba(255,255,255,.88);
+  color:var(--lilac-dark);
+  text-decoration:none;
+  text-align:center;
+  box-shadow:0 5px 16px rgba(90,65,110,.07);
+  transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease;
+  contain:layout paint;
+}
+.category-tile img{
+  display:block;
+  width:100%;
+  height:76px;
+  object-fit:cover;
+  border-radius:11px;
+  background:var(--lilac-card);
+}
+.category-tile>span:not(.category-tile-arrow){
+  font:600 13px/1.25 var(--sans);
+  overflow-wrap:anywhere;
+}
+.category-tile-icon{
+  display:grid;
+  place-items:center;
+  width:100%;
+  height:76px;
+  border-radius:11px;
+  background:var(--pink-soft);
+  color:var(--pink-dark);
+  font-size:30px;
+}
+.category-tile-arrow{
+  position:absolute;
+  right:8px;
+  top:7px;
+  display:grid;
+  place-items:center;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:rgba(255,255,255,.92);
+  color:var(--pink-dark);
+  font-size:17px;
+  line-height:1;
+}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){
+ .category-tile:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(90,65,110,.12);border-color:rgba(191,120,149,.55);}
+}
+.category-tile:focus-visible{outline:3px solid var(--pink-dark);outline-offset:3px;}
+.category-back{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:26px auto 0;}
+@media(max-width:520px){
+ .category-tiles{grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:9px;}
+ .category-tile{min-height:120px;padding:8px;border-radius:14px;}
+ .category-tile img,.category-tile-icon{height:68px;}
+}
+@media(prefers-reduced-motion:reduce){
+ .category-tile{transition:none;}
 }
