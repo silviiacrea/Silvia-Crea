@@ -1,14 +1,14 @@
 {
-  "actualizado": "2026-11-23T23:10:02.797Z",
+  "actualizado": "2026-11-23T23:25:04.986Z",
   "catalogo": [
     {
       "nombre": "Gnomo Navideño",
       "descripcion": "Muñeco navideño hecho a mano con técnica felting.",
       "precio": 10,
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/GnomosNavide%C3%B1os.png",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/Cat%C3%A1logo/GnomosNavide%C3%B1os.png",
       "stock": 15,
       "descripcionCompleta": "Muñeco navideño hecho a mano con técnica felting. Disponibles en 2 colores: rojo y verde.  Medidas aproximadas: 3,5cm x 11cm",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/GnomosNavide%C3%B1os.png",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Cat%C3%A1logo/GnomosNavide%C3%B1os.png",
       "destacado": true,
       "oferta": true,
       "precioOferta": 8,
@@ -45,17 +45,17 @@
     {
       "nombre": "Amigurumi Personalizado",
       "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagen": "https://i.imgur.com/LgrnCld.png",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/Especialidades/especialidadamigurumi.jpg",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagenGrande": "https://i.imgur.com/LgrnCld.png",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Especialidades/especialidadamigurumi.jpg",
       "destacado": true
     },
     {
       "nombre": "Pulsera de Abalorios",
       "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagen": "",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/Especialidades/especialidadpulseras.PNG",
       "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagenGrande": "",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Especialidades/especialidadpulseras.PNG",
       "destacado": false
     },
     {
@@ -70,26 +70,26 @@
   "trabajos": [
     {
       "nombre": "Amigurumi Personalizado",
-      "imagen": "https://placehold.co/600x600/E9D8FD/6B46C1?text=Amigurumi",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/bolsitocrochet.jpg",
       "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagenGrande": "",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/bolsitocrochet.jpg",
       "categoria": ""
     },
     {
       "nombre": "Pulsera de Abalorios",
-      "imagen": "https://placehold.co/600x600/FED7E2/D53F8C?text=Pulseras",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/mu%C3%B1ecodenieve.jpg",
       "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
       "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagenGrande": "",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/mu%C3%B1ecodenieve.jpg",
       "categoria": ""
     },
     {
       "nombre": "Tarjeta con Lettering",
-      "imagen": "https://placehold.co/600x600/E9D8FD/6B46C1?text=Tarjetas",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/zorrocrochet.jpeg",
       "descripcion": "Decorada a mano con técnicas de acuarela y lettering.",
       "descripcionCompleta": "Decorada a mano con técnicas de acuarela y lettering.",
-      "imagenGrande": "",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/zorrocrochet.jpeg",
       "categoria": ""
     }
   ],
