@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-23T22:12:43.705Z",
+  "actualizado": "2026-11-23T22:26:54.516Z",
   "catalogo": [
     {
       "nombre": "Gnomo Navideño",
@@ -93,10 +93,6 @@
       "categoria": ""
     }
   ],
-  "categoriasTienda": [
-    "Vacio"
-  ],
-  "categoriasTrabajos": [
-    "Vacio"
-  ]
+  "categoriasTienda": [],
+  "categoriasTrabajos": []
 }
