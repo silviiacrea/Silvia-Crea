@@ -35,18 +35,17 @@ html{scroll-behavior:smooth}
 body{   
 margin:0;   
 background-color: #f7effa;   
-background-image:   
-var(--svg-emojis),  
- url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E"),   
-radial-gradient(circle at 15% 15%, rgba(220,185,235,0.4), transparent 50%),   
-radial-gradient(circle at 85% 85%, rgba(240,195,215,0.4), transparent 50%);   
-background-attachment: fixed;   
+background-image:
+ var(--svg-emojis),
+ radial-gradient(circle at 15% 15%, rgba(220,185,235,0.4), transparent 50%),
+ radial-gradient(circle at 85% 85%, rgba(240,195,215,0.4), transparent 50%);
+ background-attachment: scroll;   
 color:var(--ink);   
 font-family:var(--sans);   
 line-height:1.65;   
 overflow-x:hidden;   
 }   
-body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background-image:radial-gradient(#b99acb .7px,transparent .7px);background-size:18px 18px;z-index:-1}   
+body:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(#b99acb .7px,transparent .7px);background-size:22px 22px;z-index:-1}   
 a{color:inherit;text-decoration:none;}   
 button,input,textarea{font:inherit}   
 button{cursor:pointer;}   
@@ -54,7 +53,7 @@ button{cursor:pointer;}
 .skip-link{position:absolute;left:-999px;top:8px;background:#fff;padding:10px;z-index:999}   
 .skip-link:focus{left:8px}   
   
-.site-header{position:relative;z-index:50;background:rgba(226,211,241,.94);backdrop-filter:blur(16px);border-bottom:1px solid rgba(192,169,215,.65);box-shadow:0 5px 22px rgba(112,84,139,.07)}   
+.site-header{position:relative;z-index:50;background:rgba(226,211,241,.94);backdrop-filter:none;border-bottom:1px solid rgba(192,169,215,.65);box-shadow:0 5px 22px rgba(112,84,139,.07)}   
 .header-inner{max-width:1180px;margin:auto;padding:12px 24px;display:flex;align-items:center;gap:26px}  
 .brand{display:flex;align-items:center;gap:10px;min-width:205px; border-radius:16px; padding:4px 8px; margin-left:-8px; overflow:hidden; cursor:pointer;}  
 .header-logo{height:42px;width:auto;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(107,78,117,0.1));transition:transform 0.2s}  
@@ -620,9 +619,9 @@ input, textarea, select, [contenteditable] {
 /* Evita fondos fijos, filtros de ruido y transformaciones permanentes que penalizan
    equipos con ahorro de energía o sin aceleración gráfica. */
 .item-card, .site-header, .cart-drawer, .modal-backdrop { will-change:auto !important; }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
-}
+/* Las animaciones de marca se mantienen también cuando el sistema activa
+   prefers-reduced-motion por ahorro de energía. Se optimiza su coste en lugar
+   de desactivarlas. */
 /* Tarjetas: la fotografía es el elemento protagonista. */
 .item-card { display:flex; flex-direction:column; }
 .item-card .image-wrapper { flex: 0 0 auto; height:clamp(230px, 30vw, 390px); overflow:hidden; }
@@ -764,4 +763,62 @@ html.silvia-tab-hidden *::after {
 }
 @media(prefers-reduced-motion:reduce){
  .category-tile{transition:none;}
+}
+
+
+/* ==========================================================================
+   INICIO — SECCIONES VISUALMENTE SEPARADAS, ROSA/LILA ALTERNADO
+   ========================================================================== */
+body[data-page="home"] main#contenido {
+  display:flex;
+  flex-direction:column;
+  gap:clamp(22px,3.2vw,42px);
+  padding:clamp(18px,2.8vw,34px) 18px clamp(28px,4vw,52px);
+}
+body[data-page="home"] .home-panel {
+  width:min(100%,1180px);
+  max-width:1180px;
+  margin:0 auto;
+  border-radius:30px;
+  overflow:hidden;
+  border:1px solid rgba(185,154,203,.22);
+  box-shadow:0 10px 28px rgba(107,78,117,.055);
+}
+body[data-page="home"] .hero.home-panel {
+  padding:clamp(42px,6vw,78px) clamp(24px,4vw,42px);
+  min-height:520px;
+}
+body[data-page="home"] .intro-section.home-panel,
+body[data-page="home"] .tinted.home-panel {
+  padding:clamp(38px,5vw,66px) clamp(22px,4vw,42px);
+}
+body[data-page="home"] .home-panel-pink {
+  background:linear-gradient(135deg,#fff0f5 0%,#fbeaf2 100%);
+  border-color:#f0d5e1;
+}
+body[data-page="home"] .home-panel-lilac {
+  background:linear-gradient(135deg,#f3eafa 0%,#e9ddf3 100%);
+  border-color:#dfceeb;
+}
+body[data-page="home"] .shop-access.home-panel {
+  margin:0 auto;
+  padding:clamp(32px,5vw,60px);
+}
+body[data-page="home"] .tinted.home-panel {
+  max-width:1180px;
+  padding-left:clamp(22px,4vw,42px);
+  padding-right:clamp(22px,4vw,42px);
+}
+body[data-page="home"] .cta-band.home-panel {
+  padding:clamp(32px,4vw,52px);
+}
+@media(max-width:700px) {
+  body[data-page="home"] main#contenido { gap:18px; padding:14px 12px 30px; }
+  body[data-page="home"] .home-panel { border-radius:22px; }
+  body[data-page="home"] .hero.home-panel { min-height:0; padding:38px 20px; }
+}
+
+/* Rendimiento en equipos sin aceleración gráfica: no forzar blur ni capas permanentes. */
+@media (hover:none), (max-width:700px) {
+  .item-card:hover, .item-card:hover .item-image { transform:none; }
 }
