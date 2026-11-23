@@ -1,29 +1,8 @@
 (() => {  
-// --- SISTEMA DE MEMORIA AVANZADO PARA GOOGLE SITES (CON LOCALSTORAGE) ---  
-const pageMap = {'home': 'index.html', 'shop': 'tienda.html', 'gallery': 'galeria.html', 'about': 'sobre-mi.html', 'orders': 'encargos.html', 'contact': 'contacto.html'};  
-const actualPage = document.body.dataset.page;  
-const currentHtml = pageMap[actualPage] || 'index.html';  
-
-// Utilizamos localStorage para que si el usuario recarga la página (F5), 
-// Google Sites lea esta variable y le mantenga en la misma sección donde estaba.
-const savedHtml = localStorage.getItem('silviacrea_current_page');  
-  
-let isBackForward = false;  
-if (window.performance) {  
- const navEntries = performance.getEntriesByType("navigation");  
- if (navEntries.length > 0 && navEntries[0].type === "back_forward") isBackForward = true;  
- else if (performance.navigation && performance.navigation.type === 2) isBackForward = true;  
-}  
-  
-if (isBackForward) {  
- localStorage.setItem('silviacrea_current_page', currentHtml);  
-} else if (savedHtml && savedHtml !== currentHtml && currentHtml === 'index.html') {  
- window.location.replace(savedHtml);  
- return;   
-} else {  
- localStorage.setItem('silviacrea_current_page', currentHtml);  
-}  
-// -----------------------------------------------------  
+// Mapa de páginas estáticas; no se fuerza la navegación según la última página visitada.
+const pageMap = {'home':'index.html','shop':'tienda.html','gallery':'galeria.html','about':'sobre-mi.html','orders':'encargos.html','contact':'contacto.html','category':'categoria.html'};
+const actualPage = document.body.dataset.page;
+const currentHtml = pageMap[actualPage] || 'index.html';
 
 // CALCULADOR EXACTO DE COORDENADAS DE LA PANTALLA
 // Este bloque evalúa dónde pincha exactamente el usuario y se lo manda al CSS
@@ -50,30 +29,69 @@ document.addEventListener("touchstart", updateViewVars, {passive: true, capture:
 const cfg = window.SILVIA_CONFIG || {};   
 const $ = (s, root=document) => root.querySelector(s); const $$ = (s, root=document) => [...root.querySelectorAll(s)];   
 const CART_KEY = "silviacrea_cart_v2";   
-let products = [], specialties = [], gallery = [], cart = loadCart(), modalProduct = null, toastTimer;   
-  
-function csvUrl(sheet){return `https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet)}`;}   
-function parseCSV(text){   
-const rows=[]; let row=[], cell="", quoted=false;   
-for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];   
-if(c==='"'&&quoted&&n==='"'){cell+='"';i++;}   
-else if(c==='"'){quoted=!quoted;}   
-else if(c===','&&!quoted){row.push(cell);cell="";}   
-else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&n==='\n')i++;row.push(cell);if(row.some(v=>v.trim()!==""))rows.push(row);row=[];cell="";}   
-else cell+=c;   
-}   
-row.push(cell);if(row.some(v=>v.trim()!==""))rows.push(row);   
-return rows;   
-}   
-async function getSheet(name){   
-const res=await fetch(csvUrl(name)); if(!res.ok) throw new Error("No se pudo leer "+name);   
-const rows=parseCSV(await res.text()); return rows.slice(1);   
+let products = [], specialties = [], gallery = [], cart = loadCart(), modalProduct = null, toastTimer;
+function workerImage(url){
+  if(!url) return "";
+  const raw=String(url).trim();
+  if(!raw) return "";
+  try{
+    const u=new URL(raw,location.href);
+    if(u.hostname.endsWith("backblazeb2.com") && u.pathname.startsWith("/file/silviacreacatalogo/")){
+      return (cfg.workerBaseUrl||"https://worker.silviacrea.es") + u.pathname + u.search;
+    }
+    if(u.hostname==="worker.silviacrea.es") return raw;
+    return raw;
+  }catch{return raw;}
+}
+let siteDataPromise=null;
+async function getSiteData(){
+  if(!siteDataPromise){
+    siteDataPromise=(async()=>{
+      const urls=[cfg.dataJsonUrl, cfg.appsScriptUrl ? cfg.appsScriptUrl+"?action=data" : ""].filter(Boolean);
+      let lastError;
+      for(const url of urls){
+        try{
+          const r=await fetch(url,{cache:"default"});
+          if(!r.ok) throw new Error("HTTP "+r.status);
+          const data=await r.json();
+          if(data && (data.catalogo || data.trabajos || data.especialidades)) return data;
+        }catch(e){lastError=e;}
+      }
+      throw lastError||new Error("No se pudieron cargar los datos.");
+    })();
+  }
+  return siteDataPromise;
+}
+async function getSheet(name){
+  const data=await getSiteData();
+  const key={CATALOGO:"catalogo",TRABAJOS:"trabajos",ESPECIALIDADES:"especialidades"}[name];
+  return key && Array.isArray(data[key]) ? data[key] : [];
 }   
 const val=(r,i)=>String(r[i]??"").trim();   
 const yes=v=>["si","sí","true","1","yes","verdadero","x","destacado"].includes(String(v).trim().toLowerCase());   
 const money=v=>Number(String(v??"0").replace(/[€\s]/g,"").replace(/\./g,"").replace(",", "."))||0;   
 const euro=v=>Number(v).toLocaleString("es-ES",{style:"currency",currency:"EUR"});   
-const safeImg=(url)=>/^https?:\/\//i.test(url||"")?url:"";   
+const safeImg=(url)=>/^https?:\/\//i.test(url||"")?url:"";
+const cleanCategory=value=>{const c=String(value??"").trim();return !c||c.toLowerCase()==="vacio"?"":c;};
+const categoryParams=()=>{const q=new URLSearchParams(location.search);return {type:q.get("tipo")==="trabajos"?"gallery":"product",name:q.get("categoria")||""};};
+function categoryCards(items,type){
+  const map=new Map();
+  items.forEach(item=>{const name=cleanCategory(item.category);if(name&&!map.has(name))map.set(name,item.image||"");});
+  return [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],"es")).map(([name,image])=>{
+    const href="categoria.html?tipo="+(type==="gallery"?"trabajos":"tienda")+"&categoria="+encodeURIComponent(name);
+    return `<a class="category-tile" href="${href}">${image?`<img src="${esc(image)}" alt="" loading="lazy" decoding="async">`:'<span class="category-tile-icon" aria-hidden="true">♡</span>'}<span>${esc(name)}</span><span class="category-tile-arrow" aria-hidden="true">›</span></a>`;
+  }).join("");
+}
+function renderCategoryLanding(){
+  const target=$("#category-grid"); if(!target) return;
+  const params=categoryParams();
+  const title=$("#category-title");
+  if(title) title.textContent=params.name || "Categoría";
+  const list=params.type==="gallery"?gallery:products;
+  const selected=params.name?list.filter(item=>cleanCategory(item.category)===params.name):[];
+  target.innerHTML=selected.length?selected.map(item=>card(item,params.type,list.indexOf(item))).join(""):'<p class="loading-note">No se ha seleccionado una categoría válida o todavía no tiene elementos.</p>';
+}
+   
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));   
 function loadCart(){try{return JSON.parse(localStorage.getItem(CART_KEY)||"[]").filter(x=>x&&x.name&&Number(x.price)>=0&&Number(x.qty)>0);}catch{return[];}}   
 function saveCart(){try{localStorage.setItem(CART_KEY,JSON.stringify(cart));}catch{}}   
@@ -220,28 +238,44 @@ const classes=["item-card",kind==="gallery"?"gallery-card":"",p.featured?"is-fea
   
 return `<article class="${classes}" data-card-kind="${kind}" data-index="${index}" tabindex="0" role="group" aria-label="${esc(p.name||p.title)}. Pulsa para ver el detalle">   
 ${featured}${offer}   
-${image?`<div class="image-wrapper"><img class="item-image" src="${esc(image)}" alt="${esc(p.name||p.title)}" loading="lazy" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><svg viewBox="0 0 24 24" width="42" height="42" stroke="#b69bd2" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div></div>`}   
+${image?`<div class="image-wrapper"><img class="item-image" src="${esc(image)}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><svg viewBox="0 0 24 24" width="42" height="42" stroke="#b69bd2" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div></div>`}   
 <div class="item-content"><h3>${esc(p.name||p.title)}</h3><p>${esc(desc)}</p>   
 ${metaHtml}  
 <div class="item-actions"><button class="mini-btn detail-button" type="button" data-detail-card="${kind}" data-index="${index}">Ver detalle</button>${isProduct?`<button class="mini-btn add-button" type="button" data-add="${index}" ${p.stock<=0?"disabled":""}>Añadir carrito</button>`:''}</div>   
 </div></article>`;   
 }   
-async function loadProducts(){   
-const rows=await getSheet("CATALOGO");   
-products=rows.filter(r=>val(r,0)).map(r=>({name:val(r,0),description:val(r,1),price:money(val(r,2)),image:val(r,3),stock:val(r,4)===""?99:Math.max(0,parseInt(val(r,4),10)||0),detail:val(r,5),largeImage:val(r,6),featured:yes(val(r,7)),offer:yes(val(r,8)),offerPrice:val(r,9)===""?undefined:money(val(r,9))}));   
-products.sort((a,b) => (a.featured === b.featured ? 0 : a.featured ? -1 : 1));   
-const grid=$("#products-grid");if(grid){grid.innerHTML=products.length?products.map((p,i)=>card(p,"product",i)).join(""):'<p class="loading-note">Todavía no hay productos disponibles.</p>';prepareSlider(grid,products.length);}   
+async function loadProducts(){
+const rows=await getSheet("CATALOGO");
+products=rows.filter(r=>r.nombre).map(r=>({name:r.nombre,description:r.descripcion||"",price:money(r.precio),image:workerImage(r.imagen),stock:r.stock===""||r.stock==null?99:Math.max(0,parseInt(r.stock,10)||0),detail:r.descripcionCompleta||"",largeImage:workerImage(r.imagenGrande),featured:yes(r.destacado),offer:yes(r.oferta),offerPrice:r.precioOferta===""||r.precioOferta==null?undefined:money(r.precioOferta),category:cleanCategory(r.categoria)}));
+products.sort((a,b)=>(a.featured===b.featured?0:a.featured?-1:1));
+const grid=$("#products-grid");
+if(grid){
+ const tiles=categoryCards(products,"product");
+ const old=grid.parentElement.querySelector(".category-tiles");
+ if(old) old.remove();
+ if(tiles){const wrap=document.createElement("div");wrap.className="category-tiles";wrap.setAttribute("aria-label","Categorías de la tienda");wrap.innerHTML=tiles;grid.parentElement.insertBefore(wrap,grid);}
+ grid.innerHTML=products.length?products.map((p,i)=>card(p,"product",i)).join(""):'<p class="loading-note">Próximamente habrá nuevas creaciones.</p>';
+}
+if($("#category-grid")&&categoryParams().type==="product") renderCategoryLanding();
 }   
 async function loadSpecialties(){   
 const rows=await getSheet("ESPECIALIDADES");   
-specialties=rows.filter(r=>val(r,0)).map(r=>({name:val(r,0),description:val(r,1),image:val(r,2),detail:val(r,3),largeImage:val(r,4),featured:yes(val(r,5))}));   
+specialties=rows.filter(r=>r.nombre).map(r=>({name:r.nombre,description:r.descripcion||"",image:workerImage(r.imagen),detail:r.descripcionCompleta||"",largeImage:workerImage(r.imagenGrande),featured:!!r.destacado}));   
 specialties.sort((a,b) => (a.featured === b.featured ? 0 : a.featured ? -1 : 1));   
 const grid=$("#specialties-grid");if(grid){grid.innerHTML=specialties.length?specialties.map((p,i)=>card(p,"specialty",i)).join(""):'<p class="loading-note">Próximamente descubrirás aquí mis especialidades.</p>';prepareSlider(grid,specialties.length);}   
 }   
-async function loadGallery(){   
-const rows=await getSheet("TRABAJOS");   
-gallery=rows.filter(r=>val(r,0)).map(r=>({name:val(r,0),image:val(r,1),description:val(r,2),detail:val(r,3),largeImage:val(r,4)}));   
-const grid=$("#gallery-grid");if(grid){grid.innerHTML=gallery.length?gallery.map((p,i)=>card(p,"gallery",i)).join(""):'<p class="loading-note">Todavía no hay trabajos publicados.</p>';prepareSlider(grid,gallery.length);}   
+async function loadGallery(){
+const rows=await getSheet("TRABAJOS");
+gallery=rows.filter(r=>r.nombre).map(r=>({name:r.nombre,image:workerImage(r.imagen),description:r.descripcion||"",detail:r.descripcionCompleta||"",largeImage:workerImage(r.imagenGrande),category:cleanCategory(r.categoria)}));
+const grid=$("#gallery-grid");
+if(grid){
+ const tiles=categoryCards(gallery,"gallery");
+ const old=grid.parentElement.querySelector(".category-tiles");
+ if(old) old.remove();
+ if(tiles){const wrap=document.createElement("div");wrap.className="category-tiles";wrap.setAttribute("aria-label","Categorías de trabajos");wrap.innerHTML=tiles;grid.parentElement.insertBefore(wrap,grid);}
+ grid.innerHTML=gallery.length?gallery.map((p,i)=>card(p,"gallery",i)).join(""):'<p class="loading-note">Próximamente descubrirás aquí mis trabajos.</p>';
+}
+if($("#category-grid")&&categoryParams().type==="gallery") renderCategoryLanding();
 }   
 function showLoadError(id){const el=$(id);if(el)el.innerHTML='<p class="loading-note">No se ha podido cargar el contenido. Inténtalo de nuevo más tarde.</p>';}   
 function initMenu(){   
@@ -287,17 +321,21 @@ backdrop.remove();
 });   
 }   
 }   
-async function sendContact(e){   
-e.preventDefault();const form=e.currentTarget,status=$("#contact-status"),button=form.querySelector("button[type=submit]");   
-const data=new FormData(form),name=String(data.get("name")||"").trim(),email=String(data.get("email")||"").trim(),message=String(data.get("message")||"").trim();   
-button.disabled=true;button.textContent="Preparando correo…";   
-const subject=encodeURIComponent("Consulta desde la web de Silvia Crea");   
-const body=encodeURIComponent(`Nombre: ${name}\nCorreo: ${email}\n\n${message}`);   
-window.location.href=`mailto:${cfg.email}?subject=${subject}&body=${body}`;   
-status.textContent="Se ha abierto tu aplicación de correo para que puedas enviar el mensaje.";   
-button.disabled=false;button.textContent="Enviar consulta";   
-}  
-  
+async function sendContact(e){
+  e.preventDefault();
+  const form=e.currentTarget,status=$("#contact-status"),button=form.querySelector("button[type=submit]");
+  const data=new FormData(form);
+  const payload={action:"contact",Nombre:String(data.get("name")||"").trim(),Email:String(data.get("email")||"").trim(),Mensaje:String(data.get("message")||"").trim()};
+  if(!payload.Nombre||!payload.Email||!payload.Mensaje){status.textContent="Completa todos los campos.";return;}
+  button.disabled=true;button.textContent="Enviando consulta…";status.textContent="";
+  try{
+    const response=await fetch(cfg.appsScriptUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),redirect:"follow"});
+    const result=await response.json();
+    if(!response.ok||result.status!=="success") throw new Error(result.message||"No se pudo enviar el mensaje.");
+    form.reset();status.textContent="¡Gracias! Tu mensaje se ha enviado correctamente. Te llegará una copia por correo.";
+  }catch(err){status.textContent="No se ha podido enviar el mensaje. Inténtalo de nuevo más tarde o escribe a "+cfg.email+".";}
+  finally{button.disabled=false;button.textContent="Enviar consulta";}
+}
 function showCustomAlert(title, message) {  
  const backdrop = document.createElement("div");  
  backdrop.className = "modal-backdrop open";  
@@ -339,156 +377,138 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
 }finally{btn.disabled=false;btn.textContent="Enviar solicitud de pedido";}   
 }   
   
-document.addEventListener("click",e=>{   
- const isMobile = window.innerWidth <= 768;
+// Efectos decorativos recuperados con un presupuesto global de partículas.
+// Solo se animan transform y opacity: sin blur, filtros dinámicos ni bucles JS.
+const decorParticles = (() => {
+  const active = {petal:0, crayon:0, yarn:0, heart:0};
+  const limits = {petal:18, crayon:12, yarn:5, heart:8};
+  const maxTotal = 26;
+  const colors = {
+    petal:['#fdfbf7','#f2d5df','#d4c5e8','#e2d4f5','#fcf4d4'],
+    crayon:['#c8bccf','#dcbac5','#bcccda','#bed1c7','#e3cbbd','#dfc4cd','#e6dec4','#c2bdd4','#dcd0d9','#d1d8e0','#f2d5df','#e2d4f5','#fcf4d4','#ffdcb3'],
+    vivid:['#ff9aa2','#c8a2c8','#b19cd9','#ffb3c6']
+  };
+  const total = () => active.petal+active.crayon+active.yarn+active.heart;
+  const fallingNodes = new Set();
+  // Límites de la zona realmente visible (también contempla zoom y barras móviles).
+  function visibleArea(){
+    const vv=window.visualViewport;
+    return {
+      left:vv?vv.offsetLeft:0,
+      top:vv?vv.offsetTop:0,
+      width:vv?vv.width:window.innerWidth,
+      height:vv?vv.height:window.innerHeight
+    };
+  }
+  function placeFallingNode(node){
+    const area=visibleArea(), size=Number(node.dataset.size)||32;
+    const usable=Math.max(0,area.width-size-16);
+    const x=area.left+8+Math.min(usable,Math.max(0,usable*Number(node.dataset.xRatio)));
+    const roomLeft=Math.max(0,x-area.left-8);
+    const roomRight=Math.max(0,area.left+area.width-8-size-x);
+    const driftLimit=Math.min(70,Math.max(roomLeft,roomRight));
+    const direction=roomRight>=roomLeft?1:-1;
+    const drift=direction*driftLimit*Number(node.dataset.driftRatio);
+    node.style.left=x+'px';
+    node.style.top=(area.top+4)+'px';
+    node.style.setProperty('--drop-y',Math.max(0,area.height-size-12)+'px');
+    node.style.setProperty('--tx',drift+'px');
+    node.style.setProperty('--bx',(direction*Math.min(12,Math.max(0,driftLimit-Math.abs(drift))))+'px');
+  }
+  function refreshVisibleArea(){ fallingNodes.forEach(placeFallingNode); }
+  window.addEventListener('resize',refreshVisibleArea,{passive:true});
+  window.addEventListener('scroll',refreshVisibleArea,{passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',refreshVisibleArea,{passive:true});
+    window.visualViewport.addEventListener('scroll',refreshVisibleArea,{passive:true});
+  }
+  function add(kind,node,parent=document.body){
+    if(active[kind]>=limits[kind] || total()>=maxTotal) return false;
+    active[kind]++;
+    node.addEventListener('animationend',()=>{node.remove();fallingNodes.delete(node);active[kind]=Math.max(0,active[kind]-1);},{once:true});
+    parent.appendChild(node);
+    if(kind==='yarn'||kind==='heart'){
+      fallingNodes.add(node);
+      placeFallingNode(node);
+    }
+    return true;
+  }
+  const rand = (a,b)=>a+Math.random()*(b-a);
+  function petals(e){
+    const count=window.innerWidth<=768?4:6;
+    const frag=document.createDocumentFragment();
+    for(let i=0;i<count && active.petal<limits.petal && total()<maxTotal;i++){
+      const n=document.createElement('i'); n.className='petal-anim';
+      n.style.background=colors.petal[(Math.random()*colors.petal.length)|0];
+      n.style.left=e.clientX+'px'; n.style.top=e.clientY+'px';
+      const a=rand(0,Math.PI*2),d=rand(35,105);
+      n.style.setProperty('--tx',(Math.cos(a)*d)+'px');
+      n.style.setProperty('--ty',(Math.sin(a)*d+28)+'px');
+      n.style.setProperty('--rot',rand(-540,540)+'deg');
+      if(add('petal',n,frag)){} 
+    }
+    document.body.appendChild(frag);
+  }
+  function crayons(container){
+    if(!container)return;
+    const count=window.innerWidth<=768?5:7;
+    const frag=document.createDocumentFragment();
+    for(let i=0;i<count && active.crayon<limits.crayon && total()<maxTotal;i++){
+      const n=document.createElement('div'); n.className='crayon-anim-hero';
+      n.style.color=colors.crayon[(Math.random()*colors.crayon.length)|0];
+      const a=rand(0,Math.PI*2),d=rand(150,360);
+      n.style.setProperty('--tx',(Math.cos(a)*d)+'px');
+      n.style.setProperty('--ty',(Math.sin(a)*d)+'px');
+      n.style.setProperty('--rot',rand(-540,540)+'deg');
+      n.style.left='50%'; n.style.top='50%';
+      add('crayon',n,frag);
+    }
+    container.appendChild(frag);
+  }
+  function falling(kind){
+    const count=kind==='yarn'?(window.innerWidth<=768?2:3):(window.innerWidth<=768?3:5);
+    const frag=document.createDocumentFragment();
+    for(let i=0;i<count && active[kind]<limits[kind] && total()<maxTotal;i++){
+      const n=document.createElement('div'); n.className=kind==='yarn'?'yarn-anim':'heart-anim';
+      const color=colors.vivid[(Math.random()*colors.vivid.length)|0];
+      if(kind==='yarn'){
+        n.innerHTML=`<svg viewBox="0 0 100 120" aria-hidden="true"><circle cx="50" cy="50" r="40" fill="${color}"/><path d="M14 35Q50 20 86 35M10 50Q50 40 90 50M14 65Q50 60 86 65M35 14Q20 50 35 86M50 10Q35 50 50 90M65 14Q50 50 65 86M25 20Q50 5 75 20M25 80Q50 95 75 80" stroke="rgba(255,255,255,.48)" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M50 88C55 105 40 115 65 115" stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`;
+      }else{
+        n.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
+      }
+      const size=kind==='yarn'?40:22;
+      n.dataset.size=String(size);
+      n.dataset.xRatio=String(Math.random());
+      n.dataset.driftRatio=String(rand(.25,1));
+      n.style.setProperty('--rot',rand(-220,220)+'deg');
+      n.style.setProperty('--scale',rand(.65,1.05));
+      add(kind,n,frag);
+    }
+    document.body.appendChild(frag);
+  }
+  return {petals,crayons,falling};
+})();
 
- const petalColors = ['#fdfbf7', '#f2d5df', '#d4c5e8', '#e2d4f5', '#fcf4d4'];
- const crayonColors = [
-     '#c8bccf', '#dcbac5', '#bcccda', '#bed1c7', '#e3cbbd', '#dfc4cd', '#e6dec4', '#c2bdd4', '#dcd0d9', '#d1d8e0', 
-     '#f2d5df', '#e2d4f5', '#fcf4d4', '#ffdcb3' 
- ];
- const vividPastels = ['#ff9aa2', '#c8a2c8', '#b19cd9', '#ffb3c6'];
-
- // 1. --- EFECTO PÉTALOS GLOBALES AL CLIC ---
- if (!isMobile || document.querySelectorAll('.petal-anim').length < 24) {
-     const petalCount = isMobile ? 8 : 18;
-     for (let i = 0; i < petalCount; i++) {
-         const petal = document.createElement('div');
-         petal.className = 'petal-anim';
-         petal.style.background = petalColors[Math.floor(Math.random() * petalColors.length)];
-         petal.style.left = e.pageX + 'px';
-         petal.style.top = e.pageY + 'px';
-         const angle = Math.random() * Math.PI * 2;
-         const dist = 60 + Math.random() * 150; 
-         petal.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
-         petal.style.setProperty('--ty', `${Math.sin(angle) * dist + 50}px`); 
-         petal.style.setProperty('--rot', `${(Math.random() - 0.5) * 1080}deg`);
-         document.body.appendChild(petal);
-         setTimeout(() => petal.remove(), 3000); 
-     }
+document.addEventListener("click",e=>{
+ decorParticles.petals(e);
+ const heroLogo=e.target.closest('.hero-logo');
+ if(heroLogo) decorParticles.crayons(heroLogo.closest('.hero-art'));
+ const headerBrand=e.target.closest('.site-header .brand');
+ if(headerBrand){
+   decorParticles.falling('yarn');
+   // En inicio, el logo actúa como disparador del efecto sin recargar la página.
+   if(document.body.dataset.page==='home') e.preventDefault();
  }
+ const aboutHeading=e.target.closest('h2');
+ if(aboutHeading && aboutHeading.textContent.includes('Soy Silvia Rodríguez')) decorParticles.falling('heart');
 
- // 2. --- LOGO INICIO HERO (CRAYONES LIMPIOS) ---
- const heroLogo = e.target.closest(".hero-logo");
- if (heroLogo) {
-     e.preventDefault(); // Previene el salto al procesar el click como enlace
-     const container = heroLogo.closest('.hero-art');
-     if(container && (!isMobile || document.querySelectorAll('.crayon-anim-hero').length < 24)) {
-         const crayonCount = isMobile ? 8 : 20;
-         for (let i = 0; i < crayonCount; i++) {
-             const crayon = document.createElement('div');
-             crayon.className = 'crayon-anim-hero'; 
-             crayon.style.color = crayonColors[Math.floor(Math.random() * crayonColors.length)];
-             
-             const angle = Math.random() * Math.PI * 2;
-             const distance = 250 + Math.random() * 450; 
-             crayon.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
-             crayon.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
-             crayon.style.setProperty('--rot', `${(Math.random() * 1440) - 720}deg`);
-             
-             crayon.style.left = '50%';
-             crayon.style.top = '50%';
-             
-             container.appendChild(crayon);
-             setTimeout(() => crayon.remove(), 6500); 
-         }
-     }
- }
-
- // 3. --- LOGO HEADER (OVILLOS ESPONJOSOS CAYENDO) ---
- const headerBrand = e.target.closest(".site-header .brand");
- if (headerBrand) {
-     e.preventDefault();
-     
-     if (!isMobile || document.querySelectorAll('.yarn-anim').length < 9) {
-         const count = isMobile ? (2 + Math.floor(Math.random() * 2)) : (4 + Math.floor(Math.random() * 4));
-         for(let i = 0; i < count; i++) {
-             const yarn = document.createElement('div');
-             yarn.className = 'yarn-anim';
-             
-             const color = vividPastels[Math.floor(Math.random() * vividPastels.length)];
-             yarn.innerHTML = `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="40" fill="${color}"/>
-                <circle cx="50" cy="50" r="40" fill="black" opacity="0.04"/>
-                <path d="M 14 35 Q 50 20 86 35 M 10 50 Q 50 40 90 50 M 14 65 Q 50 60 86 65" stroke="rgba(255,255,255,0.4)" stroke-width="5" fill="none" stroke-linecap="round"/>
-                <path d="M 35 14 Q 20 50 35 86 M 50 10 Q 35 50 50 90 M 65 14 Q 50 50 65 86" stroke="rgba(0,0,0,0.15)" stroke-width="5" fill="none" stroke-linecap="round"/>
-                <path d="M 25 20 Q 50 5 75 20 M 25 80 Q 50 95 75 80" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
-                <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="rgba(0,0,0,0.1)" stroke-width="5" fill="none" stroke-linecap="round" transform="translate(1,2)"/>
-                <path d="M 50 88 C 55 105, 40 115, 65 115" stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round"/>
-             </svg>`;
-             
-             const startX = Math.random() * window.innerWidth;
-             const startY = -40;
-             
-             const tx = (Math.random() - 0.5) * 200; 
-             const dropY = window.innerHeight - startY - 20; 
-             const bx = (Math.random() - 0.5) * 80; 
-             const scale = 0.6 + Math.random() * 0.6; 
-             
-             yarn.style.left = startX + 'px';
-             yarn.style.top = startY + 'px';
-             yarn.style.setProperty('--tx', `${tx}px`);
-             yarn.style.setProperty('--drop-y', `${dropY}px`);
-             yarn.style.setProperty('--bx', `${bx}px`);
-             yarn.style.setProperty('--rot', `${(Math.random() - 0.5) * 500}deg`);
-             yarn.style.setProperty('--scale', scale);
-             
-             document.body.appendChild(yarn);
-             setTimeout(() => yarn.remove(), 7500); 
-         }
-     }
-     return;
- }
-
- // 4. --- LOGO FOOTER (TOTALMENTE INACTIVO) ---
- const footerLink = e.target.closest(".footer-brand-img");
- if (footerLink) {
-     e.preventDefault(); 
-     return; 
- }
-
- // 5. --- LLUVIA DE CORAZONES EN "SOY SILVIA RODRIGUEZ" ---
- const h2Target = e.target.closest("h2");
- if (h2Target && h2Target.textContent.includes("Soy Silvia Rodríguez")) {
-     if (!isMobile || document.querySelectorAll('.heart-anim').length < 21) {
-         const count = isMobile ? (5 + Math.floor(Math.random() * 3)) : (10 + Math.floor(Math.random() * 6));
-         for(let i = 0; i < count; i++) {
-             const heart = document.createElement('div');
-             heart.className = 'heart-anim';
-             
-             const color = vividPastels[Math.floor(Math.random() * vividPastels.length)];
-             heart.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
-             
-             const startX = Math.random() * window.innerWidth; 
-             const startY = -40; 
-             
-             const tx = (Math.random() - 0.5) * window.innerWidth * 0.9; 
-             const dropY = window.innerHeight - startY - 20; 
-             const bx = (Math.random() - 0.5) * 80; 
-             const scale = 0.8 + Math.random() * 0.7; 
-             
-             heart.style.left = startX + 'px';
-             heart.style.top = startY + 'px';
-             heart.style.setProperty('--tx', `${tx}px`);
-             heart.style.setProperty('--drop-y', `${dropY}px`);
-             heart.style.setProperty('--bx', `${bx}px`);
-             heart.style.setProperty('--rot', `${(Math.random() - 0.5) * 360}deg`);
-             heart.style.setProperty('--scale', scale);
-             
-             document.body.appendChild(heart);
-             setTimeout(() => heart.remove(), 7500); 
-         }
-     }
- }
- // --------------------------------------------------------
-  
  // CONTROLADOR DE NAVEGACIÓN DIRECTA
  const link = e.target.closest("a");  
  if (link && link.href) {  
      const isInternal = link.getAttribute("href").includes(".html") && !link.getAttribute("href").startsWith("http") && link.target !== "_blank";
      if (isInternal) {  
-         if (link.classList.contains("brand") || link.classList.contains("footer-brand-img")) return; 
-         
+         // En inicio, pulsar el logotipo solo dispara la animación de ovillos.
+         if (link.classList.contains("brand") && document.body.dataset.page === "home") return;
          // Navega instantáneamente sin transiciones, guardando la página actual en localStorage
          localStorage.setItem("silviacrea_current_page", link.getAttribute("href"));
          window.location.href = link.href;
@@ -497,7 +517,7 @@ document.addEventListener("click",e=>{
      }  
  }
 
-if(e.target.closest("[data-open-cart]"))openCart();   
+ if(e.target.closest("[data-open-cart]"))openCart();   
 if(e.target.closest("[data-close-cart]"))closeCart();   
 const add=e.target.closest("[data-add]");if(add){e.stopPropagation();addProduct(products[Number(add.dataset.add)]);return;}   
 const detail=e.target.closest("[data-detail-card]");   
@@ -614,5 +634,8 @@ $("#year").textContent=new Date().getFullYear();initMenu();updateCart();
 
 if($("#products-grid"))loadProducts().catch(()=>showLoadError("#products-grid"));   
 if($("#specialties-grid"))loadSpecialties().catch(()=>showLoadError("#specialties-grid"));   
-if($("#gallery-grid"))loadGallery().catch(()=>showLoadError("#gallery-grid"));   
+if($("#gallery-grid"))loadGallery().catch(()=>showLoadError("#gallery-grid"));
+if($("#category-grid")){
+  Promise.all([loadProducts(),loadGallery()]).catch(()=>showLoadError("#category-grid"));
+}
 })();
