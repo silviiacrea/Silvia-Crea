@@ -109,6 +109,44 @@ function openCart(){ $(".cart-drawer")?.classList.add("open");$(".drawer-backdro
 function closeCart(){ $(".cart-drawer")?.classList.remove("open");$(".drawer-backdrop")?.classList.remove("open");$(".cart-drawer")?.setAttribute("aria-hidden","true");document.body.style.overflow="";}   
 function addProduct(p){if(!p||p.stock<=0){showToast("Este producto no está disponible ahora mismo.");return;}const unitPrice=p.offer&&p.offerPrice!==undefined?p.offerPrice:p.price;const found=cart.find(x=>x.name===p.name);if(found){if(found.qty<p.stock)found.qty++;else showToast("Has alcanzado el stock disponible.");}else cart.push({name:p.name,price:unitPrice,qty:1,comment:""});updateCart();showToast("Añadido a tu carrito ♡");}   
   
+async function loadAlbumPhotos(item){
+  if(!item || !item.album) return [];
+  const group=item.albumFolder || item.albumType || "catalogo";
+  const album=String(item.album).trim();
+  if(!album) return [];
+  const endpoint=(cfg.albumApiUrl||((cfg.workerBaseUrl||"https://worker.silviacrea.es").replace(/\/$/,"")+"/album"))+
+    "?folder="+encodeURIComponent(group)+"&name="+encodeURIComponent(album);
+  try{
+    const response=await fetch(endpoint,{cache:"default"});
+    if(!response.ok) return [];
+    const data=await response.json();
+    const photos=Array.isArray(data)?data:(data.images||data.photos||[]);
+    return photos.map(x=>typeof x==="string"?x:(x.url||x.src||x.downloadUrl||"")).filter(safeImg);
+  }catch{return [];}
+}
+function setupModalAlbum(photos){
+  const wrap=$("#modal-img-wrapper");
+  if(!wrap)return;
+  let gallery=$("#modal-album");
+  if(!gallery){
+    gallery=document.createElement("div");gallery.id="modal-album";gallery.className="modal-album";
+    wrap.insertAdjacentElement("afterend",gallery);
+  }
+  gallery.innerHTML="";
+  if(photos.length<2){gallery.style.display="none";return;}
+  gallery.style.display="flex";
+  photos.forEach((src,i)=>{
+    const b=document.createElement("button");b.type="button";b.className="album-thumb"+(i===0?" active":"");
+    b.setAttribute("aria-label","Ver foto "+(i+1));
+    const img=document.createElement("img");img.src=src;img.alt="Foto "+(i+1);img.loading="lazy";img.decoding="async";
+    b.appendChild(img);b.addEventListener("click",()=>{
+      const main=$("#modal-image");main.src=src;main.style.display="block";
+      $("#modal-placeholder").style.display="none";
+      gallery.querySelectorAll(".album-thumb").forEach(x=>x.classList.remove("active"));b.classList.add("active");
+    });gallery.appendChild(b);
+  });
+}
+
 function openProduct(p,isProduct=false,idx=0){   
 modalProduct=isProduct?p:null;   
 $("#modal-title").textContent=p.name||p.title||"";   
@@ -127,6 +165,12 @@ const im=$("#modal-image"), ph=$("#modal-placeholder"), src=safeImg(p.largeImage
 const m=$(".product-modal");  
  if(m){m.classList.remove("theme-pink","theme-lilac");m.classList.add(idx%2===0?"theme-pink":"theme-lilac");}  
   
+ setupModalAlbum([]);
+ if(p.album){
+   loadAlbumPhotos(p).then(photos=>{
+     if(modalProduct===p || $("#modal-title").textContent===(p.name||p.title||"")) setupModalAlbum(photos);
+   });
+ }
  $("#product-modal")?.classList.add("open");$("#product-modal")?.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";   
 }   
   
@@ -238,15 +282,15 @@ const classes=["item-card",kind==="gallery"?"gallery-card":"",p.featured?"is-fea
   
 return `<article class="${classes}" data-card-kind="${kind}" data-index="${index}" tabindex="0" role="group" aria-label="${esc(p.name||p.title)}. Pulsa para ver el detalle">   
 ${featured}${offer}   
-${image?`<div class="image-wrapper"><img class="item-image" src="${esc(image)}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><svg viewBox="0 0 24 24" width="42" height="42" stroke="#b69bd2" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div></div>`}   
+${image?`<div class="image-wrapper"><img class="item-image" src="${esc(image)}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
 <div class="item-content"><h3>${esc(p.name||p.title)}</h3><p>${esc(desc)}</p>   
 ${metaHtml}  
-<div class="item-actions"><button class="mini-btn detail-button" type="button" data-detail-card="${kind}" data-index="${index}">Ver detalle</button>${isProduct?`<button class="mini-btn add-button" type="button" data-add="${index}" ${p.stock<=0?"disabled":""}>Añadir carrito</button>`:''}</div>   
+<div class="item-actions"><button class="mini-btn detail-button" type="button" data-detail-card="${kind}" data-index="${index}">Ver detalles</button>${isProduct?`<button class="mini-btn add-button" type="button" data-add="${index}" ${p.stock<=0?"disabled":""}>Añadir carrito</button>`:''}</div>   
 </div></article>`;   
 }   
 async function loadProducts(){
 const rows=await getSheet("CATALOGO");
-products=rows.filter(r=>r.nombre).map(r=>({name:r.nombre,description:r.descripcion||"",price:money(r.precio),image:workerImage(r.imagen),stock:r.stock===""||r.stock==null?99:Math.max(0,parseInt(r.stock,10)||0),detail:r.descripcionCompleta||"",largeImage:workerImage(r.imagenGrande),featured:yes(r.destacado),offer:yes(r.oferta),offerPrice:r.precioOferta===""||r.precioOferta==null?undefined:money(r.precioOferta),category:cleanCategory(r.categoria)}));
+products=rows.filter(r=>r.nombre).map(r=>({name:r.nombre,description:r.descripcion||"",price:money(r.precio),image:workerImage(r.imagen),stock:r.stock===""||r.stock==null?99:Math.max(0,parseInt(r.stock,10)||0),detail:r.descripcionCompleta||"",largeImage:workerImage(r.imagenGrande),featured:yes(r.destacado),offer:yes(r.oferta),offerPrice:r.precioOferta===""||r.precioOferta==null?undefined:money(r.precioOferta),category:cleanCategory(r.categoria),album:r.album||"",albumFolder:"catalogo"}));
 products.sort((a,b)=>(a.featured===b.featured?0:a.featured?-1:1));
 const grid=$("#products-grid");
 if(grid){
@@ -260,13 +304,13 @@ if($("#category-grid")&&categoryParams().type==="product") renderCategoryLanding
 }   
 async function loadSpecialties(){   
 const rows=await getSheet("ESPECIALIDADES");   
-specialties=rows.filter(r=>r.nombre).map(r=>({name:r.nombre,description:r.descripcion||"",image:workerImage(r.imagen),detail:r.descripcionCompleta||"",largeImage:workerImage(r.imagenGrande),featured:!!r.destacado}));   
+specialties=rows.filter(r=>r.nombre).map(r=>({name:r.nombre,description:r.descripcion||"",image:workerImage(r.imagen),detail:r.descripcionCompleta||"",largeImage:workerImage(r.imagenGrande),featured:!!r.destacado,album:r.album||"",albumFolder:"especialidades"}));   
 specialties.sort((a,b) => (a.featured === b.featured ? 0 : a.featured ? -1 : 1));   
 const grid=$("#specialties-grid");if(grid){grid.innerHTML=specialties.length?specialties.map((p,i)=>card(p,"specialty",i)).join(""):'<p class="loading-note">Próximamente descubrirás aquí mis especialidades.</p>';prepareSlider(grid,specialties.length);}   
 }   
 async function loadGallery(){
 const rows=await getSheet("TRABAJOS");
-gallery=rows.filter(r=>r.nombre).map(r=>({name:r.nombre,image:workerImage(r.imagen),description:r.descripcion||"",detail:r.descripcionCompleta||"",largeImage:workerImage(r.imagenGrande),category:cleanCategory(r.categoria)}));
+gallery=rows.filter(r=>r.nombre).map(r=>({name:r.nombre,image:workerImage(r.imagen),description:r.descripcion||"",detail:r.descripcionCompleta||"",largeImage:workerImage(r.imagenGrande),category:cleanCategory(r.categoria),album:r.album||"",albumFolder:"trabajos"}));
 const grid=$("#gallery-grid");
 if(grid){
  const tiles=categoryCards(gallery,"gallery");
