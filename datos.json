@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-23T23:25:04.986Z",
+  "actualizado": "2026-11-23T23:40:03.615Z",
   "catalogo": [
     {
       "nombre": "Gnomo Navideño",
@@ -90,6 +90,14 @@
       "descripcion": "Decorada a mano con técnicas de acuarela y lettering.",
       "descripcionCompleta": "Decorada a mano con técnicas de acuarela y lettering.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/zorrocrochet.jpeg",
+      "categoria": ""
+    },
+    {
+      "nombre": "Ballenitas a crochet",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/ballenitascrochet.jpg",
+      "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/ballenitascrochet.jpg",
       "categoria": ""
     }
   ],
