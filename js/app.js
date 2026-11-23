@@ -389,11 +389,48 @@ const decorParticles = (() => {
     vivid:['#ff9aa2','#c8a2c8','#b19cd9','#ffb3c6']
   };
   const total = () => active.petal+active.crayon+active.yarn+active.heart;
+  const fallingNodes = new Set();
+  // Límites de la zona realmente visible (también contempla zoom y barras móviles).
+  function visibleArea(){
+    const vv=window.visualViewport;
+    return {
+      left:vv?vv.offsetLeft:0,
+      top:vv?vv.offsetTop:0,
+      width:vv?vv.width:window.innerWidth,
+      height:vv?vv.height:window.innerHeight
+    };
+  }
+  function placeFallingNode(node){
+    const area=visibleArea(), size=Number(node.dataset.size)||32;
+    const usable=Math.max(0,area.width-size-16);
+    const x=area.left+8+Math.min(usable,Math.max(0,usable*Number(node.dataset.xRatio)));
+    const roomLeft=Math.max(0,x-area.left-8);
+    const roomRight=Math.max(0,area.left+area.width-8-size-x);
+    const driftLimit=Math.min(70,Math.max(roomLeft,roomRight));
+    const direction=roomRight>=roomLeft?1:-1;
+    const drift=direction*driftLimit*Number(node.dataset.driftRatio);
+    node.style.left=x+'px';
+    node.style.top=(area.top+4)+'px';
+    node.style.setProperty('--drop-y',Math.max(0,area.height-size-12)+'px');
+    node.style.setProperty('--tx',drift+'px');
+    node.style.setProperty('--bx',(direction*Math.min(12,Math.max(0,driftLimit-Math.abs(drift))))+'px');
+  }
+  function refreshVisibleArea(){ fallingNodes.forEach(placeFallingNode); }
+  window.addEventListener('resize',refreshVisibleArea,{passive:true});
+  window.addEventListener('scroll',refreshVisibleArea,{passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',refreshVisibleArea,{passive:true});
+    window.visualViewport.addEventListener('scroll',refreshVisibleArea,{passive:true});
+  }
   function add(kind,node,parent=document.body){
     if(active[kind]>=limits[kind] || total()>=maxTotal) return false;
     active[kind]++;
-    node.addEventListener('animationend',()=>{node.remove();active[kind]=Math.max(0,active[kind]-1);},{once:true});
+    node.addEventListener('animationend',()=>{node.remove();fallingNodes.delete(node);active[kind]=Math.max(0,active[kind]-1);},{once:true});
     parent.appendChild(node);
+    if(kind==='yarn'||kind==='heart'){
+      fallingNodes.add(node);
+      placeFallingNode(node);
+    }
     return true;
   }
   const rand = (a,b)=>a+Math.random()*(b-a);
@@ -439,10 +476,10 @@ const decorParticles = (() => {
       }else{
         n.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
       }
-      n.style.left=rand(8,92)+'vw'; n.style.top='-48px';
-      n.style.setProperty('--tx',rand(-100,100)+'px');
-      n.style.setProperty('--drop-y',(window.innerHeight+70)+'px');
-      n.style.setProperty('--bx',rand(-35,35)+'px');
+      const size=kind==='yarn'?40:22;
+      n.dataset.size=String(size);
+      n.dataset.xRatio=String(Math.random());
+      n.dataset.driftRatio=String(rand(.25,1));
       n.style.setProperty('--rot',rand(-220,220)+'deg');
       n.style.setProperty('--scale',rand(.65,1.05));
       add(kind,n,frag);

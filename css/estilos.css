@@ -503,7 +503,7 @@ input, textarea, select, [contenteditable] {
 .crayon-anim-hero:before{content:'';position:absolute;top:-8px;left:0;width:0;height:0;border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-bottom:8px solid currentColor}
 .crayon-anim-hero:after{content:'';position:absolute;top:-9px;left:3px;width:3px;height:2px;background:currentColor;border-radius:2px 2px 0 0}
 @keyframes crayonRollHero{0%{transform:translate(0,0) rotate(0);opacity:0}8%{opacity:1}78%{opacity:1}100%{transform:translate(var(--tx),var(--ty)) rotate(var(--rot));opacity:0}}
-.yarn-anim,.heart-anim{position:fixed;z-index:45;pointer-events:none;animation:itemDrop 4.6s ease-in-out forwards}
+.yarn-anim,.heart-anim{position:fixed;z-index:45;pointer-events:none;animation:itemDrop 4.6s ease-in-out forwards;contain:layout paint}
 .yarn-anim{width:32px;height:40px;margin:-20px 0 0 -16px}
 .heart-anim{width:22px;height:22px;margin:-11px 0 0 -11px}
 .yarn-anim svg,.heart-anim svg{width:100%;height:100%;display:block}
