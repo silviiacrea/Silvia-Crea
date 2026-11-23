@@ -1,0 +1,98 @@
+{
+  "actualizado": "2026-11-23T22:10:04.971Z",
+  "catalogo": [
+    {
+      "nombre": "Gnomo Navideño",
+      "descripcion": "Muñeco navideño hecho a mano con técnica felting.",
+      "precio": 10,
+      "imagen": "https://i.imgur.com/lKitGYG.png",
+      "stock": 15,
+      "descripcionCompleta": "Muñeco navideño hecho a mano con técnica felting. Disponibles en 2 colores: rojo y verde.  Medidas aproximadas: 3,5cm x 11cm",
+      "imagenGrande": "https://i.imgur.com/yAvqrx0.png",
+      "destacado": true,
+      "oferta": true,
+      "precioOferta": 8,
+      "categoria": ""
+    },
+    {
+      "nombre": "Próximamente...",
+      "descripcion": "En proceso",
+      "precio": 0,
+      "imagen": "",
+      "stock": 0,
+      "descripcionCompleta": "En proceso",
+      "imagenGrande": "",
+      "destacado": false,
+      "oferta": false,
+      "precioOferta": "",
+      "categoria": ""
+    },
+    {
+      "nombre": "Próximamente...",
+      "descripcion": "En proceso",
+      "precio": 0,
+      "imagen": "",
+      "stock": 0,
+      "descripcionCompleta": "En proceso",
+      "imagenGrande": "",
+      "destacado": false,
+      "oferta": false,
+      "precioOferta": "",
+      "categoria": ""
+    }
+  ],
+  "especialidades": [
+    {
+      "nombre": "Amigurumi Personalizado",
+      "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "imagen": "https://i.imgur.com/LgrnCld.png",
+      "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "imagenGrande": "https://i.imgur.com/LgrnCld.png",
+      "destacado": true
+    },
+    {
+      "nombre": "Pulsera de Abalorios",
+      "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
+      "imagen": "",
+      "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
+      "imagenGrande": "",
+      "destacado": false
+    },
+    {
+      "nombre": "Muñecos Felting",
+      "descripcion": "",
+      "imagen": "",
+      "descripcionCompleta": "",
+      "imagenGrande": "",
+      "destacado": false
+    }
+  ],
+  "trabajos": [
+    {
+      "nombre": "Amigurumi Personalizado",
+      "imagen": "https://placehold.co/600x600/E9D8FD/6B46C1?text=Amigurumi",
+      "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "imagenGrande": "",
+      "categoria": ""
+    },
+    {
+      "nombre": "Pulsera de Abalorios",
+      "imagen": "https://placehold.co/600x600/FED7E2/D53F8C?text=Pulseras",
+      "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
+      "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
+      "imagenGrande": "",
+      "categoria": ""
+    },
+    {
+      "nombre": "Tarjeta con Lettering",
+      "imagen": "https://placehold.co/600x600/E9D8FD/6B46C1?text=Tarjetas",
+      "descripcion": "Decorada a mano con técnicas de acuarela y lettering.",
+      "descripcionCompleta": "Decorada a mano con técnicas de acuarela y lettering.",
+      "imagenGrande": "",
+      "categoria": ""
+    }
+  ],
+  "categoriasTienda": [],
+  "categoriasTrabajos": []
+}
