@@ -1,14 +1,14 @@
 {
-  "actualizado": "2026-11-23T22:40:03.525Z",
+  "actualizado": "2026-11-23T22:55:03.016Z",
   "catalogo": [
     {
       "nombre": "Gnomo Navideño",
       "descripcion": "Muñeco navideño hecho a mano con técnica felting.",
       "precio": 10,
-      "imagen": "https://i.imgur.com/lKitGYG.png",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/GnomosNavide%C3%B1os.png",
       "stock": 15,
       "descripcionCompleta": "Muñeco navideño hecho a mano con técnica felting. Disponibles en 2 colores: rojo y verde.  Medidas aproximadas: 3,5cm x 11cm",
-      "imagenGrande": "https://i.imgur.com/yAvqrx0.png",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/GnomosNavide%C3%B1os.png",
       "destacado": true,
       "oferta": true,
       "precioOferta": 8,
