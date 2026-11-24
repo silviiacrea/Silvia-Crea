@@ -9,14 +9,14 @@
       "nombre": "Gnomo Navideño",
       "descripcion": "Muñeco navideño hecho a mano con técnica felting.",
       "precio": 10,
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/catalogo/gnomos/GnomosNavide%C3%B1os.png",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/catalogo/gnomos/gnomosnavide%C3%B1os.jpg",
       "stock": 15,
       "descripcionCompleta": "Muñeco navideño hecho a mano con técnica felting. Disponibles en 2 colores: rojo y verde.  Medidas aproximadas: 3,5cm x 11cm",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/catalogo/gnomos/GnomosNavide%C3%B1os.png",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/catalogo/gnomos/gnomosnavide%C3%B1os.jpg",
       "destacado": true,
       "oferta": true,
       "precioOferta": 8,
-      "album": "Gnomos",
+      "album": "gnomos",
       "categoria": "",
       "descripcionFicha": ""
     },
@@ -40,9 +40,9 @@
     {
       "nombre": "Amigurumi Personalizado",
       "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadamigurumi.jpg",
+      "imagen": "",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadamigurumi.jpg",
+      "imagenGrande": "",
       "descripcionFicha": "",
       "album": "",
       "destacado": true
@@ -50,9 +50,9 @@
     {
       "nombre": "Pulsera de Abalorios",
       "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadpulseras.PNG",
+      "imagen": "",
       "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadpulseras.PNG",
+      "imagenGrande": "",
       "descripcionFicha": "",
       "album": "",
       "destacado": false
@@ -61,20 +61,20 @@
   "trabajos": [
     {
       "nombre": "Amigurumi Personalizado",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/ballenitascrochet.jpg",
+      "imagen": "",
       "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/ballenitascrochet.jpg",
+      "imagenGrande": "",
       "descripcionFicha": "",
       "album": "",
       "categoria": ""
     },
     {
       "nombre": "Pulsera de Abalorios",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/bolsitocrochet.jpg",
+      "imagen": "",
       "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
       "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/bolsitocrochet.jpg",
+      "imagenGrande": "",
       "descripcionFicha": "",
       "album": "",
       "categoria": ""
