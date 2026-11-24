@@ -348,7 +348,7 @@ function prepareSlider(el,count){
   left.hidden=!active||pos<=2;right.hidden=!active||pos>=max-2;
   if(v!==lastVisible){el.scrollTo({left:0,behavior:"auto"});lastVisible=v;requestAnimationFrame(update);}else if(wasActive!==active){requestAnimationFrame(update);}
  };
- const scroll=direction=>{const cards=[...el.querySelectorAll(":scope > .item-card")];if(!cards.length)return;const first=cards[0],second=cards[1];const step=second?Math.abs(second.getBoundingClientRect().left-first.getBoundingClientRect().left):first.getBoundingClientRect().width;const max=Math.max(0,el.scrollWidth-el.clientWidth);el.scrollTo({left:Math.max(0,Math.min(max,el.scrollLeft+direction*step)),behavior:"smooth"});};
+ const scroll=direction=>{const cards=[...el.querySelectorAll(":scope > .item-card")];if(!cards.length)return;const first=cards[0],second=cards[1];const step=second?Math.abs(second.getBoundingClientRect().left-first.getBoundingClientRect().left):first.getBoundingClientRect().width;const max=Math.max(0,el.scrollWidth-el.clientWidth);if(window.matchMedia("(max-width:700px)").matches){const current=cards.reduce((best,c)=>Math.abs((c.offsetLeft+c.offsetWidth/2)-(el.scrollLeft+el.clientWidth/2))<Math.abs((best.offsetLeft+best.offsetWidth/2)-(el.scrollLeft+el.clientWidth/2))?c:best,cards[0]);const index=cards.indexOf(current),target=cards[Math.max(0,Math.min(cards.length-1,index+direction))];el.scrollTo({left:Math.max(0,Math.min(max,target.offsetLeft-(el.clientWidth-target.offsetWidth)/2)),behavior:"smooth"});return;}el.scrollTo({left:Math.max(0,Math.min(max,el.scrollLeft+direction*step)),behavior:"smooth"});};
  left.onclick=()=>scroll(-1);right.onclick=()=>scroll(1);
  // En escritorio se puede arrastrar el carrusel manteniendo pulsado el botón izquierdo.
  if(!el.dataset.sliderDrag){
@@ -412,7 +412,7 @@ const classes=["item-card",kind==="gallery"?"gallery-card":"",p.featured?"is-fea
   
 return `<article class="${classes}" data-card-kind="${kind}" data-index="${index}" tabindex="0" role="group" aria-label="${esc(p.name||p.title)}. Pulsa para ver el detalle">   
 ${featured}${offer}   
-${image?`<div class="image-wrapper"><img class="item-image" src="${esc(workerModeUrl(image,"card"))}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
+${image?`<div class="image-wrapper"><img class="item-image" src="${esc(workerModeUrl(image,isProduct?"card":kind==="specialty"?"specialty":"gallery"))}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
 <img class="card-logo-watermark" src="assets/logo%20web.png" alt="" aria-hidden="true" loading="lazy">
 <div class="item-content"><h3>${esc(p.name||p.title)}</h3><p>${esc(desc)}</p>   
 ${metaHtml}  

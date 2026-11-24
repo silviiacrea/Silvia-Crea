@@ -2467,3 +2467,54 @@ body[data-page="home"] #specialties-grid.is-centered>.item-card{
     max-width:460px!important;
   }
 }
+
+
+/* VERSION 30 — tarjetas de tienda y galería con dimensiones idénticas y algo más amplias. */
+#products-grid,#gallery-grid,#category-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  column-gap:18px!important;
+  row-gap:24px!important;
+}
+#products-grid>.item-card,#gallery-grid>.item-card,#category-grid>.item-card{
+  width:100%!important;min-width:0!important;max-width:none!important;
+  box-sizing:border-box!important;
+}
+#products-grid .image-wrapper,#gallery-grid .image-wrapper,#category-grid .image-wrapper{
+  aspect-ratio:5/4!important;
+}
+/* Tres especialidades centradas de verdad cuando no se activa el carrusel. */
+body[data-page="home"] #specialties-grid.is-centered{
+  justify-content:center!important;
+  align-items:stretch!important;
+}
+body[data-page="home"] #specialties-grid.is-centered>.item-card{
+  flex:0 1 calc((100% - 36px)/3)!important;
+  width:calc((100% - 36px)/3)!important;
+}
+/* En móvil cada gesto o control lleva a una tarjeta completa, centrada en pantalla. */
+@media(max-width:700px){
+  body[data-page="home"] #specialties-grid.has-slider{
+    scroll-snap-type:x mandatory!important;
+    scroll-padding-inline:0!important;
+    scroll-behavior:smooth!important;
+    overscroll-behavior-x:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  body[data-page="home"] #specialties-grid.has-slider>.item-card{
+    flex:0 0 100%!important;
+    width:100%!important;
+    max-width:460px!important;
+    margin-inline:auto!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+  }
+  body[data-page="home"] .home-slider-wrapper{
+    padding-inline:12px!important;
+  }
+}
+@media(max-width:900px){
+  #products-grid,#gallery-grid,#category-grid{column-gap:20px!important;}
+}
+@media(max-width:700px){
+  #products-grid,#gallery-grid,#category-grid{column-gap:0!important;}
+}
