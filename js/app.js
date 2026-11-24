@@ -30,37 +30,69 @@ const cfg = window.SILVIA_CONFIG || {};
 const $ = (s, root=document) => root.querySelector(s); const $$ = (s, root=document) => [...root.querySelectorAll(s)];   
 const CART_KEY = "silviacrea_cart_v2";   
 let products = [], specialties = [], gallery = [], cart = loadCart(), modalProduct = null, toastTimer, modalPhotos = [], modalPhotoIndex = 0;
-function workerImage(url){
-  if(!url) return "";
-  const raw=String(url).trim();
-  if(!raw) return "";
-  try{
-    const u=new URL(raw,location.href);
-    if(u.hostname.endsWith("backblazeb2.com") && u.pathname.startsWith("/file/silviacreacatalogo/")){
-      return (cfg.workerBaseUrl||"https://worker.silviacrea.es") + u.pathname + (u.search?u.search+"&wm=card":"?wm=card");
-    }
-    if(u.hostname==="worker.silviacrea.es") { if(!/[?&]wm=/.test(raw)) return raw+(raw.includes("?")?"&":"?")+"wm=card"; return raw; }
-    return raw;
-  }catch{return raw;}
+function encodePathUrl64(path){
+  const bytes=new TextEncoder().encode(String(path));let binary="";bytes.forEach(b=>binary+=String.fromCharCode(b));
+  return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");
 }
-let siteDataPromise=null;
-async function getSiteData(){
-  if(!siteDataPromise){
-    siteDataPromise=(async()=>{
-      const urls=[cfg.dataJsonUrl, cfg.appsScriptUrl ? cfg.appsScriptUrl+"?action=data" : ""].filter(Boolean);
-      let lastError;
-      for(const url of urls){
-        try{
-          const r=await fetch(url,{cache:"default"});
-          if(!r.ok) throw new Error("HTTP "+r.status);
-          const data=await r.json();
-          if(data && (data.catalogo || data.trabajos || data.especialidades)) { applyShopAccessImage(data.imagenTiendaInicio||data.shopImage||""); return data; }
-        }catch(e){lastError=e;}
+function workerImage(url){
+  if(!url)return "";const raw=String(url).trim();if(!raw)return "";
+  try{
+    const u=new URL(raw,location.href),base=(cfg.workerBaseUrl||"https://worker.silviacrea.es").replace(/\/$/,"");
+    if(u.hostname.endsWith("backblazeb2.com")){
+      if(!u.pathname.startsWith("/file/silviacreacatalogo/"))return "";
+      const path=decodeURIComponent(u.pathname.slice("/file/silviacreacatalogo/".length));return base+"/i/"+encodePathUrl64(path)+"?wm=card";
+    }
+    if(u.hostname==="worker.silviacrea.es"){
+      const match=u.pathname.match(/^\/file\/silviacreacatalogo\/(.+)$/);
+      if(match){const path=decodeURIComponent(match[1]);return base+"/i/"+encodePathUrl64(path)+"?wm="+(u.searchParams.get("wm")||"card");}
+      if(u.pathname.startsWith("/i/")){if(!u.searchParams.has("wm"))u.searchParams.set("wm","card");return u.href;}
+      if(u.pathname==="/logo.png")return u.href;
+    }
+    return raw;
+  }catch{return "";}
+}
+const SITE_CACHE_KEY="silviacrea_site_data_v4";
+const SITE_REFRESH_AFTER=15*60*1000;
+let siteDataPromise=null,siteRefreshPromise=null;
+function readSiteCache(){try{const c=JSON.parse(localStorage.getItem(SITE_CACHE_KEY)||"null");return c&&c.data&&(c.data.catalogo||c.data.trabajos||c.data.especialidades)?c:null;}catch{return null;}}
+function writeSiteCache(data){try{localStorage.setItem(SITE_CACHE_KEY,JSON.stringify({savedAt:Date.now(),data}));}catch(e){}}
+function validSiteData(data){return !!(data&&(Array.isArray(data.catalogo)||Array.isArray(data.trabajos)||Array.isArray(data.especialidades)));}
+async function fetchFreshSiteData(){
+  const urls=[cfg.dataJsonUrl?cfg.dataJsonUrl+(cfg.dataJsonUrl.includes("?")?"&":"?")+"v="+Date.now():"",cfg.appsScriptUrl?cfg.appsScriptUrl+"?action=data":""].filter(Boolean);
+  let lastError;
+  for(const url of urls){try{const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);const data=await r.json();if(validSiteData(data)){writeSiteCache(data);applyShopAccessImage(data.imagenTiendaInicio||data.shopImage||"");return data;}}catch(e){lastError=e;}}
+  throw lastError||new Error("No se pudieron cargar los datos.");
+}
+function refreshSiteDataInBackground(){
+  if(siteRefreshPromise)return siteRefreshPromise;
+  const old=readSiteCache()?.data;
+  siteRefreshPromise=fetchFreshSiteData().then(fresh=>{
+    if(old&&JSON.stringify(old)!==JSON.stringify(fresh)){
+      siteDataPromise=Promise.resolve(fresh);
+      if(fresh.maintenance&&fresh.maintenance.mode&&fresh.maintenance.mode!=="normal")showMaintenanceScreen(fresh.maintenance);
+      // Re-render only the grids present on the current page, after the cache is refreshed.
+      if(!document.body.classList.contains("maintenance-active")){
+        if($("#products-grid"))loadProducts().catch(()=>{});
+        if($("#specialties-grid"))loadSpecialties().catch(()=>{});
+        if($("#gallery-grid"))loadGallery().catch(()=>{});
+        if($("#category-grid"))Promise.all([loadProducts(),loadGallery()]).catch(()=>{});
       }
-      throw lastError||new Error("No se pudieron cargar los datos.");
-    })();
+    }
+    return fresh;
+  }).catch(()=>null).finally(()=>{siteRefreshPromise=null;});
+  return siteRefreshPromise;
+}
+async function getSiteData(){
+  if(siteDataPromise)return siteDataPromise;
+  const cached=readSiteCache();
+  if(cached){
+    siteDataPromise=Promise.resolve(cached.data);
+    applyShopAccessImage(cached.data.imagenTiendaInicio||cached.data.shopImage||"");
+    // Serve cached data immediately; refresh from GitHub's datos.json without blocking rendering.
+    if(Date.now()-cached.savedAt>SITE_REFRESH_AFTER)refreshSiteDataInBackground();
+    return siteDataPromise;
   }
-  return siteDataPromise;
+  siteDataPromise=fetchFreshSiteData();return siteDataPromise;
 }
 async function getSheet(name){
   const data=await getSiteData();
@@ -125,7 +157,7 @@ function openCart(){ $(".cart-drawer")?.classList.add("open");$(".drawer-backdro
 function closeCart(){ $(".cart-drawer")?.classList.remove("open");$(".drawer-backdrop")?.classList.remove("open");$(".cart-drawer")?.setAttribute("aria-hidden","true");document.body.style.overflow="";}   
 function addProduct(p){if(!p||p.stock<=0){showToast("Este producto no está disponible ahora mismo.");return;}const unitPrice=p.offer&&p.offerPrice!==undefined?p.offerPrice:p.price;const found=cart.find(x=>x.name===p.name);if(found){if(found.qty<p.stock)found.qty++;else showToast("Has alcanzado el stock disponible.");}else cart.push({name:p.name,price:unitPrice,qty:1,comment:""});updateCart();showToast("Añadido a tu carrito ♡");}   
   
-function workerModeUrl(src,mode){if(!src)return "";try{const u=new URL(src,location.href);if(u.hostname==="worker.silviacrea.es"||u.pathname.includes("/file/silviacreacatalogo/")){u.searchParams.set("wm",mode);return u.href;}}catch{}return src;}
+function workerModeUrl(src,mode){if(!src)return "";try{const u=new URL(workerImage(src),location.href);if(u.hostname==="worker.silviacrea.es"&&u.pathname.startsWith("/i/")){u.searchParams.set("wm",mode);return u.href;}if(u.hostname==="worker.silviacrea.es"&&u.pathname.includes("/file/silviacreacatalogo/")){return workerImage(u.href).replace(/wm=[^&]*/,"wm="+mode);} }catch{}return workerImage(src);}
 function imageIdentity(src){try{const u=new URL(src,location.href);u.search="";return u.href.toLowerCase();}catch{return String(src).split("?")[0].toLowerCase();}}
 async function loadAlbumPhotos(item){
   if(!item || !item.album) return [];
@@ -234,7 +266,7 @@ const classes=["item-card",kind==="gallery"?"gallery-card":"",p.featured?"is-fea
   
 return `<article class="${classes}" data-card-kind="${kind}" data-index="${index}" tabindex="0" role="group" aria-label="${esc(p.name||p.title)}. Pulsa para ver el detalle">   
 ${featured}${offer}   
-${image?`<div class="image-wrapper"><img class="item-image" src="${esc(image)}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"><span class="card-watermark" aria-hidden="true"></span></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
+${image?`<div class="image-wrapper"><img class="item-image" src="${esc(image)}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
 <div class="item-content"><h3>${esc(p.name||p.title)}</h3><p>${esc(desc)}</p>   
 ${metaHtml}  
 <div class="item-actions"><button class="mini-btn detail-button" type="button" data-detail-card="${kind}" data-index="${index}">Ver detalles</button>${isProduct?`<button class="mini-btn add-button" type="button" data-add="${index}" ${p.stock<=0?"disabled":""}>Añadir carrito</button>`:''}</div>   
@@ -633,15 +665,25 @@ $(".drawer-head .eyebrow").textContent = "Un último paso";
 });   
 $("#contact-form")?.addEventListener("submit",sendContact);   
 $("#year").textContent=new Date().getFullYear();initMenu();updateCart();
-async function applyMaintenance(){
- const sources=[cfg.appsScriptUrl?cfg.appsScriptUrl+"?action=status":"",cfg.dataJsonUrl||""].filter(Boolean);let state={mode:"normal"};
- for(const url of sources){try{const r=await fetch(url,{cache:"no-store"});if(!r.ok)continue;const d=await r.json();const m=d.maintenance||d.estadoWeb||d.webStatus||d; if(m&&m.mode){state=m;break;}}catch{}}
- if(!state.mode||state.mode==="normal")return false;
+function showMaintenanceScreen(state){
+ if(!state||!state.mode||state.mode==="normal"||document.body.classList.contains("maintenance-active"))return false;
  const logo="assets/logo%20web.png",instagram="https://www.instagram.com/silviiacrea";
- const overlay=document.createElement("div");overlay.className="maintenance-screen";overlay.innerHTML=`<div class="maintenance-card"><img class="maintenance-logo" src="${logo}" alt="Silvia Crea"><div class="maintenance-decor">✿　♡　✧</div><h1>${state.mode==="construction"?"Web en construcción":state.mode==="total"?"Pausa creativa":"Estamos realizando pequeños cambios"}</h1><p>${esc(state.message|| (state.mode==="construction"?"La web está en construcción. Muy pronto volveremos con nuevas creaciones.":state.mode==="total"?"Estamos trabajando para volver lo antes posible. Mientras tanto, puedes seguirnos en Instagram.":"La web está en mantenimiento. Puedes contactar con Silvia mientras terminamos."))}</p>${state.mode==="total"?`<a class="btn btn-primary" href="${instagram}" target="_blank" rel="noopener">Instagram</a>`:`<a class="btn btn-soft" href="${instagram}" target="_blank" rel="noopener">Instagram</a>${state.mode==="maintenance"?`<form id="maintenance-contact"><label>Tu nombre<input name="Nombre" required></label><label>Email<input type="email" name="Email" required></label><label>Mensaje<textarea name="Mensaje" rows="4" required></textarea></label><button class="btn btn-primary" type="submit">Enviar mensaje</button><p id="maintenance-status" aria-live="polite"></p></form>`:""}`}</div>`;
+ const overlay=document.createElement("div");overlay.className="maintenance-screen";
+ overlay.innerHTML=`<div class="maintenance-card"><img class="maintenance-logo" src="${logo}" alt="Silvia Crea"><div class="maintenance-decor">✿　♡　✧</div><h1>${state.mode==="construction"?"Web en construcción":state.mode==="total"?"Pausa creativa":"Estamos realizando pequeños cambios"}</h1><p>${esc(state.message|| (state.mode==="construction"?"La web está en construcción. Muy pronto volveremos con nuevas creaciones.":state.mode==="total"?"Estamos trabajando para volver lo antes posible. Mientras tanto, puedes seguirnos en Instagram.":"La web está en mantenimiento. Puedes contactar con Silvia mientras terminamos."))}</p>${state.mode==="total"?`<a class="btn btn-primary" href="${instagram}" target="_blank" rel="noopener">Instagram</a>`:`<a class="btn btn-soft" href="${instagram}" target="_blank" rel="noopener">Instagram</a>${state.mode==="maintenance"?`<form id="maintenance-contact"><label>Tu nombre<input name="Nombre" required></label><label>Email<input type="email" name="Email" required></label><label>Mensaje<textarea name="Mensaje" rows="4" required></textarea></label><button class="btn btn-primary" type="submit">Enviar mensaje</button><p id="maintenance-status" aria-live="polite"></p></form>`:""}`}</div>`;
  document.body.appendChild(overlay);document.body.classList.add("maintenance-active");
  const form=$("#maintenance-contact",overlay);form?.addEventListener("submit",async ev=>{ev.preventDefault();const status=$("#maintenance-status",overlay),button=form.querySelector("button");button.disabled=true;status.textContent="Enviando…";try{const fd=new FormData(form),data={action:"contact"};fd.forEach((v,k)=>data[k]=v);const r=await fetch(cfg.appsScriptUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data)});const out=await r.json();if(out.status!=="success")throw new Error(out.message||"No se pudo enviar");status.textContent="Mensaje enviado. Gracias por contactar.";form.reset();}catch(err){status.textContent="No se ha podido enviar. Escríbenos por Instagram.";}finally{button.disabled=false;}});
  return true;
+}
+async function applyMaintenance(){
+ const cached=readSiteCache();
+ if(cached){
+   const state=cached.data.maintenance||{mode:"normal"};
+   if(showMaintenanceScreen(state))return true;
+   if(Date.now()-cached.savedAt>SITE_REFRESH_AFTER){refreshSiteDataInBackground().then(fresh=>{if(fresh&&fresh.maintenance)showMaintenanceScreen(fresh.maintenance);});}
+   return false;
+ }
+ try{const data=await getSiteData();return showMaintenanceScreen(data.maintenance||{mode:"normal"});}
+ catch{return false;}
 }
 applyMaintenance().then(active=>{
  if(active)return;
