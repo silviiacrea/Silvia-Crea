@@ -203,7 +203,9 @@ button{cursor:pointer;}
 .footer-brand span{color:var(--pink)}  
 .site-footer p{margin:4px 0 15px;font-size:13px}  
 .footer-links{display:flex;justify-content:center;gap:22px;font-size:12px;margin-bottom:15px}  
-.footer-links a{border-radius:8px; padding:4px 8px; overflow:hidden;}  
+.footer-links a,.footer-links button{border-radius:8px;padding:4px 8px;overflow:hidden;color:inherit;font:inherit;text-decoration:none;background:transparent;border:0;cursor:pointer;}
+.footer-links a:hover,.footer-links button:hover{text-decoration:underline;color:var(--lilac-dark);}
+.footer-links button:focus-visible{outline:2px solid var(--lilac-dark);outline-offset:3px;}  
 .site-footer small{font-size:11px}  
   
   
