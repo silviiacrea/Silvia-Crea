@@ -1,20 +1,25 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow,noarchive"><meta name="silvia-build" content="47.0">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="silvia-build" content="48.0">
 <title>Administración privada | Silvia Crea</title><link rel="icon" href="assets/logo%20web.png">
-<link rel="stylesheet" href="css/estilos.css?v=47.0">
+<link rel="stylesheet" href="css/estilos.css?v=48.0">
 <style>
 .admin-wrap{width:min(920px,calc(100% - 32px));margin:48px auto;padding:clamp(20px,4vw,38px);background:#fff;border:1px solid #eadfd8;border-radius:22px;box-shadow:0 14px 42px #5d392012}
 .admin-wrap h1,.admin-wrap h2{font-family:'Playfair Display',serif;color:#493b4d}.admin-intro{color:#655b55;max-width:720px;line-height:1.65}
-.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:24px}
+.admin-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;margin-top:24px}
 .admin-card{padding:22px;border:1px solid #eadfd8;border-radius:16px;background:#fffdfc}.admin-card h2{font-size:1.35rem;margin:0 0 10px}
 .admin-note{color:#6d6269;line-height:1.55;font-size:.94rem}.admin-form{display:grid;gap:13px}.admin-form label{font-weight:600}
 .admin-form input{width:100%;padding:13px;border:1px solid #d8c8bd;border-radius:10px;font:inherit}
-.admin-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.admin-actions button{min-height:44px}
+.admin-actions{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px}.admin-actions button{min-height:44px}
 .admin-state{display:flex;align-items:center;gap:12px;padding:15px;border-radius:12px;background:#f7f2f8;margin:16px 0;font-weight:700}
 .admin-dot{width:13px;height:13px;border-radius:50%;background:#999;box-shadow:0 0 0 4px #9992}.admin-state.normal .admin-dot{background:#21864a;box-shadow:0 0 0 4px #21864a22}.admin-state.maintenance .admin-dot{background:#c63838;box-shadow:0 0 0 4px #c6383822}
 .admin-hidden[hidden]{display:none!important}.admin-status{padding:14px;border-radius:10px;background:#f8f3ef;margin-top:20px;white-space:pre-wrap}
 button:disabled{opacity:.48;cursor:not-allowed}.admin-divider{border:0;border-top:1px solid #eee4eb;margin:22px 0}
+.site-header .header-inner{display:flex;flex-direction:column;align-items:center;gap:10px}.site-header .main-nav{justify-content:center;width:100%}
+.admin-card{text-align:center}.admin-card .admin-note{margin-inline:auto;max-width:680px}
+.admin-actions button{flex:0 1 auto}
+@media(max-width:600px){.admin-wrap{margin:22px auto}.admin-actions button{flex:1 1 100%;max-width:100%}.header-inner{justify-content:center}.main-nav{width:100%;justify-content:center;flex-wrap:wrap}}
+.admin-divider{border:0;border-top:1px solid #eee4eb;margin:22px 0}
 </style></head><body>
 <header class="site-header"><div class="header-inner"><a class="brand" href="index.html"><img src="assets/logo%20web.png" alt="" class="header-logo"><span><strong>Silvia Crea ♡</strong><small>Administración privada</small></span></a><nav class="main-nav"><a href="index.html">Volver a la web</a></nav></div></header>
 <main class="admin-wrap"><span class="eyebrow">Zona privada</span><h1>Administración de la web</h1>
@@ -31,4 +36,4 @@ button:disabled{opacity:.48;cursor:not-allowed}.admin-divider{border:0;border-to
 </section></div>
 <div class="admin-actions"><button class="btn" id="logout" type="button">Cerrar sesión</button></div></section>
 <div class="admin-status" id="admin-status" role="status" aria-live="polite">Introduce tus credenciales de administrador.</div></main>
-<footer class="site-footer"><p>Silvia Crea · Panel privado</p></footer><script src="js/admin.js?v=47.0" defer></script></body></html>
+<footer class="site-footer"><p>Silvia Crea · Panel privado</p></footer><script src="js/admin.js?v=48.0" defer></script></body></html>
