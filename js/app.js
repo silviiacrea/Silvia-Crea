@@ -268,7 +268,7 @@ function workerModeUrl(src,mode){
   const u=new URL(normalized,location.href);
   if(u.hostname==="worker.silviacrea.es"&&u.pathname.startsWith("/i/")){
    u.searchParams.set("wm",mode);
-   u.searchParams.set("v","39");
+   u.searchParams.set("v","41");
    return u.href;
   }
  }catch{}
@@ -422,10 +422,22 @@ function balanceGrid(el,count){
  if(!el)return;
  const cards=[...el.querySelectorAll(":scope > .item-card")];
  const total=cards.length||Number(count)||0;
+ // Tienda y Galería usan una cuadrícula responsive común; CSS controla sus columnas.
+ if(el.id==="products-grid"||el.id==="gallery-grid"){
+  el.classList.remove("grid-balanced-2","grid-balanced-3","grid-count-2","grid-count-4","grid-count-5","grid-single","balanced-cols-1","balanced-cols-2","balanced-cols-3");
+  el.classList.add("balanced-card-grid");
+  el.setAttribute("data-balanced-columns",String(total?3:0));
+  el.style.removeProperty("grid-template-columns");
+  cards.forEach(card=>{
+   card.style.removeProperty("grid-column");
+   card.style.removeProperty("grid-column-start");
+  });
+  return;
+ }
  el.classList.remove("grid-balanced-2","grid-balanced-3","grid-count-2","grid-count-4","grid-count-5","grid-single","balanced-card-grid","balanced-cols-1","balanced-cols-2","balanced-cols-3");
  cards.forEach(card=>{card.style.removeProperty("grid-column");card.style.removeProperty("grid-column-start");});
  if(!total)return;
- // Dos columnas para 2 y 4 elementos; el resto se equilibra en filas de hasta 3.
+ // Las fichas de categoría conservan el equilibrado dinámico de la Versión 40.
  const columns=total===1?1:(total===2||total===4?2:3);
  el.setAttribute("data-balanced-columns",String(columns));
  el.style.removeProperty("grid-template-columns");

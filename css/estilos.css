@@ -2661,3 +2661,110 @@ body[data-page="home"] .home-slider-wrapper>#specialties-grid.has-slider>.item-c
 }
 
 @media(min-width:901px){body[data-page="home"] .home-slider-wrapper{width:min(calc(100% - 48px),1200px)!important;max-width:1200px!important;}}
+
+
+/* SILVIA CREA — VERSIÓN 41
+   Geometría restaurada desde V38; Tienda/Galería se distribuyen con CSS responsive. */
+#products-grid.balanced-card-grid,
+#gallery-grid.balanced-card-grid{
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ align-items:stretch!important;
+ justify-items:stretch!important;
+ width:min(100%,1200px)!important;
+ max-width:1200px!important;
+ margin-inline:auto!important;
+ column-gap:22px!important;
+ row-gap:24px!important;
+}
+#products-grid.balanced-card-grid>.item-card,
+#gallery-grid.balanced-card-grid>.item-card{
+ display:flex!important;
+ flex-direction:column!important;
+ align-self:stretch!important;
+ grid-column:auto!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:none!important;
+ height:100%!important;
+ min-height:0!important;
+ margin:0!important;
+ box-sizing:border-box!important;
+}
+#products-grid.balanced-card-grid>.item-card .image-wrapper,
+#gallery-grid.balanced-card-grid>.item-card .image-wrapper,
+#specialties-grid>.item-card .image-wrapper{
+ display:block!important;
+ position:relative!important;
+ flex:0 0 auto!important;
+ width:100%!important;
+ height:auto!important;
+ aspect-ratio:5/4!important;
+ overflow:hidden!important;
+ margin:0!important;
+}
+#products-grid.balanced-card-grid>.item-card .image-wrapper>.item-image,
+#gallery-grid.balanced-card-grid>.item-card .image-wrapper>.item-image,
+#specialties-grid>.item-card .image-wrapper>.item-image{
+ position:absolute!important;
+ inset:0!important;
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+ object-fit:cover!important;
+ object-position:center!important;
+}
+#products-grid.balanced-card-grid>.item-card .item-content,
+#gallery-grid.balanced-card-grid>.item-card .item-content,
+#specialties-grid>.item-card .item-content{
+ display:flex!important;
+ flex:1 0 245px!important;
+ flex-direction:column!important;
+ width:100%!important;
+ height:245px!important;
+ min-height:245px!important;
+ max-height:245px!important;
+ box-sizing:border-box!important;
+ margin-top:-10px!important;
+ overflow:hidden!important;
+}
+#products-grid.balanced-card-grid>.item-card .item-meta{
+ flex:0 0 auto!important;
+ margin:5px 0 3px!important;
+}
+#products-grid.balanced-card-grid>.item-card .stock-box{
+ min-height:16px!important;
+ margin-top:2px!important;
+}
+#products-grid.balanced-card-grid>.item-card .item-actions,
+#gallery-grid.balanced-card-grid>.item-card .item-actions,
+#specialties-grid>.item-card .item-actions{
+ margin-top:auto!important;
+ padding-top:8px!important;
+ min-height:42px!important;
+}
+@media(max-width:900px) and (min-width:701px){
+ #products-grid.balanced-card-grid,
+ #gallery-grid.balanced-card-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  max-width:900px!important;
+  column-gap:20px!important;
+ }
+}
+@media(max-width:700px){
+ #products-grid.balanced-card-grid,
+ #gallery-grid.balanced-card-grid{
+  grid-template-columns:minmax(0,1fr)!important;
+  width:100%!important;
+  max-width:520px!important;
+  justify-items:stretch!important;
+  column-gap:0!important;
+ }
+ #products-grid.balanced-card-grid>.item-card,
+ #gallery-grid.balanced-card-grid>.item-card{
+  grid-column:1!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin-inline:0!important;
+ }
+}
