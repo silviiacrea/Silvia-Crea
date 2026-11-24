@@ -2064,3 +2064,52 @@ body[data-page="home"] #specialties-grid.has-slider > .item-card {
   gap:var(--category-gap,10px)!important;box-sizing:border-box!important;
 }
 .category-tiles>.category-tile{width:100%!important;min-width:0!important;max-width:none!important;box-sizing:border-box!important;}
+
+/* VERSION 21 — microtransiciones suaves y zonas de interacción más cómodas. */
+.main-nav a{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:44px!important;padding:13px 20px!important;margin:-2px -3px!important;
+  box-sizing:border-box!important;line-height:1.2!important;
+}
+
+/* El modal conserva exactamente su centro: solo anima opacidad y escala desde ese centro. */
+#product-modal.modal-backdrop{
+  opacity:0!important;transition:opacity .2s ease!important;
+}
+#product-modal.modal-backdrop.open{opacity:1!important;}
+#product-modal .product-modal{
+  transform:translate(-50%,-50%) scale(.985)!important;
+  opacity:0!important;
+  transition:opacity .2s ease, transform .2s cubic-bezier(.2,.75,.25,1)!important;
+  transform-origin:center center!important;
+}
+#product-modal.open .product-modal{transform:translate(-50%,-50%) scale(1)!important;opacity:1!important;}
+#product-modal.is-closing{opacity:0!important;pointer-events:none!important;}
+#product-modal.is-closing .product-modal{transform:translate(-50%,-50%) scale(.99)!important;opacity:0!important;}
+#product-modal .modal-album{
+  opacity:1!important;transition:opacity .28s ease, background-color .28s ease!important;
+}
+#product-modal .modal-album.album-loading{opacity:0!important;}
+#product-modal .album-thumb{transition:opacity .22s ease, border-color .22s ease, box-shadow .22s ease!important;}
+#product-modal .album-thumb img{opacity:0;transition:opacity .28s ease!important;}
+#product-modal .album-thumb img.complete,
+#product-modal .album-thumb img[src]{opacity:1;}
+
+/* Entrada y salida discretas al navegar entre páginas internas. */
+@keyframes silviaPageEnter{from{opacity:.0}to{opacity:1}}
+@keyframes silviaPageLeave{from{opacity:1}to{opacity:.86}}
+body{animation:silviaPageEnter .22s ease-out both;}
+body.page-leaving{animation:silviaPageLeave .15s ease-in both;pointer-events:none;}
+
+/* Evita una línea residual de la foto en la unión con el panel del nombre,
+   sin modificar el redondeado original del panel ni el logotipo de la imagen. */
+.item-card .item-content{margin-top:-1px!important;position:relative!important;z-index:2!important;}
+
+@media(prefers-reduced-motion:reduce){
+  body,body.page-leaving{animation:none!important;}
+  #product-modal.modal-backdrop,#product-modal .product-modal,
+  #product-modal .modal-album,#product-modal .album-thumb,
+  #product-modal .album-thumb img{transition:none!important;}
+}
+#product-modal .album-thumb img[src]{opacity:0;}
+#product-modal .album-thumb img.is-loaded{opacity:1;}

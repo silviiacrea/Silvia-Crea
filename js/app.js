@@ -27,6 +27,7 @@ document.addEventListener("click", updateViewVars, true);
 document.addEventListener("touchstart", updateViewVars, {passive: true, capture: true});
 // La ficha queda fija a la pantalla; los gestos sobre el área exterior desplazan el documento de fondo.
 let modalBackgroundTouchY=0;
+let productModalCloseTimer=null;
 document.addEventListener("wheel",ev=>{if(ev.target.closest?.("#product-modal.open")&&!ev.target.closest(".product-modal")){window.scrollBy({top:ev.deltaY,left:ev.deltaX,behavior:"auto"});ev.preventDefault();}}, {passive:false,capture:true});
 document.addEventListener("touchstart",ev=>{if(ev.target.closest?.("#product-modal.open")&&!ev.target.closest(".product-modal"))modalBackgroundTouchY=ev.touches[0]?.clientY||0;},{passive:true,capture:true});
 document.addEventListener("touchmove",ev=>{if(ev.target.closest?.("#product-modal.open")&&!ev.target.closest(".product-modal")){const y=ev.touches[0]?.clientY||modalBackgroundTouchY;window.scrollBy({top:modalBackgroundTouchY-y,behavior:"auto"});modalBackgroundTouchY=y;ev.preventDefault();}},{passive:false,capture:true});
@@ -277,9 +278,11 @@ function setupModalAlbum(photos,mainSrc){
   if(!next){next=document.createElement("button");next.type="button";next.id="modal-next";next.className="modal-stage-arrow";next.setAttribute("aria-label","Fotografía siguiente");next.textContent="›";next.addEventListener("click",()=>setModalPhoto(modalPhotoIndex+1));stage.appendChild(next);}
   let gallery=$("#modal-album");if(!gallery){gallery=document.createElement("div");gallery.id="modal-album";gallery.className="modal-album";stage.insertAdjacentElement("afterend",gallery);}
   const all=[mainSrc,...photos].filter(safeImg),seen=new Set();modalPhotos=all.filter(src=>{const key=imageIdentity(src);if(seen.has(key))return false;seen.add(key);return true;});modalPhotoIndex=0;
-  gallery.innerHTML="";gallery.style.display=modalPhotos.length>1?"flex":"none";gallery.style.justifyContent=modalPhotos.length<=5?"center":"flex-start";$("#product-modal")?.classList.toggle("has-album",modalPhotos.length>1);
-  modalPhotos.forEach((src,i)=>{const b=document.createElement("button");b.type="button";b.className="album-thumb"+(i===0?" active":"");b.setAttribute("aria-label","Ver foto "+(i+1));const img=document.createElement("img");img.src=workerModeUrl(src,"thumb");img.alt="Foto "+(i+1);img.loading="lazy";img.decoding="async";b.appendChild(img);b.addEventListener("click",()=>setModalPhoto(i));gallery.appendChild(b);});
-  if(modalPhotos.length)setModalPhoto(0);
+  gallery.innerHTML="";gallery.classList.add("album-loading");gallery.style.display=modalPhotos.length>1?"flex":"none";gallery.style.justifyContent=modalPhotos.length<=5?"center":"flex-start";$("#product-modal")?.classList.toggle("has-album",modalPhotos.length>1);
+  const thumbImages=[];
+  modalPhotos.forEach((src,i)=>{const b=document.createElement("button");b.type="button";b.className="album-thumb"+(i===0?" active":"");b.setAttribute("aria-label","Ver foto "+(i+1));const img=document.createElement("img");img.src=workerModeUrl(src,"thumb");img.alt="Foto "+(i+1);img.loading="eager";img.decoding="async";thumbImages.push(img);b.appendChild(img);img.addEventListener("load",()=>{img.classList.add("is-loaded");if(thumbImages.every(x=>x.complete))gallery.classList.remove("album-loading");},{once:true});img.addEventListener("error",()=>{img.classList.add("is-loaded");if(thumbImages.every(x=>x.complete))gallery.classList.remove("album-loading");},{once:true});if(img.complete&&img.naturalWidth>0)img.classList.add("is-loaded");b.addEventListener("click",()=>setModalPhoto(i));gallery.appendChild(b);});
+  if(modalPhotos.length)setModalPhoto(0);else gallery.classList.remove("album-loading");
+  if(thumbImages.every(x=>x.complete))requestAnimationFrame(()=>gallery.classList.remove("album-loading"));
 }
 
 function openProduct(p,isProduct=false,idx=0){   
@@ -306,11 +309,11 @@ const m=$(".product-modal");
      if(modalProduct===p || $("#modal-title").textContent===(p.name||p.title||"")) setupModalAlbum(photos,src);
    });
  }
- const productOverlay=$("#product-modal");if(productOverlay&&productOverlay.parentElement!==document.documentElement)document.documentElement.appendChild(productOverlay);updateSilviaVisualViewport();
+ const productOverlay=$("#product-modal");if(productOverlay&&productOverlay.parentElement!==document.documentElement)document.documentElement.appendChild(productOverlay);if(productModalCloseTimer){clearTimeout(productModalCloseTimer);productModalCloseTimer=null;}productOverlay?.classList.remove("is-closing");updateSilviaVisualViewport();
  productOverlay?.classList.add("open");productOverlay?.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";document.documentElement.style.overflow="hidden";   
 }   
   
-function closeProduct(){$("#product-modal")?.classList.remove("open","has-album");$("#product-modal")?.setAttribute("aria-hidden","true");if(!$("#fs-modal")?.classList.contains("open")){document.body.style.overflow="";document.documentElement.style.overflow="";}}   
+function closeProduct(){const overlay=$("#product-modal");if(!overlay||!overlay.classList.contains("open"))return;overlay.classList.add("is-closing");overlay.setAttribute("aria-hidden","true");if(productModalCloseTimer)clearTimeout(productModalCloseTimer);productModalCloseTimer=setTimeout(()=>{overlay.classList.remove("open","is-closing","has-album");productModalCloseTimer=null;if(!$("#fs-modal")?.classList.contains("open")){document.body.style.overflow="";document.documentElement.style.overflow="";}},190);}   
   
 function prepareSlider(el,count){
  if(!el)return;
@@ -695,8 +698,9 @@ document.addEventListener("click",e=>{
          if (link.classList.contains("brand") && document.body.dataset.page === "home") return;
          // Navega instantáneamente sin transiciones, guardando la página actual en localStorage
          localStorage.setItem("silviacrea_current_page", link.getAttribute("href"));
-         window.location.href = link.href;
          e.preventDefault();
+         document.body.classList.add("page-leaving");
+         window.setTimeout(()=>{window.location.href=link.href;},150);
          return;
      }  
  }
