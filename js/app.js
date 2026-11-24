@@ -269,7 +269,7 @@ function workerModeUrl(src,mode){
   const u=new URL(normalized,location.href);
   if(u.hostname==="worker.silviacrea.es"&&u.pathname.startsWith("/i/")){
    u.searchParams.set("wm",mode);
-   u.searchParams.set("v","37");
+   u.searchParams.set("v","38");
    return u.href;
   }
  }catch{}
@@ -350,39 +350,42 @@ function prepareSlider(el,count){
  let left=wrapper.querySelector(".slider-btn-left"),right=wrapper.querySelector(".slider-btn-right");
  if(!left){left=document.createElement("button");left.type="button";left.className="slider-btn slider-btn-left";left.textContent="‹";left.setAttribute("aria-label","Anterior");wrapper.appendChild(left);}
  if(!right){right=document.createElement("button");right.type="button";right.className="slider-btn slider-btn-right";right.textContent="›";right.setAttribute("aria-label","Siguiente");wrapper.appendChild(right);}
- const visible=()=>{const w=el.clientWidth||window.innerWidth;return w<=700?1:w<=900?2:3;};
- let lastVisible=visible();
+ const mobile=()=>window.matchMedia("(max-width:700px)").matches;
+ const visible=()=>{const w=wrapper.clientWidth||window.innerWidth;return w<=700?1:w<=900?2:3;};
  const update=()=>{
-  const v=visible(),wasActive=el.classList.contains("has-slider"),max=Math.max(0,el.scrollWidth-el.clientWidth),pos=el.scrollLeft;
-  const active=count>v&&count>3;
-  el.classList.toggle("has-slider",active);el.classList.toggle("is-centered",!active);
+  const isMobile=mobile(),v=visible(),max=Math.max(0,el.scrollWidth-el.clientWidth),pos=el.scrollLeft;
+  // En móvil no se usa carrusel: se muestran todas las tarjetas en una columna,
+  // igual que en Tienda y Galería, evitando gestos horizontales no fiables.
+  const active=!isMobile&&count>v;
+  el.classList.toggle("has-slider",active);
+  el.classList.toggle("is-centered",!active);
+  el.classList.toggle("is-mobile-list",isMobile);
+  wrapper.classList.toggle("is-mobile-list-wrapper",isMobile);
+  wrapper.style.width=isMobile?"100%":"min(calc(100% - 48px), 1120px)";
+  wrapper.style.maxWidth=isMobile?"520px":"1120px";
+  wrapper.style.marginInline="auto";
   el.setAttribute("aria-label",active?"Carrusel de especialidades":"Especialidades");
   left.hidden=!active||pos<=2;right.hidden=!active||pos>=max-2;
-  if(v!==lastVisible){el.scrollTo({left:0,behavior:"auto"});lastVisible=v;requestAnimationFrame(update);}else if(wasActive!==active){requestAnimationFrame(update);}
+  if(!active&&el.scrollLeft!==0)el.scrollTo({left:0,behavior:"auto"});
  };
- const scroll=direction=>{const cards=[...el.querySelectorAll(":scope > .item-card")];if(!cards.length)return;const first=cards[0],second=cards[1];const step=second?Math.abs(second.getBoundingClientRect().left-first.getBoundingClientRect().left):first.getBoundingClientRect().width;const max=Math.max(0,el.scrollWidth-el.clientWidth);if(window.matchMedia("(max-width:700px)").matches){const current=cards.reduce((best,c)=>Math.abs((c.offsetLeft+c.offsetWidth/2)-(el.scrollLeft+el.clientWidth/2))<Math.abs((best.offsetLeft+best.offsetWidth/2)-(el.scrollLeft+el.clientWidth/2))?c:best,cards[0]);const index=cards.indexOf(current),target=cards[Math.max(0,Math.min(cards.length-1,index+direction))];el.scrollTo({left:Math.max(0,Math.min(max,target.offsetLeft-(el.clientWidth-target.offsetWidth)/2)),behavior:"smooth"});return;}el.scrollTo({left:Math.max(0,Math.min(max,el.scrollLeft+direction*step)),behavior:"smooth"});};
+ const scroll=direction=>{
+  if(mobile())return;
+  const cards=[...el.querySelectorAll(":scope > .item-card")];if(!cards.length)return;
+  const first=cards[0],second=cards[1];
+  const step=second?Math.abs(second.getBoundingClientRect().left-first.getBoundingClientRect().left):first.getBoundingClientRect().width;
+  const max=Math.max(0,el.scrollWidth-el.clientWidth);
+  el.scrollTo({left:Math.max(0,Math.min(max,el.scrollLeft+direction*step)),behavior:"smooth"});
+ };
  left.onclick=()=>scroll(-1);right.onclick=()=>scroll(1);
- // En escritorio se puede arrastrar el carrusel manteniendo pulsado el botón izquierdo.
  if(!el.dataset.sliderDrag){
   let dragging=false,startX=0,startScroll=0,moved=false,suppressClick=false;
   const onPointerDown=ev=>{
    if(ev.pointerType!=="mouse"||ev.button!==0||ev.target.closest("button,a,input,textarea,select"))return;
-   dragging=true;moved=false;startX=ev.clientX;startScroll=el.scrollLeft;
-   el.classList.add("is-dragging");
+   if(!el.classList.contains("has-slider"))return;
+   dragging=true;moved=false;startX=ev.clientX;startScroll=el.scrollLeft;el.classList.add("is-dragging");
   };
-  const onPointerMove=ev=>{
-   if(!dragging)return;
-   const delta=ev.clientX-startX;
-   if(Math.abs(delta)>5)moved=true;
-   if(moved){el.scrollLeft=startScroll-delta;ev.preventDefault();}
-  };
-  const onPointerUp=()=>{
-   if(!dragging)return;
-   dragging=false;el.classList.remove("is-dragging");
-   if(moved){suppressClick=true;window.setTimeout(()=>{suppressClick=false;},350);}
-  };
-  // No capturamos el puntero ni cancelamos pointerdown: un clic normal conserva
-  // como destino la tarjeta y abre su superposicion; solo el arrastre se suprime.
+  const onPointerMove=ev=>{if(!dragging)return;const delta=ev.clientX-startX;if(Math.abs(delta)>5)moved=true;if(moved){el.scrollLeft=startScroll-delta;ev.preventDefault();}};
+  const onPointerUp=()=>{if(!dragging)return;dragging=false;el.classList.remove("is-dragging");if(moved){suppressClick=true;window.setTimeout(()=>{suppressClick=false;},350);}};
   el.addEventListener("pointerdown",onPointerDown);
   window.addEventListener("pointermove",onPointerMove,{passive:false});
   window.addEventListener("pointerup",onPointerUp);
@@ -390,19 +393,28 @@ function prepareSlider(el,count){
   el.addEventListener("click",ev=>{if(suppressClick){ev.preventDefault();ev.stopImmediatePropagation();suppressClick=false;}},true);
   el.dataset.sliderDrag="1";
  }
- if(!el.dataset.sliderResize){window.addEventListener("resize",update,{passive:true});el.addEventListener("scroll",update,{passive:true});if("ResizeObserver" in window){const ro=new ResizeObserver(update);ro.observe(el);el._sliderRO=ro;}el.dataset.sliderResize="1";}
+ if(!el.dataset.sliderResize){
+  window.addEventListener("resize",update,{passive:true});
+  if("ResizeObserver" in window){const ro=new ResizeObserver(update);ro.observe(wrapper);el._sliderRO=ro;}
+  el.dataset.sliderResize="1";
+ }
  requestAnimationFrame(update);
 }
 function balanceGrid(el,count){
  if(!el)return;
- // La Tienda y la Galería comparten una rejilla estable: su número de columnas
- // no debe depender del número de elementos. El equilibrado solo se reserva
- // para las páginas de categorías, que tienen una composición independiente.
- if(el.id!=="category-grid")return;
- el.classList.remove("grid-balanced-2","grid-balanced-3","grid-count-2");
- if(count===2)el.classList.add("grid-count-2");
- else if(count===4)el.classList.add("grid-balanced-2");
- else if(count===5||count===7)el.classList.add("grid-balanced-3");
+ el.classList.remove("grid-balanced-2","grid-balanced-3","grid-count-2","grid-count-4","grid-count-5","grid-single");
+ if(el.id==="#category-grid"||el.id==="category-grid"){
+  if(count===2)el.classList.add("grid-count-2");
+  else if(count===4)el.classList.add("grid-balanced-2");
+  else if(count===5||count===7)el.classList.add("grid-balanced-3");
+  return;
+ }
+ if(el.id==="gallery-grid"){
+  if(count===1)el.classList.add("grid-single");
+  else if(count===2)el.classList.add("grid-count-2");
+  else if(count===4)el.classList.add("grid-count-4");
+  else if(count===5)el.classList.add("grid-count-5");
+ }
 }
 function positionCardWatermarks(root=document){root.querySelectorAll(".item-card").forEach(cardEl=>{const logo=cardEl.querySelector(".card-logo-watermark"),copy=cardEl.querySelector(".item-content");if(!logo||!copy)return;const sync=()=>{const h=copy.getBoundingClientRect().height;cardEl.style.setProperty("--card-copy-height",Math.ceil(h)+"px");logo.style.bottom=Math.ceil(h+18)+"px";};sync();if(!logo.dataset.measure){logo.dataset.measure="1";if("ResizeObserver" in window){const ro=new ResizeObserver(sync);ro.observe(copy);logo._cardRO=ro;}window.addEventListener("resize",sync,{passive:true});}});}
 function card(p,kind,index){   
