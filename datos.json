@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-24T00:25:02.657Z",
+  "actualizado": "2026-11-24T00:40:03.816Z",
   "catalogo": [
     {
       "nombre": "Gnomo Navideño",
@@ -45,17 +45,17 @@
     {
       "nombre": "Amigurumi Personalizado",
       "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/Especialidades/especialidadamigurumi.jpg",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadamigurumi.jpg",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Especialidades/especialidadamigurumi.jpg",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadamigurumi.jpg",
       "destacado": true
     },
     {
       "nombre": "Pulsera de Abalorios",
       "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/Especialidades/especialidadpulseras.PNG",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadpulseras.PNG",
       "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Especialidades/especialidadpulseras.PNG",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadpulseras.PNG",
       "destacado": false
     },
     {
@@ -70,34 +70,34 @@
   "trabajos": [
     {
       "nombre": "Amigurumi Personalizado",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/bolsitocrochet.jpg",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/bolsitocrochet.jpg",
       "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/bolsitocrochet.jpg",
-      "categoria": ""
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/bolsitocrochet.jpg",
+      "categoria": "pruebaaa"
     },
     {
       "nombre": "Pulsera de Abalorios",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/mu%C3%B1ecodenieve.jpg",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/mu%C3%B1ecodenieve.jpg",
       "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
       "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/mu%C3%B1ecodenieve.jpg",
-      "categoria": ""
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/mu%C3%B1ecodenieve.jpg",
+      "categoria": "tesst"
     },
     {
       "nombre": "Tarjeta con Lettering",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/zorrocrochet.jpeg",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/zorrocrochet.jpeg",
       "descripcion": "Decorada a mano con técnicas de acuarela y lettering.",
       "descripcionCompleta": "Decorada a mano con técnicas de acuarela y lettering.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/zorrocrochet.jpeg",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/zorrocrochet.jpeg",
       "categoria": ""
     },
     {
       "nombre": "Ballenitas a crochet",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/ballenitascrochet.jpg",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/ballenitascrochet.jpg",
       "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/Trabajos/ballenitascrochet.jpg",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/ballenitascrochet.jpg",
       "categoria": ""
     }
   ],
@@ -105,5 +105,8 @@
     "prueba",
     "test"
   ],
-  "categoriasTrabajos": []
+  "categoriasTrabajos": [
+    "pruebaaa",
+    "tesst"
+  ]
 }
