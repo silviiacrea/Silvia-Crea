@@ -1974,3 +1974,88 @@ body[data-page="home"] #specialties-grid.has-slider > .item-card {
 }
 /* El pulso solo anima opacidad: no requiere transformaciones ni aceleración GPU.
    Se conserva también con ahorro de energía o prefers-reduced-motion. */
+
+
+/* VERSION 18 — remates visuales de tarjetas, categorías y cierres. */
+/* Imagen y panel de texto comparten una única unión limpia: sin esquinas de fondo visibles. */
+.item-card{border-radius:20px!important;overflow:hidden!important;}
+.item-card .image-wrapper{
+  border-radius:19px 19px 0 0!important;
+  clip-path:none!important;
+  overflow:hidden!important;
+  margin:0!important;
+  line-height:0!important;
+}
+.item-card .image-wrapper img,
+.item-card .image-wrapper .item-image{
+  display:block!important;
+  border-radius:0!important;
+  clip-path:none!important;
+  transform:none!important;
+  transition:none!important;
+}
+.item-card .item-content{
+  margin-top:0!important;
+  border-radius:0!important;
+  position:relative!important;
+  z-index:2!important;
+}
+/* Movimiento más delicado y uniforme para todas las tarjetas. */
+.item-card,
+.item-card.is-featured,
+.item-card.is-offer,
+.item-card.is-featured.is-offer{
+  transition:transform .38s cubic-bezier(.2,.7,.25,1),box-shadow .38s ease!important;
+}
+.item-card:hover,
+.item-card:focus-within,
+.item-card.is-featured:hover,
+.item-card.is-offer:hover,
+.item-card.is-featured.is-offer:hover{
+  transform:translateY(-3px)!important;
+  box-shadow:0 8px 19px rgba(107,78,117,.11)!important;
+}
+.item-card:hover .item-image,
+.item-card:hover .image-wrapper img,
+.item-card.is-featured:hover .item-image,
+.item-card.is-offer:hover .item-image,
+.item-card:focus-within .item-image{transform:none!important;}
+/* Rejilla de categorías: el patrón alterna también al comenzar cada nueva fila. */
+.category-tiles{
+  display:grid!important;
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;
+  justify-content:center!important;
+  align-items:stretch!important;
+}
+.category-tiles>.category-tile:nth-child(14n+1),
+.category-tiles>.category-tile:nth-child(14n+3),
+.category-tiles>.category-tile:nth-child(14n+5),
+.category-tiles>.category-tile:nth-child(14n+7),
+.category-tiles>.category-tile:nth-child(14n+10),
+.category-tiles>.category-tile:nth-child(14n+12),
+.category-tiles>.category-tile:nth-child(14n+14){
+  background:var(--lilac-card)!important;border-color:#dfceeb!important;
+}
+.category-tiles>.category-tile:nth-child(14n+2),
+.category-tiles>.category-tile:nth-child(14n+4),
+.category-tiles>.category-tile:nth-child(14n+6),
+.category-tiles>.category-tile:nth-child(14n+8),
+.category-tiles>.category-tile:nth-child(14n+9),
+.category-tiles>.category-tile:nth-child(14n+11),
+.category-tiles>.category-tile:nth-child(14n+13){
+  background:var(--pink-soft)!important;border-color:#f0d5e1!important;
+}
+@media(max-width:900px){.category-tiles{grid-template-columns:repeat(4,minmax(0,1fr))!important;}}
+@media(max-width:600px){.category-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
+/* Centrado geométrico de la cruz dentro de su botón circular. */
+.icon-button.modal-close,
+.icon-button.fs-modal-close,
+.order-contact-close,
+.maintenance-contact-close{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  box-sizing:border-box!important;padding:0!important;line-height:1!important;
+  text-align:center!important;font-family:Arial,sans-serif!important;
+}
+.icon-button.modal-close{width:36px!important;height:36px!important;border-radius:50%!important;}
+.maintenance-contact-close{width:36px!important;height:36px!important;font-size:23px!important;}
+.order-contact-close{width:36px!important;height:36px!important;border-radius:50%!important;font-size:23px!important;}
