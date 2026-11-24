@@ -17,7 +17,7 @@
       "oferta": true,
       "precioOferta": 8,
       "album": "Gnomos",
-      "categoria": ""
+      "categoria": "q"
     },
     {
       "nombre": "Próximamente...",
@@ -31,7 +31,7 @@
       "oferta": false,
       "precioOferta": "",
       "album": "",
-      "categoria": ""
+      "categoria": "w"
     }
   ],
   "especialidades": [
@@ -71,7 +71,7 @@
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/ballenitascrochet.jpg",
       "album": "",
-      "categoria": ""
+      "categoria": "a"
     },
     {
       "nombre": "Pulsera de Abalorios",
@@ -80,7 +80,7 @@
       "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/bolsitocrochet.jpg",
       "album": "",
-      "categoria": ""
+      "categoria": "b"
     },
     {
       "nombre": "Tarjeta con Lettering",
@@ -89,9 +89,35 @@
       "descripcionCompleta": "Decorada a mano con técnicas de acuarela y lettering.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/mu%C3%B1ecodenieve.jpg",
       "album": "",
+      "categoria": "c"
+    },
+    {
+      "nombre": "Zorros a crochet",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/zorrocrochet.jpeg",
+      "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/zorrocrochet.jpeg",
+      "album": "",
+      "categoria": "e"
+    },
+    {
+      "nombre": "Próximamente...",
+      "imagen": "",
+      "descripcion": "En proceso",
+      "descripcionCompleta": "",
+      "imagenGrande": "",
+      "album": "",
       "categoria": ""
     }
   ],
-  "categoriasTienda": [],
-  "categoriasTrabajos": []
+  "categoriasTienda": [
+    "q",
+    "w"
+  ],
+  "categoriasTrabajos": [
+    "a",
+    "b",
+    "c",
+    "e"
+  ]
 }
