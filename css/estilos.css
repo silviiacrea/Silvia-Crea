@@ -1821,3 +1821,40 @@ body[data-page="home"] #specialties-grid > .loading-note{
 @media(max-width:520px){
   body[data-page="home"] section.section.tinted{padding-left:14px !important;padding-right:14px !important;}
 }
+
+
+/* VERSION 16: bordes interiores uniformes, elevacion coherente y carrusel sin recortes. */
+.item-card{
+  box-sizing:border-box!important;
+  border:1px solid rgba(139,105,160,.30)!important;
+  overflow:hidden!important;
+  transition:transform .24s ease,box-shadow .24s ease,border-color .24s ease!important;
+  transform:translateY(0);
+}
+.item-card.is-featured,.item-card.is-offer,.item-card.is-featured.is-offer{
+  border:0!important;
+}
+.item-card.is-featured::after,.item-card.is-offer::after,.item-card.is-featured.is-offer::after{
+  content:""!important;
+  position:absolute!important;
+  inset:1.5px!important;
+  box-sizing:border-box!important;
+  border:3px solid!important;
+  border-radius:20px!important;
+  z-index:8!important;
+  pointer-events:none!important;
+  animation:borderOnlyPulse 2.6s ease-in-out infinite!important;
+}
+.item-card.is-featured::after{border-color:#b69bd2!important;}
+.item-card.is-offer::after,.item-card.is-featured.is-offer::after{border-color:#eab17f!important;}
+.item-card:hover,.item-card:focus-within{
+  transform:translateY(-5px)!important;
+  box-shadow:0 10px 24px rgba(107,78,117,.12)!important;
+}
+.item-card:hover .item-image,.item-card:focus-within .item-image{transform:scale(1.035)!important;}
+/* El espacio superior reserva el recorrido de elevacion y evita que el borde destacado se corte. */
+body[data-page="home"] section.section.tinted,
+body[data-page="home"] section.section.tinted > .home-slider-wrapper{overflow:visible!important;}
+body[data-page="home"] section.section.tinted > .home-slider-wrapper > #specialties-grid{padding-top:24px!important;padding-bottom:22px!important;}
+body[data-page="home"] section.section.tinted > .home-slider-wrapper > #specialties-grid > .item-card{flex-shrink:0!important;}
+@media(prefers-reduced-motion:reduce){.item-card{transition:none!important}.item-card:hover,.item-card:focus-within{transform:none!important;}}
