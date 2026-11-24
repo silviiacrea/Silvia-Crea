@@ -653,6 +653,7 @@ function showCustomAlert(title, message) {
  document.body.appendChild(backdrop);  
 }  
   
+let pendingOrderRequestId="";
 async function sendOrder(){   
 if(!cart.length){showToast("Tu carrito está vacío.");return;}   
 const name=$("#customer-name")?.value.trim(),email=$("#customer-email")?.value.trim(),phone=$("#customer-phone")?.value.trim(),address=$("#customer-address")?.value.trim(),comment=$("#customer-comment")?.value.trim();   
@@ -665,7 +666,8 @@ if(cleanPhone.length !== 9){showToast("El número de teléfono debe tener exacta
   
 const total=cart.reduce((n,x)=>n+x.price*x.qty,0);   
 const productsText=cart.map(x=>`- ${x.qty}x ${x.name} | Personalización: ${x.comment||"Sin detalles"}`).join("\n");   
-const payload={action:"order",Cliente:name,Email:email,Telefono:phone.replace(/\D/g,""),Direccion:address,Productos:productsText,Total:`${total.toFixed(2).replace(".",",")} €`,Comentario:comment};   
+if(!pendingOrderRequestId)pendingOrderRequestId=(crypto.randomUUID?crypto.randomUUID():("sc"+Date.now().toString(36)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)));
+const payload={action:"order",requestId:pendingOrderRequestId,Cliente:name,Email:email,Telefono:phone.replace(/\D/g,""),Direccion:address,Productos:productsText,Total:`${total.toFixed(2).replace(".",",")} €`,Comentario:comment};   
 const btn=$("#submit-order");btn.disabled=true;btn.textContent="Enviando solicitud…";   
 try{   
 if(!cfg.appsScriptUrl)throw new Error("La conexión de pedidos no está configurada.");   
@@ -673,7 +675,7 @@ const response=await fetch(cfg.appsScriptUrl,{method:"POST",headers:{"Content-Ty
 if(!response.ok)throw new Error("El servidor no ha aceptado la solicitud.");   
 const result=await response.json();   
 if(result.status!=="success")throw new Error(result.message||"No se ha podido registrar el pedido.");   
-cart=[];updateCart();closeCart();$("#order-form")?.reset();$("#back-to-cart")?.click();   
+pendingOrderRequestId="";cart=[];updateCart();closeCart();$("#order-form")?.reset();$("#back-to-cart")?.click();   
 showCustomAlert("¡Solicitud enviada!", "Tu solicitud se ha registrado correctamente. Silvia se pondrá en contacto contigo para confirmar los detalles y la forma de pago.");   
 }catch(err){   
 showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu solicitud. No se ha vaciado tu carrito. Puedes intentarlo de nuevo más tarde o escribir a "+cfg.email+". Detalle: "+err.message);   

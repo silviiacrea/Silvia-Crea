@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow,noarchive"><meta name="silvia-build" content="54.0">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="silvia-build" content="55.0">
 <title>Administración privada | Silvia Crea</title><link rel="icon" href="assets/logo%20web.png">
-<link rel="stylesheet" href="css/estilos.css?v=54.0">
+<link rel="stylesheet" href="css/estilos.css?v=55.0">
 <style>
 .admin-wrap{width:min(920px,calc(100% - 32px));margin:48px auto;padding:clamp(20px,4vw,38px);background:#fff;border:1px solid #eadfd8;border-radius:22px;box-shadow:0 14px 42px #5d392012}
 .admin-wrap h1,.admin-wrap h2{font-family:'Playfair Display',serif;color:#493b4d}.admin-intro{color:#655b55;max-width:720px;line-height:1.65}
@@ -12,7 +12,7 @@
 .admin-form input{width:100%;padding:13px;border:1px solid #d8c8bd;border-radius:10px;font:inherit}
 .admin-actions{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px}.admin-actions button{min-height:44px}
 .admin-state{display:flex;align-items:center;justify-content:center;text-align:center;flex-wrap:wrap;gap:12px;padding:15px;border-radius:12px;background:#f7f2f8;margin:16px 0;font-weight:700}
-.admin-dot{width:13px;height:13px;border-radius:50%;background:#999;box-shadow:0 0 0 4px #9992}.admin-state.normal .admin-dot{background:#21864a;box-shadow:0 0 0 4px #21864a22}.admin-state.maintenance .admin-dot{background:#c63838;box-shadow:0 0 0 4px #c6383822}
+.admin-dot{width:13px;height:13px;border-radius:50%;background:#999;box-shadow:0 0 0 4px #9992}.admin-state.normal .admin-dot{background:#21864a;box-shadow:0 0 0 4px #21864a22}.admin-state.maintenance .admin-dot{background:#c63838;box-shadow:0 0 0 4px #c6383822}.admin-state.error{background:#fff1e5;color:#9a4b0a}.admin-state.error .admin-dot{background:#e58a24;box-shadow:0 0 0 4px #e58a2422}
 .admin-hidden[hidden]{display:none!important}.admin-status{padding:14px;border-radius:10px;background:#f8f3ef;margin-top:20px;white-space:pre-wrap}
 button:disabled{opacity:.48;cursor:not-allowed}.admin-divider{border:0;border-top:1px solid #eee4eb;margin:22px 0}
 .site-header .header-inner{display:flex;flex-direction:column;align-items:center;gap:10px}.site-header .main-nav{justify-content:center;width:100%}
@@ -46,7 +46,7 @@ button:disabled{opacity:.48;cursor:not-allowed}.admin-divider{border:0;border-to
 <p class="admin-note" id="version-checked"></p>
 </section>
 <section class="admin-card" id="orders-stats-card"><h2>Estadísticas de pedidos</h2>
-<p class="admin-note">Resumen de los pedidos registrados en Google Sheets.</p>
+<p class="admin-note">Datos leídos directamente de Google Sheets</p>
 <div class="admin-state" style="justify-content:space-around">
  <div><strong id="orders-total">—</strong><br><span class="admin-note">Pedidos</span></div>
  <div><strong id="orders-completed">—</strong><br><span class="admin-note">Completados</span></div>
@@ -55,9 +55,14 @@ button:disabled{opacity:.48;cursor:not-allowed}.admin-divider{border:0;border-to
 <p class="admin-note" id="orders-note" role="status">Las estadísticas se mostrarán al iniciar sesión.</p>
 <div class="admin-actions"><button class="btn" id="refresh-orders" type="button">Actualizar estadísticas</button></div>
 </section>
+<section class="admin-card" id="worker-health-card"><h2>Estado del Worker</h2>
+<div id="worker-health-state" class="admin-state"><span class="admin-dot"></span><span id="worker-health-current">Comprobando Worker…</span></div>
+<p class="admin-note" id="worker-health-note" role="status">Se comprueba el Worker y el binding KV SITE_SETTINGS.</p>
+<div class="admin-actions"><button class="btn" id="refresh-worker-health" type="button">Volver a comprobar</button></div>
+</section>
 <section class="admin-card"><h2>Actualización SEO</h2><p class="admin-note">Solicita la actualización automática de las páginas individuales del catálogo, la galería y el sitemap. El proceso se ejecuta en GitHub Actions y puede tardar unos minutos.</p>
 <div class="admin-actions"><button class="btn btn-primary" id="run-generation" type="button">Actualizar catálogo, galería y SEO ahora</button></div>
 </section></div>
 <div class="admin-actions"><button class="btn" id="logout" type="button">Cerrar sesión</button></div></section>
 <div class="admin-status" id="admin-status" role="status" aria-live="polite"></div></main>
-<footer class="site-footer"><p>Silvia Crea · Panel privado</p></footer><script src="js/admin.js?v=54.0" defer></script></body></html>
+<footer class="site-footer"><p>Silvia Crea · Panel privado</p></footer><script src="js/admin.js?v=55.0" defer></script></body></html>

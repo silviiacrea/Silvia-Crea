@@ -61,17 +61,27 @@ async function loadOrderStats(){
  try{
   const d=await call('/admin/orders/stats',{},true,'GET');
   total.textContent=String(d.total);completed.textContent=String(d.completed);pending.textContent=String(d.pending);
-  const src=d.source||{};
-  const origin=src.spreadsheetName
-   ? ` Archivo: ${src.spreadsheetName} · Pestaña: ${src.sheetName||'PEDIDOS'} · Última fila con contenido: ${src.lastRow??'—'} · IDs detectados: ${d.total}.`
-   : '';
-  note.textContent='Datos leídos directamente de Google Sheets · completados según la columna N.'+origin;
+  note.textContent='Datos leídos directamente de Google Sheets';
  }catch(e){
   total.textContent=completed.textContent=pending.textContent='—';
   note.textContent=e.message;sessionExpired(e);
  }
 }
-function show(){login.hidden=!!token;control.hidden=!token;if(token){loadMaintenance();checkPublishedVersion();loadOrderStats();}}
+async function loadWorkerHealth(){
+ const panel=$('worker-health-state'),label=$('worker-health-current'),note=$('worker-health-note');
+ if(!panel||!token)return;
+ panel.className='admin-state';label.textContent='Comprobando Worker…';note.textContent='Comprobación del Worker y del binding KV SITE_SETTINGS.';
+ try{
+  const d=await call('/admin/health',{},true,'GET');
+  if(d.status!=='ok'||d.worker!=='normal'||d.kv!=='available')throw new Error(d.error||'La comprobación no ha sido satisfactoria.');
+  panel.className='admin-state normal';label.textContent='Worker Normal';
+  note.textContent='Worker y binding KV SITE_SETTINGS comprobados correctamente.';
+ }catch(e){
+  panel.className='admin-state error';label.textContent='Worker Error';note.textContent=e.message;
+  sessionExpired(e);
+ }
+}
+function show(){login.hidden=!!token;control.hidden=!token;if(token){loadMaintenance();checkPublishedVersion();loadOrderStats();loadWorkerHealth();}}
 function renderState(mode){
  const active=mode==='maintenance',panel=$('maintenance-state');
  panel.className='admin-state '+(active?'maintenance':'normal');
@@ -101,6 +111,7 @@ $('set-normal').addEventListener('click',e=>setMode('normal',e.currentTarget));
 $('set-maintenance').addEventListener('click',e=>setMode('maintenance',e.currentTarget));
 $('recheck-version')?.addEventListener('click',checkPublishedVersion);
 $('refresh-orders')?.addEventListener('click',loadOrderStats);
+$('refresh-worker-health')?.addEventListener('click',loadWorkerHealth);
 $('run-generation').addEventListener('click',async()=>{if(!confirm('¿Quieres regenerar y publicar ahora todas las páginas de catálogo, trabajos y el sitemap?'))return;const b=$('run-generation');b.disabled=true;status.textContent='Enviando solicitud a GitHub Actions…';try{const d=await call('/admin/generate',{},true);status.textContent=d.message||'Solicitud aceptada por GitHub.';}catch(e){status.textContent='No se pudo solicitar la actualización SEO: '+e.message;sessionExpired(e);}finally{b.disabled=false;}});
 $('logout').addEventListener('click',()=>{token='';sessionStorage.removeItem('silvia_admin_session');show();status.textContent='Sesión cerrada.';});
 })();
