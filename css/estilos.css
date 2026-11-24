@@ -2830,3 +2830,26 @@ body[data-page="home"] .home-slider-wrapper>#specialties-grid.has-slider>.item-c
 .cart-drawer #checkout-view::-webkit-scrollbar-track{background:transparent;margin-block:8px;}
 .cart-drawer #checkout-view::-webkit-scrollbar-thumb{border-radius:999px;background:linear-gradient(180deg,#bf9bcf,#d99ab2);}
 .cart-drawer #checkout-view::-webkit-scrollbar-thumb:hover{background:#a987bd;}
+
+
+/* V69 FIX FINAL: centrado robusto cuando Mis especialidades tiene exactamente dos tarjetas. */
+@media (min-width:701px){
+ body[data-page="home"] #specialties-grid.specialties-static-grid:has(>.item-card:nth-child(2):last-child){
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  width:min(100%,760px)!important;
+  max-width:760px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  justify-content:center!important;
+  justify-items:stretch!important;
+ }
+ body[data-page="home"] #specialties-grid.specialties-static-grid:has(>.item-card:nth-child(2):last-child)>.item-card{
+  width:100%!important;min-width:0!important;max-width:none!important;margin:0!important;
+ }
+}
+@media (max-width:700px){
+ body[data-page="home"] #specialties-grid.specialties-static-grid:has(>.item-card:nth-child(2):last-child){
+  grid-template-columns:minmax(0,1fr)!important;width:100%!important;max-width:520px!important;margin-left:auto!important;margin-right:auto!important;
+ }
+}
