@@ -40,21 +40,21 @@
     {
       "nombre": "Amigurumi Personalizado",
       "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagen": "",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/amigurumis/reno.jpg",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagenGrande": "",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/amigurumis/reno.jpg",
       "descripcionFicha": "",
-      "album": "",
+      "album": "amigurumis",
       "destacado": true
     },
     {
       "nombre": "Pulsera de Abalorios",
       "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagen": "",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/pulseras/especialidadpulseras.PNG",
       "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagenGrande": "",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/pulseras/especialidadpulseras.PNG",
       "descripcionFicha": "",
-      "album": "",
+      "album": "pulseras",
       "destacado": false
     }
   ],
