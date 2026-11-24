@@ -389,8 +389,10 @@ function prepareSlider(el,count){
    parent.insertBefore(el,existing);
    existing.remove();
   }
-  el.classList.remove("has-slider","is-centered","is-mobile-list","is-dragging");
+  el.classList.remove("has-slider","is-centered","is-mobile-list","is-dragging","grid-count-2");
   el.classList.add("specialties-static-grid");
+  // Con exactamente dos tarjetas, CSS crea una fila de dos columnas centrada.
+  el.classList.toggle("grid-count-2",count===2);
   el.removeAttribute("aria-label");
   el.style.removeProperty("scroll-snap-type");
   el.style.removeProperty("overflow");

@@ -2633,6 +2633,24 @@ body[data-page="home"] .home-slider-wrapper>#specialties-grid.has-slider>.item-c
  max-width:1200px!important;
  gap:22px!important;
 }
+/* V69: dos especialidades en inicio recuperan la fila centrada de versiones anteriores. */
+@media(min-width:701px){
+ #specialties-grid.specialties-static-grid.grid-count-2{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  width:min(100%,760px)!important;
+  max-width:760px!important;
+  margin-inline:auto!important;
+  justify-content:center!important;
+  justify-items:stretch!important;
+ }
+ #specialties-grid.specialties-static-grid.grid-count-2>.item-card{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  margin:0!important;
+ }
+}
 @media(max-width:900px) and (min-width:701px){
  #products-grid.balanced-card-grid,#gallery-grid.balanced-card-grid,#category-grid.balanced-card-grid{max-width:900px!important;}
  #specialties-grid.specialties-static-grid{max-width:900px!important;}
