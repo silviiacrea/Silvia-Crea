@@ -67,8 +67,11 @@ function validSiteData(data){
 }
 function getDataSources(){
  const sources=[];
- if(cfg.workerBaseUrl)sources.push(cfg.workerBaseUrl.replace(/\/$/,"")+"/datos.json");
+ // datos.json is stored beside the HTML files in the GitHub Pages root.
+ // Fetch it from the website's own origin first to avoid cross-origin/CORS failures.
+ try{sources.push(new URL("/datos.json",location.origin).href);}catch{}
  if(cfg.dataJsonUrl)sources.push(cfg.dataJsonUrl);
+ if(cfg.workerBaseUrl)sources.push(cfg.workerBaseUrl.replace(/\/$/,"")+"/datos.json");
  if(cfg.appsScriptUrl){sources.push(cfg.appsScriptUrl);try{const u=new URL(cfg.appsScriptUrl);u.searchParams.set("action","data");sources.push(u.href);}catch{}}
  return [...new Set(sources.filter(Boolean))];
 }
@@ -76,7 +79,9 @@ async function fetchJsonNoCache(url){
  const u=url+(url.includes("?")?"&":"?")+"scv="+Date.now()+"_"+Math.random().toString(36).slice(2);
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
  try{
-  const response=await fetch(u,{cache:"no-store",mode:"cors",signal:controller.signal});
+  // No custom request headers and no forced CORS mode. Same-origin datos.json
+  // is the primary source, with cross-origin fallbacks only if needed.
+  const response=await fetch(u,{cache:"no-store",signal:controller.signal});
   if(!response.ok)throw new Error("HTTP "+response.status);
   const text=await response.text();let data;
   try{data=JSON.parse(text);}catch{throw new Error("La respuesta no es JSON válido");}
