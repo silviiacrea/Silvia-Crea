@@ -262,7 +262,19 @@ function openCart(){ $(".cart-drawer")?.classList.add("open");$(".drawer-backdro
 function closeCart(){ $(".cart-drawer")?.classList.remove("open");$(".drawer-backdrop")?.classList.remove("open");$(".cart-drawer")?.setAttribute("aria-hidden","true");document.body.style.overflow="";}   
 function addProduct(p){if(!p||p.stock<=0){showToast("Este producto no está disponible ahora mismo.");return;}const unitPrice=p.offer&&p.offerPrice!==undefined?p.offerPrice:p.price;const found=cart.find(x=>x.name===p.name);if(found){if(found.qty<p.stock)found.qty++;else showToast("Has alcanzado el stock disponible.");}else cart.push({name:p.name,price:unitPrice,qty:1,comment:""});updateCart();showToast("Añadido a tu carrito ♡");}   
   
-function workerModeUrl(src,mode){if(!src)return "";try{const u=new URL(workerImage(src),location.href);if(u.hostname==="worker.silviacrea.es"&&u.pathname.startsWith("/i/")){u.searchParams.set("wm",mode);return u.href;}if(u.hostname==="worker.silviacrea.es"&&u.pathname.includes("/file/silviacreacatalogo/")){return workerImage(u.href).replace(/wm=[^&]*/,"wm="+mode);} }catch{}return workerImage(src);}
+function workerModeUrl(src,mode){
+ const normalized=workerImage(src);
+ if(!normalized)return "";
+ try{
+  const u=new URL(normalized,location.href);
+  if(u.hostname==="worker.silviacrea.es"&&u.pathname.startsWith("/i/")){
+   u.searchParams.set("wm",mode);
+   u.searchParams.set("v","37");
+   return u.href;
+  }
+ }catch{}
+ return normalized;
+}
 function imageIdentity(src){try{const u=new URL(src,location.href);u.search="";return u.href.toLowerCase();}catch{return String(src).split("?")[0].toLowerCase();}}
 async function loadAlbumPhotos(item){
   if(!item || !item.album) return [];
@@ -338,7 +350,7 @@ function prepareSlider(el,count){
  let left=wrapper.querySelector(".slider-btn-left"),right=wrapper.querySelector(".slider-btn-right");
  if(!left){left=document.createElement("button");left.type="button";left.className="slider-btn slider-btn-left";left.textContent="‹";left.setAttribute("aria-label","Anterior");wrapper.appendChild(left);}
  if(!right){right=document.createElement("button");right.type="button";right.className="slider-btn slider-btn-right";right.textContent="›";right.setAttribute("aria-label","Siguiente");wrapper.appendChild(right);}
- const visible=()=>{const w=el.clientWidth||window.innerWidth;return w<=520?1:w<=760?2:w<=1020?3:4;};
+ const visible=()=>{const w=el.clientWidth||window.innerWidth;return w<=700?1:w<=900?2:3;};
  let lastVisible=visible();
  const update=()=>{
   const v=visible(),wasActive=el.classList.contains("has-slider"),max=Math.max(0,el.scrollWidth-el.clientWidth),pos=el.scrollLeft;
@@ -383,6 +395,10 @@ function prepareSlider(el,count){
 }
 function balanceGrid(el,count){
  if(!el)return;
+ // La Tienda y la Galería comparten una rejilla estable: su número de columnas
+ // no debe depender del número de elementos. El equilibrado solo se reserva
+ // para las páginas de categorías, que tienen una composición independiente.
+ if(el.id!=="category-grid")return;
  el.classList.remove("grid-balanced-2","grid-balanced-3","grid-count-2");
  if(count===2)el.classList.add("grid-count-2");
  else if(count===4)el.classList.add("grid-balanced-2");
