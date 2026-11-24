@@ -20,7 +20,80 @@
       "categoria": "prueba"
     }
   ],
-  "especialidades": [],
+  "especialidades": [
+    {
+      "nombre": "Amigurumi Personalizado",
+      "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadamigurumi.jpg",
+      "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadamigurumi.jpg",
+      "album": "",
+      "destacado": true
+    },
+    {
+      "nombre": "Pulsera de Abalorios",
+      "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadpulseras.PNG",
+      "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadpulseras.PNG",
+      "album": "",
+      "destacado": false
+    },
+    {
+      "nombre": "Muñecos Felting",
+      "descripcion": "",
+      "imagen": "",
+      "descripcionCompleta": "",
+      "imagenGrande": "",
+      "album": "",
+      "destacado": false
+    },
+    {
+      "nombre": "Muñecos Felting",
+      "descripcion": "",
+      "imagen": "",
+      "descripcionCompleta": "",
+      "imagenGrande": "",
+      "album": "",
+      "destacado": false
+    },
+    {
+      "nombre": "Muñecos Felting",
+      "descripcion": "",
+      "imagen": "",
+      "descripcionCompleta": "",
+      "imagenGrande": "",
+      "album": "",
+      "destacado": false
+    },
+    {
+      "nombre": "Muñecos Felting",
+      "descripcion": "",
+      "imagen": "",
+      "descripcionCompleta": "",
+      "imagenGrande": "",
+      "album": "",
+      "destacado": false
+    },
+    {
+      "nombre": "Muñecos Felting",
+      "descripcion": "",
+      "imagen": "",
+      "descripcionCompleta": "",
+      "imagenGrande": "",
+      "album": "",
+      "destacado": false
+    },
+    {
+      "nombre": "Muñecos Felting",
+      "descripcion": "",
+      "imagen": "",
+      "descripcionCompleta": "",
+      "imagenGrande": "",
+      "album": "",
+      "destacado": false
+    }
+  ],
   "trabajos": [],
   "categoriasTienda": [
     "prueba"
