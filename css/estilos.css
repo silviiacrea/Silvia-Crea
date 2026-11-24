@@ -2166,3 +2166,53 @@ body.page-leaving{animation:silviaPageLeave .15s ease-in both;pointer-events:non
 #product-modal .modal-album{transition:opacity .24s ease!important;}
 #product-modal .album-thumb{transition:opacity .2s ease!important;}
 #product-modal .album-thumb img{transition:opacity .24s ease!important;}
+
+
+/* VERSION 23 — continuidad de las fotos en las tarjetas y categorías más compactas. */
+/* La foto rebasa ligeramente su caja por debajo y queda detrás del panel del nombre;
+   así no aparece una franja del fondo en la unión. El contorno exterior sigue recortado. */
+.item-card .image-wrapper{
+  position:relative!important;
+  z-index:0!important;
+  overflow:visible!important;
+  border-radius:20px 20px 0 0!important;
+  clip-path:none!important;
+  margin-bottom:0!important;
+}
+.item-card .image-wrapper>img,
+.item-card .image-wrapper .item-image{
+  display:block!important;
+  position:relative!important;
+  width:100%!important;
+  height:calc(100% + 5px)!important;
+  max-width:none!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  border-radius:20px 20px 0 0!important;
+  transform:none!important;
+  scale:1!important;
+}
+.item-card .item-content{
+  position:relative!important;
+  z-index:3!important;
+  margin-top:-5px!important;
+  border-radius:18px 18px 0 0!important;
+  overflow:hidden!important;
+}
+/* Más botones por fila, sin perder el reparto equilibrado que calcula app.js. */
+.category-tiles{
+  column-gap:8px!important;
+  row-gap:9px!important;
+}
+.category-tiles>.category-tile{
+  min-height:42px!important;
+  padding:7px 10px!important;
+}
+.category-tiles>.category-tile>span{
+  font-size:clamp(15px,1.45vw,21px)!important;
+  line-height:1.16!important;
+}
+@media(max-width:700px){
+  .category-tiles>.category-tile{min-height:40px!important;padding:7px 8px!important;}
+  .category-tiles>.category-tile>span{font-size:clamp(14px,3.4vw,18px)!important;}
+}

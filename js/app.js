@@ -164,7 +164,7 @@ function sizeCategoryTiles(root){
  const tilesRoot=root?.querySelector(".category-tiles")||root;
  const tiles=[...(tilesRoot?.querySelectorAll(".category-tile")||[])];if(!tiles.length)return;
  const maxText=Math.max(...tiles.map(tile=>{const span=tile.querySelector("span");if(!span)return 0;const oldWidth=span.style.width,oldMax=span.style.maxWidth;span.style.width="max-content";span.style.maxWidth="none";const measured=Math.ceil(span.scrollWidth);span.style.width=oldWidth;span.style.maxWidth=oldMax;return measured;}));
- const tileWidth=Math.min(Math.max(maxText+36,132),260);
+ const tileWidth=Math.min(Math.max(maxText+20,112),220);
  tilesRoot.style.setProperty("--category-tile-width",tileWidth+"px");
  tilesRoot.style.setProperty("--category-tile-count",String(tiles.length));
  // Ajusta el número de columnas al ancho real disponible y reparte las filas
