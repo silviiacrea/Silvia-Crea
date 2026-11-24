@@ -865,3 +865,46 @@ body.maintenance-active> :not(.maintenance-screen){display:none!important;visibi
 #fs-modal .fs-modal-content{position:static!important;transform:none!important;top:auto!important;left:auto!important;margin:0!important;max-width:calc(100vw - 100px)!important;max-height:calc(100dvh - 24px)!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;}
 #fs-modal #fs-modal-image{max-width:calc(100vw - 100px)!important;max-height:calc(100dvh - 24px)!important;width:auto!important;height:auto!important;object-fit:contain!important;}
 @media(max-width:640px){#fs-modal .fs-modal-content,#fs-modal #fs-modal-image{max-width:calc(100vw - 78px)!important;max-height:calc(100dvh - 24px)!important;}}
+
+/* Final responsive fixes requested: the cart is completely outside the viewport until opened. */
+html,body{overflow-x:clip!important;width:100%;max-width:100%;}
+.cart-drawer{position:fixed!important;top:0!important;right:0!important;height:100dvh!important;max-height:100dvh!important;width:min(460px,100vw)!important;transform:translateX(110%)!important;z-index:100!important;box-sizing:border-box!important;}
+.cart-drawer.open{transform:translateX(0)!important;}
+.drawer-backdrop{position:fixed!important;inset:0!important;z-index:90!important;}
+/* Uniform home-specialty cards, larger cards and same width as the adjacent home feature section. */
+#specialties-grid,.home-slider-wrapper{width:100%!important;max-width:none!important;}
+.home-slider-wrapper{padding-inline:clamp(20px,3vw,42px)!important;}
+#specialties-grid .item-card{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;align-self:stretch!important;}
+#specialties-grid .item-card .image-wrapper{aspect-ratio:4/3!important;}
+#specialties-grid .item-card .item-content{flex:1 1 auto!important;display:flex!important;flex-direction:column!important;min-height:210px!important;}
+#specialties-grid .item-card .item-content p{min-height:4.2em!important;display:-webkit-box!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;overflow:hidden!important;}
+#specialties-grid.is-centered .item-card{flex:0 0 min(34%,440px)!important;max-width:440px!important;}
+@media(max-width:900px){#specialties-grid.is-centered .item-card{flex-basis:calc((100% - 24px)/2)!important;max-width:none!important;}}
+@media(max-width:640px){#specialties-grid.is-centered .item-card{flex-basis:100%!important;max-width:460px!important;}.home-slider-wrapper{padding-inline:16px!important;}}
+/* No decorative shadow behind the specialty section itself. */
+#specialties-grid,.home-slider-wrapper{box-shadow:none!important;background:transparent!important;}
+/* Dynamic watermark is aligned directly over the name/description panel, regardless of card copy length. */
+.item-card{position:relative!important;overflow:visible!important;}
+.card-logo-watermark{position:absolute!important;z-index:4!important;left:50%!important;bottom:calc(var(--card-copy-height,160px) + 0px)!important;transform:translateX(-50%)!important;width:clamp(68px,9vw,105px)!important;height:auto!important;max-height:64px!important;object-fit:contain!important;opacity:.78!important;pointer-events:none!important;filter:none!important;}
+.item-card .item-content{position:relative!important;z-index:3!important;}
+/* Modal cards occupy more viewport and album thumbnails run across the entire lower edge. */
+#product-modal.modal-backdrop{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:auto!important;padding:clamp(10px,2.5vw,28px)!important;box-sizing:border-box!important;}
+#product-modal.open{display:flex!important;}
+#product-modal .product-modal{position:relative!important;top:auto!important;left:auto!important;transform:none!important;margin:auto!important;width:min(1120px,96vw)!important;max-width:96vw!important;max-height:min(94dvh,1000px)!important;min-height:0!important;overflow:auto!important;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)!important;grid-template-rows:auto!important;align-items:stretch!important;}
+#product-modal .modal-photo-stage{grid-column:1!important;grid-row:1!important;min-width:0!important;display:flex!important;flex-direction:column!important;align-self:stretch!important;}
+#product-modal .modal-image-container{aspect-ratio:4/3!important;min-height:0!important;height:auto!important;width:100%!important;}
+#product-modal .modal-album{grid-column:1/-1!important;grid-row:2!important;width:100%!important;max-width:100%!important;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;box-sizing:border-box!important;padding:10px 12px!important;}
+#product-modal .modal-copy{grid-column:2!important;grid-row:1!important;align-self:stretch!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:auto!important;}
+#product-modal .modal-copy h2{font-size:clamp(24px,3vw,38px)!important;}
+@media(max-width:700px){#product-modal.modal-backdrop{padding:8px!important;}#product-modal .product-modal{width:min(680px,96vw)!important;max-width:96vw!important;max-height:calc(100dvh - 16px)!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important;}#product-modal .modal-photo-stage{grid-column:1!important;grid-row:1!important;}#product-modal .modal-album{grid-column:1!important;grid-row:2!important;width:100%!important;}#product-modal .modal-copy{grid-column:1!important;grid-row:3!important;max-height:none!important;}}
+/* Fullscreen photo: always fixed to the viewport, moved to body by JS, album arrows retained. */
+#fs-modal{position:fixed!important;inset:0!important;z-index:2147482000!important;width:100vw!important;height:100dvh!important;max-height:100dvh!important;display:none!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;}
+#fs-modal.open{display:flex!important;}
+#fs-modal .fs-modal-content{position:static!important;inset:auto!important;transform:none!important;margin:0!important;max-width:calc(100vw - 96px)!important;max-height:calc(100dvh - 32px)!important;}
+#fs-modal #fs-modal-image{width:auto!important;height:auto!important;max-width:calc(100vw - 96px)!important;max-height:calc(100dvh - 32px)!important;object-fit:contain!important;}
+/* Category and product sections get clear, polished separation. */
+.category-section-block{width:100%;margin:0 auto 30px;}
+.category-section-title{margin:0 0 18px!important;text-align:center!important;font-family:var(--serif)!important;font-size:clamp(26px,3vw,36px)!important;color:var(--lilac-dark)!important;}
+.products-section-title{margin:26px 0 22px!important;}
+.category-tiles{margin-bottom:0!important;}
+.maintenance-total-follow{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;}

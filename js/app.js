@@ -26,7 +26,8 @@ document.addEventListener("click", updateViewVars, true);
 document.addEventListener("touchstart", updateViewVars, {passive: true, capture: true});
 // -----------------------------------------------------  
   
-const cfg = window.SILVIA_CONFIG || {};   
+const cfg = window.SILVIA_CONFIG || {};
+window.addEventListener("DOMContentLoaded",()=>{const fs=document.getElementById("fs-modal");if(fs&&fs.parentElement!==document.body)document.body.appendChild(fs);},{once:true});   
 const $ = (s, root=document) => root.querySelector(s); const $$ = (s, root=document) => [...root.querySelectorAll(s)];   
 const CART_KEY = "silviacrea_cart_v2";   
 let products = [], specialties = [], gallery = [], cart = loadCart(), modalProduct = null, toastTimer, modalPhotos = [], modalPhotoIndex = 0;
@@ -37,18 +38,19 @@ function encodePathUrl64(path){
 function workerImage(url){
   if(!url)return "";const raw=String(url).trim();if(!raw)return "";
   try{
-    const u=new URL(raw,location.href),base=(cfg.workerBaseUrl||"https://worker.silviacrea.es").replace(/\/$/,"");
+    const u=new URL(raw,location.href),base=(cfg.workerBaseUrl||"https://worker.silviacrea.es").replace(/\/$/,""),workerHost=new URL(base).hostname;
     if(u.hostname.endsWith("backblazeb2.com")){
       if(!u.pathname.startsWith("/file/silviacreacatalogo/"))return "";
       const path=decodeURIComponent(u.pathname.slice("/file/silviacreacatalogo/".length));return base+"/i/"+encodePathUrl64(path)+"?wm=card";
     }
-    if(u.hostname==="worker.silviacrea.es"){
+    if(u.hostname===workerHost){
       const match=u.pathname.match(/^\/file\/silviacreacatalogo\/(.+)$/);
       if(match){const path=decodeURIComponent(match[1]);return base+"/i/"+encodePathUrl64(path)+"?wm="+(u.searchParams.get("wm")||"card");}
       if(u.pathname.startsWith("/i/")){if(!u.searchParams.has("wm"))u.searchParams.set("wm","card");return u.href;}
       if(u.pathname==="/logo.png")return u.href;
     }
-    return raw;
+    if(u.origin===location.origin&&!/^https?:\/\//i.test(raw))return raw;
+    return ""; // external images are blocked unless routed through the Cloudflare Worker
   }catch{return "";}
 }
 const SITE_CACHE_KEY="silviacrea_site_data_v4";
@@ -61,20 +63,18 @@ function writeSiteCache(data){try{localStorage.setItem(SITE_CACHE_KEY,JSON.strin
 function validSiteData(data){return !!(data&&(Array.isArray(data.catalogo)||Array.isArray(data.trabajos)||Array.isArray(data.especialidades)));}
 function maintenanceStatusUrl(){try{const u=new URL(cfg.appsScriptUrl);u.searchParams.set("action","status");u.searchParams.set("v",String(Date.now()));return u.href;}catch{return "";}}
 async function fetchMaintenanceStatus(){
- const urls=[];const statusUrl=maintenanceStatusUrl();if(statusUrl)urls.push(statusUrl);
- if(cfg.dataJsonUrl)urls.push(cfg.dataJsonUrl+(cfg.dataJsonUrl.includes("?")?"&":"?")+"statusv="+Date.now());
- for(const url of urls){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),4500);try{
-  const r=await fetch(url,{cache:"no-store",signal:controller.signal});if(!r.ok)continue;const d=await r.json();
-  const state=d&&typeof d.mode==="string"?d:(d&&d.maintenance)||null;if(state&&typeof state.mode==="string")return state;
-  if(validSiteData(d)&&d.maintenance&&typeof d.maintenance.mode==="string")return d.maintenance;
- }catch{}finally{clearTimeout(timer);}}
+ // datos.json is the single source of truth for maintenance/construction states.
+ if(cfg.dataJsonUrl){try{const u=cfg.dataJsonUrl+(cfg.dataJsonUrl.includes("?")?"&":"?")+"maintenancev="+Date.now();const r=await fetch(u,{cache:"no-store",headers:{"Cache-Control":"no-cache"}});if(r.ok){const d=await r.json();if(d&&d.maintenance&&typeof d.maintenance.mode==="string")return d.maintenance;}}catch{}}
+ // Apps Script status is a fallback only when datos.json is unavailable.
+ const statusUrl=maintenanceStatusUrl();if(statusUrl){try{const r=await fetch(statusUrl,{cache:"no-store"});if(r.ok){const d=await r.json();const state=d&&typeof d.mode==="string"?d:(d&&d.maintenance);if(state&&typeof state.mode==="string")return state;}}catch{}}
  return null;
 }
+
 function startMaintenancePolling(){if(maintenancePollTimer)return;maintenancePollTimer=setInterval(async()=>{const state=await fetchMaintenanceStatus();if(state){maintenanceStatusFailures=0;applyMaintenanceState(state);}else if(++maintenanceStatusFailures>=2){maintenanceStatusFailures=0;applyMaintenanceState({mode:"normal"});}},MAINTENANCE_CHECK_INTERVAL);}
 async function fetchFreshSiteData(){
-  const urls=[cfg.dataJsonUrl?cfg.dataJsonUrl+(cfg.dataJsonUrl.includes("?")?"&":"?")+"v="+Date.now():"",cfg.appsScriptUrl?cfg.appsScriptUrl+"?action=data":""].filter(Boolean);
+  const urls=[cfg.dataJsonUrl?cfg.dataJsonUrl+(cfg.dataJsonUrl.includes("?")?"&":"?")+"v="+Date.now():"",cfg.appsScriptUrl?cfg.appsScriptUrl+"?action=data&v="+Date.now():""].filter(Boolean);
   let lastError;
-  for(const url of urls){try{const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);const data=await r.json();if(validSiteData(data)){writeSiteCache(data);applyShopAccessImage(data.imagenTiendaInicio||data.shopImage||"");return data;}}catch(e){lastError=e;}}
+  for(const url of urls){try{const r=await fetch(url,{cache:"no-store",headers:{"Cache-Control":"no-cache"}});if(!r.ok)throw new Error("HTTP "+r.status);const data=await r.json();if(validSiteData(data)){writeSiteCache(data);applyShopAccessImage(data.imagenTiendaInicio||data.shopImage||"");return data;}}catch(e){lastError=e;}}
   throw lastError||new Error("No se pudieron cargar los datos.");
 }
 function refreshSiteDataInBackground(){
@@ -97,15 +97,8 @@ function refreshSiteDataInBackground(){
   return siteRefreshPromise;
 }
 async function getSiteData(){
+  // Fuente autoritativa: datos.json. No se sirven estados ni productos desde localStorage.
   if(siteDataPromise)return siteDataPromise;
-  const cached=readSiteCache();
-  if(cached){
-    siteDataPromise=Promise.resolve(cached.data);
-    applyShopAccessImage(cached.data.imagenTiendaInicio||cached.data.shopImage||"");
-    // Serve cached data immediately; refresh from GitHub's datos.json without blocking rendering.
-    if(Date.now()-cached.savedAt>SITE_REFRESH_AFTER)refreshSiteDataInBackground();
-    return siteDataPromise;
-  }
   siteDataPromise=fetchFreshSiteData();return siteDataPromise;
 }
 async function getSheet(name){
@@ -151,7 +144,7 @@ function renderCategoryLanding(){
   const list=params.type==="gallery"?gallery:products;
   const selected=params.name?list.filter(item=>cleanCategory(item.category)===params.name):[];
   target.innerHTML=selected.length?selected.map(item=>card(item,params.type,list.indexOf(item))).join(""):'<p class="loading-note">No se ha seleccionado una categoría válida o todavía no tiene elementos.</p>';
-  balanceGrid(target,selected.length);
+  balanceGrid(target,selected.length);positionCardWatermarks(target);
 }
    
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));   
@@ -257,6 +250,7 @@ function balanceGrid(el,count){
  if(count===4)el.classList.add("grid-balanced-2");
  else if(count===5||count===7)el.classList.add("grid-balanced-3");
 }
+function positionCardWatermarks(root=document){root.querySelectorAll(".item-card").forEach(cardEl=>{const logo=cardEl.querySelector(".card-logo-watermark"),copy=cardEl.querySelector(".item-content");if(!logo||!copy)return;const sync=()=>{const h=copy.getBoundingClientRect().height;cardEl.style.setProperty("--card-copy-height",Math.ceil(h)+"px");logo.style.bottom=Math.ceil(h)+"px";};sync();if(!logo.dataset.measure){logo.dataset.measure="1";if("ResizeObserver" in window){const ro=new ResizeObserver(sync);ro.observe(copy);logo._cardRO=ro;}window.addEventListener("resize",sync,{passive:true});}});}
 function card(p,kind,index){   
 const image=safeImg(p.image), desc=p.description||p.desc||"";   
 const isProduct=kind==="product";   
@@ -281,6 +275,7 @@ const classes=["item-card",kind==="gallery"?"gallery-card":"",p.featured?"is-fea
 return `<article class="${classes}" data-card-kind="${kind}" data-index="${index}" tabindex="0" role="group" aria-label="${esc(p.name||p.title)}. Pulsa para ver el detalle">   
 ${featured}${offer}   
 ${image?`<div class="image-wrapper"><img class="item-image" src="${esc(workerModeUrl(image,kind==="gallery"?"gallery":"card"))}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
+<img class="card-logo-watermark" src="assets/logo%20web.png" alt="" aria-hidden="true" loading="lazy">
 <div class="item-content"><h3>${esc(p.name||p.title)}</h3><p>${esc(desc)}</p>   
 ${metaHtml}  
 <div class="item-actions"><button class="mini-btn detail-button" type="button" data-detail-card="${kind}" data-index="${index}">Ver detalles</button>${isProduct?`<button class="mini-btn add-button" type="button" data-add="${index}" ${p.stock<=0?"disabled":""}>Añadir carrito</button>`:''}</div>   
@@ -295,9 +290,10 @@ if(grid){
  const tiles=categoryCards(products,"product");
  const old=grid.parentElement.querySelector(".category-tiles");
  if(old) old.remove();
- if(tiles){const wrap=document.createElement("div");wrap.className="category-tiles";wrap.setAttribute("aria-label","Categorías de la tienda");wrap.innerHTML=tiles;grid.parentElement.insertBefore(wrap,grid);}
+ if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><div class="category-tiles" aria-label="Categorías de la tienda">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);}
+ if(!grid.parentElement.querySelector(".products-section-title")){const h=document.createElement("h2");h.className="category-section-title products-section-title";h.textContent="Productos";grid.parentElement.insertBefore(h,grid);}
  grid.innerHTML=products.length?products.map((p,i)=>card(p,"product",i)).join(""):'<p class="loading-note">Próximamente habrá nuevas creaciones.</p>';
- balanceGrid(grid,products.length);
+ balanceGrid(grid,products.length);positionCardWatermarks(grid);
 }
 if($("#category-grid")&&categoryParams().type==="product") renderCategoryLanding();
 }   
@@ -305,7 +301,7 @@ async function loadSpecialties(){
 const rows=await getSheet("ESPECIALIDADES");   
 specialties=rows.filter(r=>r.nombre).map(r=>({name:r.nombre,description:r.descripcion||"",image:workerImage(r.imagen),detail:r.descripcionCompleta||"",largeImage:workerImage(r.imagenGrande),featured:!!r.destacado,album:r.album||"",albumFolder:"especialidades"}));   
 specialties.sort((a,b) => (a.featured === b.featured ? 0 : a.featured ? -1 : 1));   
-const grid=$("#specialties-grid");if(grid){grid.innerHTML=specialties.length?specialties.map((p,i)=>card(p,"specialty",i)).join(""):'<p class="loading-note">Próximamente descubrirás aquí mis especialidades.</p>';prepareSlider(grid,specialties.length);}   
+const grid=$("#specialties-grid");if(grid){grid.innerHTML=specialties.length?specialties.map((p,i)=>card(p,"specialty",i)).join(""):'<p class="loading-note">Próximamente descubrirás aquí mis especialidades.</p>';prepareSlider(grid,specialties.length);positionCardWatermarks(grid);}   
 }   
 async function loadGallery(){
 const rows=await getSheet("TRABAJOS");
@@ -315,9 +311,10 @@ if(grid){
  const tiles=categoryCards(gallery,"gallery");
  const old=grid.parentElement.querySelector(".category-tiles");
  if(old) old.remove();
- if(tiles){const wrap=document.createElement("div");wrap.className="category-tiles";wrap.setAttribute("aria-label","Categorías de trabajos");wrap.innerHTML=tiles;grid.parentElement.insertBefore(wrap,grid);}
+ if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><div class="category-tiles" aria-label="Categorías de trabajos">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);}
+ if(!grid.parentElement.querySelector(".products-section-title")){const h=document.createElement("h2");h.className="category-section-title products-section-title";h.textContent="Productos";grid.parentElement.insertBefore(h,grid);}
  grid.innerHTML=gallery.length?gallery.map((p,i)=>card(p,"gallery",i)).join(""):'<p class="loading-note">Próximamente descubrirás aquí mis trabajos.</p>';
- balanceGrid(grid,gallery.length);
+ balanceGrid(grid,gallery.length);positionCardWatermarks(grid);
 }
 if($("#category-grid")&&categoryParams().type==="gallery") renderCategoryLanding();
 }   
@@ -578,7 +575,7 @@ if(e.target.closest("#modal-img-wrapper")) {
  const img = $("#modal-image");  
  if(img && img.src && img.style.display !== "none") {  
  const fsImg = $("#fs-modal-image");  
- fsImg.src = workerModeUrl(modalPhotos[modalPhotoIndex]||img.src,"fullscreen");  
+ fsImg.src = workerModeUrl(modalPhotos[modalPhotoIndex]||img.src,"fullscreen");fsImg.alt=img.alt||"Imagen ampliada";  
  const fsModal = $("#fs-modal");  
  const pModal = $(".product-modal");  
  const fsContent = $(".fs-modal-content");  
@@ -695,9 +692,9 @@ function applyMaintenanceState(state){
 function showMaintenanceScreen(state){
  if(!state||!state.mode||state.mode==="normal")return applyMaintenanceState({mode:"normal"});
  const mode=state.mode,logo="assets/logo%20web.png",instagram="https://www.instagram.com/silviiacrea",contact="contacto.html#contact-form";
- const copy={construction:{title:"Web en construcción",message:"Estamos preparando un rincón lleno de creatividad. Muy pronto podrás descubrir todas las creaciones.",icon:"🛠️",className:"construction"},maintenance:{title:"Estamos realizando pequeños cuidados",message:"La web está en mantenimiento. Mientras tanto, puedes contactar con Silvia o seguir las novedades en Instagram.",icon:"🧵",className:"maintenance"},total:{title:"Volvemos muy pronto",message:"Estamos realizando trabajos de mantenimiento. Por ahora, puedes seguirnos en Instagram.",icon:"🌙",className:"total"}}[mode]||{title:"Estamos realizando pequeños cuidados",message:"La web está en mantenimiento.",icon:"🧵",className:"maintenance"};
+ const copy={construction:{title:"Web en construcción",message:"Estamos preparando un rincón lleno de creatividad. Muy pronto podrás descubrir todas las creaciones.",icon:"🛠️",className:"construction"},maintenance:{title:"Estamos realizando pequeños cuidados",message:"La web está en mantenimiento. Mientras tanto, puedes contactar con Silvia o seguir las novedades en Instagram.",icon:"🧵",className:"maintenance"},total:{title:"Volvemos muy pronto",message:"Estamos realizando trabajos de mantenimiento.",icon:"🌙",className:"total"}}[mode]||{title:"Estamos realizando pequeños cuidados",message:"La web está en mantenimiento.",icon:"🧵",className:"maintenance"};
  let overlay=$(".maintenance-screen");if(!overlay){overlay=document.createElement("div");overlay.className="maintenance-screen";document.body.appendChild(overlay);}
- const actions=mode==="total"?`<a class="btn btn-primary" href="${instagram}" target="_blank" rel="noopener">Instagram</a>`:`<div class="maintenance-actions"><button class="btn btn-primary" type="button" data-open-maint-contact>Formulario de contacto</button><a class="btn btn-soft" href="${instagram}" target="_blank" rel="noopener">Instagram</a></div><div class="maintenance-contact-overlay" id="maintenance-contact-overlay" aria-hidden="true"><div class="maintenance-contact-dialog" role="dialog" aria-modal="true" aria-labelledby="maintenance-contact-title"><button type="button" class="maintenance-contact-close" data-close-maint-contact aria-label="Cerrar formulario">×</button><h2 id="maintenance-contact-title">Contacta con Silvia</h2><form id="maintenance-contact"><label>Tu nombre<input name="Nombre" required autocomplete="name"></label><label>Email<input type="email" name="Email" required autocomplete="email"></label><label>Mensaje<textarea name="Mensaje" rows="3" required></textarea></label><button class="btn btn-primary" type="submit">Enviar mensaje</button><p id="maintenance-status" aria-live="polite"></p></form></div></div>`;
+ const actions=mode==="total"?`<div class="maintenance-total-follow"><span>Por ahora, puedes seguirnos en Instagram.</span><a class="btn btn-primary" href="${instagram}" target="_blank" rel="noopener">Instagram</a></div>`:`<div class="maintenance-actions"><button class="btn btn-primary" type="button" data-open-maint-contact>Formulario de contacto</button><a class="btn btn-soft" href="${instagram}" target="_blank" rel="noopener">Instagram</a></div><div class="maintenance-contact-overlay" id="maintenance-contact-overlay" aria-hidden="true"><div class="maintenance-contact-dialog" role="dialog" aria-modal="true" aria-labelledby="maintenance-contact-title"><button type="button" class="maintenance-contact-close" data-close-maint-contact aria-label="Cerrar formulario">×</button><h2 id="maintenance-contact-title">Contacta con Silvia</h2><form id="maintenance-contact"><label>Tu nombre<input name="Nombre" required autocomplete="name"></label><label>Email<input type="email" name="Email" required autocomplete="email"></label><label>Mensaje<textarea name="Mensaje" rows="3" required></textarea></label><button class="btn btn-primary" type="submit">Enviar mensaje</button><p id="maintenance-status" aria-live="polite"></p></form></div></div>`;
  overlay.innerHTML=`<section class="maintenance-card ${copy.className}" role="dialog" aria-modal="true"><img class="maintenance-logo" src="${logo}" alt="Silvia Crea"><div class="maintenance-icon" aria-hidden="true"><span class="maintenance-symbol">${copy.icon}</span><span class="maintenance-spark">✦</span></div><h1>${esc(copy.title)}</h1><p>${esc(state.message||copy.message)}</p>${actions}</section>`;
  document.body.classList.add("maintenance-active");document.body.classList.remove("maintenance-checking");
  maintenanceCurrentState=JSON.stringify({mode,message:state.message||""});
@@ -709,13 +706,9 @@ function showMaintenanceScreen(state){
  return true;
 }
 async function applyMaintenance(){
- const cached=readSiteCache();document.body.classList.add("maintenance-checking");
- const live=await fetchMaintenanceStatus();const state=live||{mode:"normal"};
- if(live&&cached){const updated={...cached.data,maintenance:state};writeSiteCache(updated);siteDataPromise=Promise.resolve(updated);}
- applyMaintenanceState(state);
- if(cached){siteDataPromise=siteDataPromise||Promise.resolve(cached.data);applyShopAccessImage(cached.data.imagenTiendaInicio||cached.data.shopImage||"");if(Date.now()-cached.savedAt>SITE_REFRESH_AFTER)refreshSiteDataInBackground();}
- else if(!live){try{const data=await fetchFreshSiteData();applyMaintenanceState(data.maintenance||{mode:"normal"});}catch{applyMaintenanceState({mode:"normal"});}}
- startMaintenancePolling();return state.mode!=="normal";
+ document.body.classList.add("maintenance-checking");
+ try{const data=await fetchFreshSiteData();const state=data.maintenance||{mode:"normal"};applyMaintenanceState(state);applyShopAccessImage(data.imagenTiendaInicio||data.shopImage||"");siteDataPromise=Promise.resolve(data);startMaintenancePolling();return state.mode!=="normal";}
+ catch{applyMaintenanceState({mode:"normal"});startMaintenancePolling();return false;}
 }
 
 function loadPageContent(){
