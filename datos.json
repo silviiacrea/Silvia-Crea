@@ -46,20 +46,6 @@
       "precioOferta": "",
       "album": "",
       "categoria": ""
-    },
-    {
-      "nombre": "Próximamente...",
-      "descripcion": "En proceso",
-      "precio": 0,
-      "imagen": "",
-      "stock": 0,
-      "descripcionCompleta": "En proceso",
-      "imagenGrande": "",
-      "destacado": false,
-      "oferta": false,
-      "precioOferta": "",
-      "album": "",
-      "categoria": ""
     }
   ],
   "especialidades": [
