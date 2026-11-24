@@ -2578,3 +2578,83 @@ body[data-page="home"] #specialties-grid.is-centered>.item-card{
     flex:none!important;
   }
 }
+
+
+/* VERSION 33 — correcciones finales de alineación, logotipo y dimensiones. */
+/* Tres especialidades: rejilla centrada de verdad, sin desplazamiento lateral. */
+@media(min-width:701px){
+  body[data-page="home"] #specialties-grid.is-centered{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    justify-content:center!important;
+    justify-items:stretch!important;
+    align-items:stretch!important;
+    width:100%!important;
+    max-width:1120px!important;
+    margin-inline:auto!important;
+    padding-inline:0!important;
+    gap:22px!important;
+    overflow:visible!important;
+  }
+  body[data-page="home"] #specialties-grid.is-centered>.item-card{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    margin:0!important;
+  }
+}
+/* La tienda y la galería comparten exactamente el mismo marco y contenido. */
+#products-grid>.item-card,
+#gallery-grid>.item-card{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+#products-grid>.item-card .image-wrapper,
+#gallery-grid>.item-card .image-wrapper{
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:5/4!important;
+  flex:0 0 auto!important;
+}
+#products-grid>.item-card .item-content,
+#gallery-grid>.item-card .item-content{
+  box-sizing:border-box!important;
+  min-height:245px!important;
+  margin-top:-10px!important;
+}
+/* Logotipo más alto para que no quede cubierto por el panel del nombre. */
+.item-card .card-logo-watermark{
+  display:block!important;
+  left:50%!important;
+  bottom:calc(var(--card-copy-height,160px) + 34px)!important;
+  z-index:4!important;
+  max-height:58px!important;
+  object-fit:contain!important;
+  pointer-events:none!important;
+}
+/* En galería, un desplazamiento mínimo a la derecha y algo más arriba. */
+#gallery-grid .gallery-card .card-logo-watermark{
+  left:calc(50% + 7px)!important;
+  bottom:calc(var(--card-copy-height,160px) + 40px)!important;
+}
+@media(max-width:900px) and (min-width:701px){
+  body[data-page="home"] #specialties-grid.is-centered{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:700px){
+  body[data-page="home"] #specialties-grid.is-centered{
+    display:flex!important;
+    flex-flow:column nowrap!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:100%!important;
+  }
+  body[data-page="home"] #specialties-grid.is-centered>.item-card{
+    width:100%!important;
+    max-width:460px!important;
+    flex:none!important;
+  }
+}
