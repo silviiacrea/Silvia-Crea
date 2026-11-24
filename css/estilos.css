@@ -1443,7 +1443,7 @@ body[data-page="home"] #specialties-grid.is-centered>.item-card{
 #product-modal .product-modal{position:fixed!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;max-height:calc(100dvh - 40px)!important;overflow-y:auto!important;scrollbar-width:none!important;}
 #product-modal .product-modal::-webkit-scrollbar{display:none!important;width:0!important;}
 body:has(#product-modal.open),html:has(#product-modal.open){overflow:hidden!important;}
-.item-card .card-logo-watermark{display:block!important;bottom:calc(var(--card-copy-height,160px) + 10px)!important;transform:translate(-50%,-8px)!important;}
+
 
 .order-contact-overlay{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(48,36,53,.48);opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s ease;box-sizing:border-box;overflow-y:auto;}
 .order-contact-overlay.open{opacity:1;visibility:visible;}
@@ -1454,3 +1454,41 @@ body:has(#product-modal.open),html:has(#product-modal.open){overflow:hidden!impo
 .order-contact-dialog .form-card{width:100%;max-width:none;padding:0;background:transparent;box-shadow:none;border:0;}
 .order-contact-close{position:absolute;right:14px;top:14px;z-index:2;}
 @media(max-width:520px){.order-contact-dialog{padding:26px 18px 20px;border-radius:20px;}.order-contact-dialog h2{font-size:26px;}}
+
+
+/* VERSION 9: especialidades amplias en una sola fila y marca de agua sin duplicado central. */
+body[data-page="home"] .home-slider-wrapper{
+ width:100%!important;max-width:1412px!important;margin-inline:auto!important;
+ padding:0 26px!important;box-sizing:border-box!important;overflow:visible!important;
+}
+body[data-page="home"] #specialties-grid.has-slider,
+body[data-page="home"] #specialties-grid.is-centered{
+ display:flex!important;flex-flow:row nowrap!important;align-items:stretch!important;
+ justify-content:center!important;gap:24px!important;width:100%!important;max-width:none!important;
+ padding:14px 0 20px!important;box-sizing:border-box!important;
+ overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none!important;
+ scroll-snap-type:x mandatory!important;scroll-behavior:smooth!important;
+}
+body[data-page="home"] #specialties-grid.has-slider{justify-content:flex-start!important;}
+body[data-page="home"] #specialties-grid.has-slider::-webkit-scrollbar,
+body[data-page="home"] #specialties-grid.is-centered::-webkit-scrollbar{display:none!important;width:0!important;height:0!important;}
+body[data-page="home"] #specialties-grid.has-slider>.item-card,
+body[data-page="home"] #specialties-grid.is-centered>.item-card{
+ flex:0 0 calc((100% - 72px)/4)!important;width:calc((100% - 72px)/4)!important;
+ min-width:0!important;max-width:none!important;margin:0!important;scroll-snap-align:start!important;
+}
+/* El logo correcto es el de la esquina, incorporado a la imagen por el Worker. */
+.item-card .card-logo-watermark{display:none!important;}
+@media(max-width:1020px){
+ body[data-page="home"] #specialties-grid.has-slider>.item-card,
+ body[data-page="home"] #specialties-grid.is-centered>.item-card{flex-basis:calc((100% - 48px)/3)!important;width:calc((100% - 48px)/3)!important;}
+}
+@media(max-width:760px){
+ body[data-page="home"] .home-slider-wrapper{padding:0 18px!important;}
+ body[data-page="home"] #specialties-grid.has-slider>.item-card,
+ body[data-page="home"] #specialties-grid.is-centered>.item-card{flex-basis:calc((100% - 24px)/2)!important;width:calc((100% - 24px)/2)!important;}
+}
+@media(max-width:520px){
+ body[data-page="home"] #specialties-grid.has-slider>.item-card,
+ body[data-page="home"] #specialties-grid.is-centered>.item-card{flex-basis:100%!important;width:100%!important;}
+}

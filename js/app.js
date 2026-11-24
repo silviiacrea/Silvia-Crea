@@ -22,7 +22,7 @@ function updateViewVars(e) {
     document.documentElement.style.setProperty('--scroll-y', `${scrollTop}px`);
     document.documentElement.style.setProperty('--view-h', `${vHeight}px`);
 }
-document.addEventListener("click",ev=>{const contactButton=ev.target.closest("[data-open-order-contact]");if(contactButton&&document.body.dataset.page==="orders"){ev.preventDefault();openOrderContact();}},true);
+document.addEventListener("click",ev=>{const contactButton=ev.target.closest("[data-open-order-contact]");if(contactButton&&document.body.dataset.page==="orders"){ev.preventDefault();ev.stopImmediatePropagation();openOrderContact();}},true);
 document.addEventListener("click", updateViewVars, true);
 document.addEventListener("touchstart", updateViewVars, {passive: true, capture: true});
 // La ficha queda fija a la pantalla; los gestos sobre el área exterior desplazan el documento de fondo.
