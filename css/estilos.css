@@ -2797,3 +2797,16 @@ body[data-page="home"] .home-slider-wrapper>#specialties-grid.has-slider>.item-c
 }
 /* V48: respetar los saltos de línea de las descripciones extensas. */
 .detail-description{white-space:pre-line;line-height:1.75}
+
+
+/* VERSION 56 — tarjetas de expectación no interactivas. */
+.coming-soon-card{cursor:default!important;transform:none!important;box-shadow:var(--shadow)!important;}
+.coming-soon-card:hover{transform:none!important;box-shadow:var(--shadow)!important;}
+.coming-soon-card .item-content{min-height:110px;justify-content:center;}
+.coming-soon-card .item-content h3{color:var(--lilac-dark);}
+.coming-soon-ribbon{position:absolute;z-index:5;top:14px;left:14px;padding:7px 13px;border:1px solid #ead9ef;border-radius:999px;background:linear-gradient(110deg,#f4eafa,#fff0f4);color:#765b89;font-size:12px;font-weight:800;letter-spacing:.02em;box-shadow:0 5px 16px #493b4d18;pointer-events:none;}
+.cart-drawer #checkout-view{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#bf9bcf transparent;overscroll-behavior:contain;}
+.cart-drawer #checkout-view::-webkit-scrollbar{width:3px;}
+.cart-drawer #checkout-view::-webkit-scrollbar-track{background:transparent;margin-block:8px;}
+.cart-drawer #checkout-view::-webkit-scrollbar-thumb{border-radius:999px;background:linear-gradient(180deg,#bf9bcf,#d99ab2);}
+.cart-drawer #checkout-view::-webkit-scrollbar-thumb:hover{background:#a987bd;}

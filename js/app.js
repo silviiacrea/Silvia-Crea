@@ -181,6 +181,10 @@ const money=v=>Number(String(v??"0").replace(/[€\s]/g,"").replace(/\./g,"").re
 const euro=v=>Number(v).toLocaleString("es-ES",{style:"currency",currency:"EUR"});   
 const safeImg=(url)=>/^https?:\/\//i.test(url||"")?url:"";
 const cleanCategory=value=>{const c=String(value??"").trim();return !c||c.toLowerCase()==="vacio"?"":c;};
+const isComingSoonName=value=>{
+ const normalized=String(value??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ return /^proximamente\.*$/.test(normalized);
+};
 const categoryParams=()=>{const q=new URLSearchParams(location.search);return {type:q.get("tipo")==="trabajos"?"gallery":"product",name:q.get("categoria")||""};};
 function sizeCategoryTiles(root){
  const tilesRoot=root?.querySelector(".category-tiles")||root;
@@ -212,7 +216,7 @@ window.addEventListener("resize",()=>{
 
 function categoryCards(items,type){
   const map=new Map();
-  items.forEach(item=>{const name=cleanCategory(item.category);if(name&&!map.has(name))map.set(name,true);});
+  items.forEach(item=>{if(isComingSoonName(item.name||item.title))return;const name=cleanCategory(item.category);if(name&&!map.has(name))map.set(name,true);});
   return [...map.keys()].sort((a,b)=>a.localeCompare(b,"es")).map((name,i)=>{
     const href="categoria.html?tipo="+(type==="gallery"?"trabajos":"tienda")+"&categoria="+encodeURIComponent(name);
     const row=Math.floor(i/6),column=i%6;
@@ -477,7 +481,17 @@ function balanceGrid(el,count){
 function positionCardWatermarks(root=document){root.querySelectorAll(".item-card").forEach(cardEl=>{const logo=cardEl.querySelector(".card-logo-watermark"),copy=cardEl.querySelector(".item-content");if(!logo||!copy)return;const sync=()=>{const h=copy.getBoundingClientRect().height;cardEl.style.setProperty("--card-copy-height",Math.ceil(h)+"px");logo.style.bottom=Math.ceil(h+18)+"px";};sync();if(!logo.dataset.measure){logo.dataset.measure="1";if("ResizeObserver" in window){const ro=new ResizeObserver(sync);ro.observe(copy);logo._cardRO=ro;}window.addEventListener("resize",sync,{passive:true});}});}
 function detailSlug(value){return String(value||"pieza").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"pieza";}
 function detailUrl(item,kind,index){const list=kind==="product"?products:kind==="specialty"?specialties:gallery;const base=detailSlug(item.name||item.title);const preceding=list.slice(0,index).filter(x=>detailSlug(x.name||x.title)===base).length;return (kind==="product"?"catalogo/":kind==="specialty"?"especialidades/":"trabajo/")+base+(preceding?"-"+(preceding+1):"")+"/";}
-function card(p,kind,index){   
+function card(p,kind,index){
+const name=p.name||p.title||"";
+if(isComingSoonName(name)){
+ const image=safeImg(p.image);
+ const teaserDescription=p.description||"Muy pronto descubrirás esta novedad.";
+ return `<article class="item-card coming-soon-card" data-coming-soon="true" aria-label="${esc(name)}. Próximamente">
+ <span class="coming-soon-ribbon">Próximamente</span>
+ ${image?`<div class="image-wrapper"><img class="item-image" src="${esc(workerModeUrl(image,kind==="product"?"card":kind==="specialty"?"specialty":"gallery"))}" alt="" loading="lazy" decoding="async" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}
+ <div class="item-content"><h3>${esc(name)}</h3><p>${esc(teaserDescription)}</p></div>
+ </article>`;
+}
 const image=safeImg(p.image), desc=p.description||p.desc||"";   
 const isProduct=kind==="product";   
 let metaHtml="";   
@@ -813,11 +827,11 @@ document.addEventListener("click",e=>{
 if(e.target.closest("[data-close-cart]"))closeCart();   
 const add=e.target.closest("[data-add]");if(add){e.stopPropagation();addProduct(products[Number(add.dataset.add)]);return;}   
 const detail=e.target.closest("[data-detail-card]");   
-if(detail){const i=Number(detail.dataset.index),kind=detail.dataset.detailCard;openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product", i, kind);return;}   
+if(detail&&!detail.closest("[data-coming-soon]")){const i=Number(detail.dataset.index),kind=detail.dataset.detailCard;openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product", i, kind);return;}   
 
 // Las tarjetas abren su vista previa; solo el enlace explícito navega a la ficha.
 const cardEl=e.target.closest("[data-card-kind]");
-if(cardEl&&!e.target.closest("button,a")){
+if(cardEl&&!cardEl.closest("[data-coming-soon]")&&!e.target.closest("button,a")){
  const i=Number(cardEl.dataset.index),kind=cardEl.dataset.cardKind;
  openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product", i, kind);
  return;
@@ -917,8 +931,9 @@ if(!checkoutView){
  <label>Comentario general<textarea id="customer-comment" rows="3" style="background:var(--lilac-card); border-color:#dfceeb;"></textarea></label>  
  <p class="small-note">El importe mostrado es estimado y no incluye los gastos de envío. En esta etapa no se realizará ningún cargo; Silvia contactará contigo para confirmar los detalles y el importe definitivo.<br><br><strong style="color:var(--pink-dark)">Nota importante:</strong> Actualmente solo realizamos envíos dentro de la Península.</p>  
  <button class="btn btn-primary full-width" id="submit-order" type="submit">Enviar solicitud de pedido</button>  
- </form>  
- `;  
+ </form>
+ `;
+ checkoutView.style.scrollbarWidth="thin";
  $(".cart-drawer").appendChild(checkoutView);  
  $("#order-form").addEventListener("submit",e=>{e.preventDefault();sendOrder();});  
  $("#back-to-cart").addEventListener("click",()=>{  

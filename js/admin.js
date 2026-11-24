@@ -74,10 +74,10 @@ async function loadWorkerHealth(){
  try{
   const d=await call('/admin/health',{},true,'GET');
   if(d.status!=='ok'||d.worker!=='normal'||d.kv!=='available')throw new Error(d.error||'La comprobación no ha sido satisfactoria.');
-  panel.className='admin-state normal';label.textContent='Worker Normal';
-  note.textContent='Worker y binding KV SITE_SETTINGS comprobados correctamente.';
+  panel.className='admin-state normal';label.textContent='Worker operativo al 100%';
+  note.textContent='';
  }catch(e){
-  panel.className='admin-state error';label.textContent='Worker Error';note.textContent=e.message;
+  panel.className='admin-state error';label.textContent='Worker Error: '+(e.message||'No se pudo completar la comprobación.');note.textContent='';
   sessionExpired(e);
  }
 }
