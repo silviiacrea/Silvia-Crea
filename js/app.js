@@ -141,6 +141,10 @@ async function fetchFreshSiteData(){
  throw new Error("No se pudo obtener datos.json. "+failures.join(" | "));
 }
 async function fetchMaintenanceStatus(){
+ // El modo propio del panel tiene prioridad. Si está en normal, se conserva
+ // íntegramente el mantenimiento/construcción que venga del Apps Script.
+ try{const base=(cfg.workerBaseUrl||"https://worker.silviacrea.es").replace(/\/$/,"");const r=await fetch(base+"/site-status?ts="+Date.now(),{cache:"no-store"});if(r.ok){const payload=await r.json(),state=payload.maintenance;if(state&&typeof state.mode==="string"&&state.mode!=="normal")return state;}}
+ catch(err){console.warn("No se pudo consultar el mantenimiento propio:",err);}
  try{const data=await fetchFreshSiteData();return data.maintenance&&typeof data.maintenance.mode==="string"?data.maintenance:{mode:"normal"};}
  catch(err){console.warn("No se pudo comprobar el estado de la web:",err);return null;}
 }
@@ -268,7 +272,7 @@ function workerModeUrl(src,mode){
   const u=new URL(normalized,location.href);
   if(u.hostname==="worker.silviacrea.es"&&u.pathname.startsWith("/i/")){
    u.searchParams.set("wm",mode);
-   u.searchParams.set("v","42");
+   u.searchParams.set("v","45.0");
    return u.href;
   }
  }catch{}
@@ -312,8 +316,10 @@ function setupModalAlbum(photos,mainSrc){
   if(thumbImages.every(x=>x.complete))requestAnimationFrame(()=>gallery.classList.remove("album-loading"));
 }
 
-function openProduct(p,isProduct=false,idx=0){   
-modalProduct=isProduct?p:null;   
+function openProduct(p,isProduct=false,idx=0,kind=isProduct?"product":"specialty"){   
+modalProduct=isProduct?p:null;
+const modalCopy=$("#product-modal .modal-copy");
+if(modalCopy){const targetKind=(kind==="product"||kind==="gallery")&&safeImg(p.largeImage||p.image)?kind:"";modalCopy.dataset.detailUrl=targetKind?detailUrl(p,targetKind,idx):"";modalCopy.classList.toggle("has-detail-link",!!targetKind);if(targetKind){modalCopy.setAttribute("role","link");modalCopy.setAttribute("tabindex","0");modalCopy.setAttribute("aria-label",`Abrir ficha completa de ${p.name||p.title||"este artículo"}`);}else{modalCopy.removeAttribute("role");modalCopy.setAttribute("tabindex","-1");modalCopy.removeAttribute("aria-label");}}   
 $("#modal-title").textContent=p.name||p.title||"";   
 $("#modal-description").textContent=p.detail||p.description||p.desc||"";   
 const priceEl=$("#modal-price");   
@@ -508,7 +514,7 @@ if(grid){
  const tiles=categoryCards(products,"product");
  const old=grid.parentElement.querySelector(".category-section-block");
  if(old) old.remove();
- if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Descubre las creaciones por temática y encuentra ese detalle especial que estás buscando.</p><div class="category-tiles" aria-label="Categorías de la tienda">${tiles}</div><a class="category-index-link" href="categorias-tienda.html">Ver todas las categorías de tienda</a>`;grid.parentElement.insertBefore(wrap,grid);sizeCategoryTiles(wrap);}
+ if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Descubre las creaciones por temática y encuentra ese detalle especial que estás buscando.</p><div class="category-tiles" aria-label="Categorías de la tienda">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);sizeCategoryTiles(wrap);}
  if(!grid.parentElement.querySelector(".products-section-title")){const h=document.createElement("h2");h.className="category-section-title products-section-title";h.textContent="Productos";grid.parentElement.insertBefore(h,grid);const d=document.createElement("p");d.className="category-section-description products-section-description";d.textContent="Todas las piezas disponibles, elaboradas con cariño y pensadas para regalar o disfrutar.";grid.parentElement.insertBefore(d,grid);}
  renderShopProducts($("#shop-search")?.value||"");
 }
@@ -529,7 +535,7 @@ if(grid){
  const tiles=categoryCards(gallery,"gallery");
  const old=grid.parentElement.querySelector(".category-section-block");
  if(old) old.remove();
- if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Explora los trabajos por tipo de creación y déjate inspirar por cada proyecto.</p><div class="category-tiles" aria-label="Categorías de trabajos">${tiles}</div><a class="category-index-link" href="categorias-trabajos.html">Ver todas las categorías de trabajos</a>`;grid.parentElement.insertBefore(wrap,grid);sizeCategoryTiles(wrap);}
+ if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Explora los trabajos por tipo de creación y déjate inspirar por cada proyecto.</p><div class="category-tiles" aria-label="Categorías de trabajos">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);sizeCategoryTiles(wrap);}
  if(!grid.parentElement.querySelector(".products-section-title")){const h=document.createElement("h2");h.className="category-section-title products-section-title";h.textContent="Trabajos";grid.parentElement.insertBefore(h,grid);const d=document.createElement("p");d.className="category-section-description products-section-description";d.textContent="Una selección de proyectos y creaciones que reflejan el cariño por cada detalle.";grid.parentElement.insertBefore(d,grid);}
  grid.innerHTML=gallery.length?gallery.map((p,i)=>card(p,"gallery",i)).join(""):'<p class="loading-note">Próximamente descubrirás aquí mis trabajos.</p>';
  balanceGrid(grid,gallery.length);positionCardWatermarks(grid);
@@ -793,14 +799,22 @@ document.addEventListener("click",e=>{
 if(e.target.closest("[data-close-cart]"))closeCart();   
 const add=e.target.closest("[data-add]");if(add){e.stopPropagation();addProduct(products[Number(add.dataset.add)]);return;}   
 const detail=e.target.closest("[data-detail-card]");   
-if(detail){const i=Number(detail.dataset.index),kind=detail.dataset.detailCard;openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product", i);return;}   
-  
+if(detail){const i=Number(detail.dataset.index),kind=detail.dataset.detailCard;openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product", i, kind);return;}   
+
+// En la superposición, toda la columna derecha (título, descripción y precio)
+// abre la ficha individual. Los botones mantienen su función propia.
+const modalCopy=e.target.closest("#product-modal .modal-copy");
+if(modalCopy&&!e.target.closest("button,a")){
+ const detailHref=modalCopy.dataset.detailUrl;
+ if(detailHref){window.open(detailHref,"_blank","noopener");return;}
+}
+
 const cardContent=e.target.closest(".item-content");
 if(cardContent&&!e.target.closest("button")){const parent=cardContent.closest("[data-card-kind]");if(parent){const i=Number(parent.dataset.index),kind=parent.dataset.cardKind;if(kind==="product"||kind==="gallery"){const item=kind==="product"?products[i]:gallery[i];const url=detailUrl(item,kind,i);window.open(url,"_blank","noopener");return;}}}
 const cardEl=e.target.closest("[data-card-kind]");   
 if(cardEl&&!e.target.closest("button")){   
 const i=Number(cardEl.dataset.index),kind=cardEl.dataset.cardKind;   
-openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product", i);   
+openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product", i, kind);   
 return;   
 }   
   
@@ -867,9 +881,17 @@ const walk = card ? (card.offsetWidth + 24) * 2 : 300;
  // ----------------------------------------------  
   
  const c=e.target.closest("[data-card-kind]");  
- if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault();const i=Number(c.dataset.index),kind=c.dataset.cardKind;if(kind==="product"||kind==="gallery"){window.open(detailUrl(kind==="product"?products[i]:gallery[i],kind,i),"_blank","noopener");}else openProduct(specialties[i],false,i);}  
+ if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault();const i=Number(c.dataset.index),kind=c.dataset.cardKind;if(kind==="product"||kind==="gallery"){window.open(detailUrl(kind==="product"?products[i]:gallery[i],kind,i),"_blank","noopener");}else openProduct(specialties[i],false,i,"specialty");}  
 });   
   
+document.addEventListener("keydown",e=>{
+ const modalCopy=e.target.closest?.("#product-modal .modal-copy");
+ if(modalCopy&&!e.target.closest("button,a")&&(e.key==="Enter"||e.key===" ")){
+  const href=modalCopy.dataset.detailUrl;
+  if(href){e.preventDefault();window.open(href,"_blank","noopener");}
+ }
+});
+
 document.addEventListener("input",e=>{
  const search=e.target.closest("#shop-search");
  if(search){renderShopProducts(search.value);return;}

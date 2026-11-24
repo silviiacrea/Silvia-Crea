@@ -1942,7 +1942,7 @@ body{animation:silviaPageEnter .22s ease-out both;}
 #gallery-grid.grid-count-2,
 #category-grid.grid-count-2{
   display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,min(360px,calc((100% - 22px)/2))))!important;
+  grid-template-columns:repeat(2,minmax(0,min(390px,calc((100% - 22px)/2))))!important;
   justify-content:center!important;
   justify-items:stretch!important;
   width:100%!important;
@@ -1996,7 +1996,7 @@ body{animation:silviaPageEnter .22s ease-out both;}
 }
 /* Solo una pareja se centra; las filas incompletas de 3+2 permanecen alineadas a la izquierda. */
 #products-grid.grid-count-2,#gallery-grid.grid-count-2,#category-grid.grid-count-2{
-  grid-template-columns:repeat(2,minmax(0,min(360px,calc((100% - 22px)/2))))!important;
+  grid-template-columns:repeat(2,minmax(0,min(390px,calc((100% - 22px)/2))))!important;
   justify-content:center!important;
   justify-items:stretch!important;
   margin-inline:auto!important;
@@ -2675,8 +2675,8 @@ body[data-page="home"] .home-slider-wrapper>#specialties-grid.has-slider>.item-c
  grid-template-columns:repeat(3,minmax(0,1fr))!important;
  align-items:stretch!important;
  justify-items:stretch!important;
- width:min(100%,1200px)!important;
- max-width:1200px!important;
+ width:min(100%,1280px)!important;
+ max-width:1280px!important;
  margin-inline:auto!important;
  column-gap:22px!important;
  row-gap:24px!important;
@@ -2776,9 +2776,20 @@ body[data-page="home"] .home-slider-wrapper>#specialties-grid.has-slider>.item-c
 @media(min-width:701px){
  #products-grid.balanced-card-grid.balanced-cols-2,
  #gallery-grid.balanced-card-grid.balanced-cols-2{
-  grid-template-columns:repeat(2,minmax(0,min(360px,calc((100% - 22px)/2))))!important;
+  grid-template-columns:repeat(2,minmax(0,min(390px,calc((100% - 22px)/2))))!important;
   justify-content:center!important;
   justify-items:stretch!important;
   margin-inline:auto!important;
  }
 }
+
+
+/* V44: la columna informativa de la superposición conduce a la ficha completa. */
+#product-modal .modal-copy.has-detail-link{cursor:pointer;position:relative}
+#product-modal .modal-copy.has-detail-link h2,
+#product-modal .modal-copy.has-detail-link p,
+#product-modal .modal-copy.has-detail-link #modal-price{cursor:pointer}
+#product-modal .modal-copy.has-detail-link:focus-visible{outline:2px solid var(--accent,#b66a9b);outline-offset:5px;border-radius:10px}
+#product-modal .modal-copy.has-detail-link::after{content:"Ver ficha completa ↗";display:inline-block;margin-top:12px;font-size:.78rem;letter-spacing:.02em;color:var(--accent,#9b5686);font-weight:600;opacity:.86}
+#product-modal .modal-copy.has-detail-link:hover h2{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+#product-modal .modal-copy.has-detail-link button{cursor:pointer}
