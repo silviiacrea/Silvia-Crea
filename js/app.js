@@ -315,7 +315,22 @@ function setupModalAlbum(photos,mainSrc){
   if(!next){next=document.createElement("button");next.type="button";next.id="modal-next";next.className="modal-stage-arrow";next.setAttribute("aria-label","Fotografía siguiente");next.textContent="›";next.addEventListener("click",()=>setModalPhoto(modalPhotoIndex+1));stage.appendChild(next);}
   let gallery=$("#modal-album");if(!gallery){gallery=document.createElement("div");gallery.id="modal-album";gallery.className="modal-album";stage.insertAdjacentElement("afterend",gallery);}
   const all=[mainSrc,...photos].filter(safeImg),seen=new Set();modalPhotos=all.filter(src=>{const key=imageIdentity(src);if(seen.has(key))return false;seen.add(key);return true;});modalPhotoIndex=0;
-  gallery.innerHTML="";gallery.classList.add("album-loading");gallery.style.display=modalPhotos.length>1?"flex":"none";gallery.style.justifyContent=modalPhotos.length<=5?"center":"flex-start";$("#product-modal")?.classList.toggle("has-album",modalPhotos.length>1);
+  // Las flechas solo se muestran cuando hay más de una fotografía real.
+  // Si la fila de Google Sheets no tiene álbum (o el álbum no aporta fotos
+  // adicionales a la imagen principal), no debe quedar navegación lateral.
+  const hasMultiplePhotos=modalPhotos.length>1;
+  [prev,next].forEach(button=>{
+    button.style.display=hasMultiplePhotos?"flex":"none";
+    button.setAttribute("aria-hidden",String(!hasMultiplePhotos));
+    button.tabIndex=hasMultiplePhotos?0:-1;
+  });
+  const fsPrev=$("#fs-prev"),fsNext=$("#fs-next");
+  [fsPrev,fsNext].filter(Boolean).forEach(button=>{
+    button.style.display="none";
+    button.setAttribute("aria-hidden","true");
+    button.tabIndex=-1;
+  });
+  gallery.innerHTML="";gallery.classList.add("album-loading");gallery.style.display=hasMultiplePhotos?"flex":"none";gallery.style.justifyContent=modalPhotos.length<=5?"center":"flex-start";$("#product-modal")?.classList.toggle("has-album",hasMultiplePhotos);
   const thumbImages=[];
   modalPhotos.forEach((src,i)=>{const b=document.createElement("button");b.type="button";b.className="album-thumb"+(i===0?" active":"");b.setAttribute("aria-label","Ver foto "+(i+1));const img=document.createElement("img");img.src=workerModeUrl(src,"thumb");img.alt="Foto "+(i+1);img.loading="eager";img.decoding="async";thumbImages.push(img);b.appendChild(img);img.addEventListener("load",()=>{img.classList.add("is-loaded");if(thumbImages.every(x=>x.complete))gallery.classList.remove("album-loading");},{once:true});img.addEventListener("error",()=>{img.classList.add("is-loaded");if(thumbImages.every(x=>x.complete))gallery.classList.remove("album-loading");},{once:true});if(img.complete&&img.naturalWidth>0)img.classList.add("is-loaded");b.addEventListener("click",()=>setModalPhoto(i));gallery.appendChild(b);});
   if(modalPhotos.length)setModalPhoto(0);else gallery.classList.remove("album-loading");
@@ -353,7 +368,7 @@ const m=$(".product-modal");
  if(m){m.classList.remove("theme-pink","theme-lilac");m.classList.add(idx%2===0?"theme-pink":"theme-lilac");}  
   
  setupModalAlbum([],src);
- if(p.album){
+ if(String(p.album||"").trim()){
    loadAlbumPhotos(p).then(photos=>{
      if(modalProduct===p || $("#modal-title").textContent===(p.name||p.title||"")) setupModalAlbum(photos,src);
    });
