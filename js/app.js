@@ -32,7 +32,24 @@ document.addEventListener("touchmove",ev=>{if(ev.target.closest?.("#product-moda
 // -----------------------------------------------------  
   
 const cfg = window.SILVIA_CONFIG || {};
-window.addEventListener("DOMContentLoaded",()=>{const fs=document.getElementById("fs-modal");if(fs&&fs.parentElement!==document.body)document.body.appendChild(fs);const pm=document.getElementById("product-modal");if(pm&&pm.parentElement!==document.body)document.body.appendChild(pm);},{once:true});   
+function updateSilviaVisualViewport(){
+ const vv=window.visualViewport;
+ const top=vv?vv.offsetTop:0,left=vv?vv.offsetLeft:0,width=vv?vv.width:window.innerWidth,height=vv?vv.height:window.innerHeight;
+ const root=document.documentElement;
+ root.style.setProperty("--silvia-vv-top",`${Math.max(0,top)}px`);
+ root.style.setProperty("--silvia-vv-left",`${Math.max(0,left)}px`);
+ root.style.setProperty("--silvia-vv-width",`${width}px`);
+ root.style.setProperty("--silvia-vv-height",`${height}px`);
+}
+updateSilviaVisualViewport();
+window.addEventListener("resize",updateSilviaVisualViewport,{passive:true});
+window.addEventListener("scroll",updateSilviaVisualViewport,{passive:true});
+if(window.visualViewport){window.visualViewport.addEventListener("resize",updateSilviaVisualViewport,{passive:true});window.visualViewport.addEventListener("scroll",updateSilviaVisualViewport,{passive:true});}
+window.addEventListener("DOMContentLoaded",()=>{
+ const fs=document.getElementById("fs-modal");if(fs&&fs.parentElement!==document.documentElement)document.documentElement.appendChild(fs);
+ const pm=document.getElementById("product-modal");if(pm&&pm.parentElement!==document.documentElement)document.documentElement.appendChild(pm);
+ updateSilviaVisualViewport();
+},{once:true});   
 const $ = (s, root=document) => root.querySelector(s); const $$ = (s, root=document) => [...root.querySelectorAll(s)];   
 const CART_KEY = "silviacrea_cart_v2";   
 let products = [], specialties = [], gallery = [], cart = loadCart(), modalProduct = null, toastTimer, modalPhotos = [], modalPhotoIndex = 0;
@@ -246,7 +263,8 @@ const m=$(".product-modal");
      if(modalProduct===p || $("#modal-title").textContent===(p.name||p.title||"")) setupModalAlbum(photos,src);
    });
  }
- $("#product-modal")?.classList.add("open");$("#product-modal")?.setAttribute("aria-hidden","false");document.body.style.overflow="";document.documentElement.style.overflow="";   
+ const productOverlay=$("#product-modal");if(productOverlay&&productOverlay.parentElement!==document.documentElement)document.documentElement.appendChild(productOverlay);updateSilviaVisualViewport();
+ productOverlay?.classList.add("open");productOverlay?.setAttribute("aria-hidden","false");document.body.style.overflow="";document.documentElement.style.overflow="";   
 }   
   
 function closeProduct(){$("#product-modal")?.classList.remove("open","has-album");$("#product-modal")?.setAttribute("aria-hidden","true");if(!$("#fs-modal")?.classList.contains("open")){document.body.style.overflow="";document.documentElement.style.overflow="";}}   
@@ -259,8 +277,9 @@ function prepareSlider(el,count){
  if(!left){left=document.createElement("button");left.type="button";left.className="slider-btn slider-btn-left";left.textContent="‹";left.setAttribute("aria-label","Anterior");wrapper.appendChild(left);}
  if(!right){right=document.createElement("button");right.type="button";right.className="slider-btn slider-btn-right";right.textContent="›";right.setAttribute("aria-label","Siguiente");wrapper.appendChild(right);}
  const visible=()=>window.innerWidth<=640?1:window.innerWidth<=900?2:3;
- const update=()=>{const active=count>visible();el.classList.toggle("has-slider",active);el.classList.toggle("is-centered",!active);el.setAttribute("aria-label",active?"Carrusel de especialidades":"Especialidades");left.hidden=!active;right.hidden=!active;el.scrollLeft=0;};
- const scroll=direction=>{const cards=[...el.querySelectorAll(".item-card")];if(!cards.length)return;const first=cards[0],second=cards[1];const gap=second?second.getBoundingClientRect().left-first.getBoundingClientRect().left:first.getBoundingClientRect().width;el.scrollBy({left:direction*gap,behavior:"smooth"});};
+ let lastVisible=visible();
+ const update=()=>{const v=visible(),active=count>v;el.classList.toggle("has-slider",active);el.classList.toggle("is-centered",!active);el.setAttribute("aria-label",active?"Carrusel de especialidades":"Especialidades");left.hidden=!active;right.hidden=!active;if(v!==lastVisible){el.scrollTo({left:0,behavior:"auto"});lastVisible=v;}};
+ const scroll=direction=>{const cards=[...el.querySelectorAll(".item-card")];if(!cards.length)return;const first=cards[0],second=cards[1];const step=second?Math.abs(second.getBoundingClientRect().left-first.getBoundingClientRect().left):first.getBoundingClientRect().width;const max=Math.max(0,el.scrollWidth-el.clientWidth);let target=el.scrollLeft+direction*step;if(direction>0&&target>max+2)target=0;if(direction<0&&target<0)target=max;el.scrollTo({left:target,behavior:"smooth"});};
  left.onclick=()=>scroll(-1);right.onclick=()=>scroll(1);
  if(!el.dataset.sliderResize){window.addEventListener("resize",update,{passive:true});el.dataset.sliderResize="1";}
  update();
@@ -607,6 +626,8 @@ if(e.target.closest("#modal-img-wrapper")) {
  const fsImg = $("#fs-modal-image");  
  fsImg.src = workerModeUrl(modalPhotos[modalPhotoIndex]||img.src,"fullscreen");fsImg.alt=img.alt||"Imagen ampliada";  
  const fsModal = $("#fs-modal");  
+ if(fsModal&&fsModal.parentElement!==document.documentElement)document.documentElement.appendChild(fsModal);
+ updateSilviaVisualViewport();
  const pModal = $(".product-modal");  
  const fsContent = $(".fs-modal-content");  
  fsContent.className = "fs-modal-content";   

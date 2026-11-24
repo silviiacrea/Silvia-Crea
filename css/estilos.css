@@ -12,12 +12,12 @@ body.is-leaving {
     animation: pageFadeOut 0.35s ease-in forwards;
 }
 @keyframes pageFadeIn {
-    0% { opacity: 0; transform: translateY(12px); }
-    100% { opacity: 1; transform: translateY(0); }
+    0% { opacity: 0; }
+    100% { opacity: 1; }
 }
 @keyframes pageFadeOut {
-    0% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-12px); }
+    0% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
 /* SISTEMA UNIVERSAL DE PULSACIONES (Pantallas táctiles y móviles) */  
@@ -1035,3 +1035,217 @@ html,body{overflow-x:hidden!important;overscroll-behavior-x:none!important;width
 #fs-modal .fs-modal-content{position:relative!important;top:auto!important;left:auto!important;transform:none!important;margin:0!important;max-width:calc(100vw - 96px)!important;max-height:calc(100dvh - 24px)!important;overflow:hidden!important;}
 #fs-modal #fs-modal-image{width:auto!important;height:auto!important;max-width:calc(100vw - 96px)!important;max-height:calc(100dvh - 24px)!important;object-fit:contain!important;}
 @media(max-width:700px){#fs-modal .fs-modal-content,#fs-modal #fs-modal-image{max-width:calc(100vw - 76px)!important;max-height:calc(100dvh - 24px)!important;}}
+
+
+/* ================= V7 — correcciones visuales y de viewport ================= */
+
+/* Mis especialidades: sin panel translúcido rectangular detrás de la sección. */
+body[data-page="home"] .section.tinted{
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body[data-page="home"] #specialties-grid,
+body[data-page="home"] .home-slider-wrapper{
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+/* Tarjetas: clipping real de imagen, badges y marca de agua dentro del radio.
+   Sin sombra oscura cuadrada al pasar el cursor. */
+.item-card,
+.item-card:hover,
+.item-card:focus-within{
+  position:relative!important;
+  overflow:hidden!important;
+  border-radius:22px!important;
+  clip-path:inset(0 round 22px)!important;
+  box-shadow:none!important;
+  filter:none!important;
+  transform:none!important;
+  isolation:isolate!important;
+}
+.item-card .image-wrapper{
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  border-radius:21px 21px 0 0!important;
+  clip-path:inset(0 round 21px 21px 0 0)!important;
+  flex:0 0 auto!important;
+}
+.item-card .image-wrapper > img,
+.item-card .image-wrapper .item-image{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  border-radius:inherit!important;
+}
+.item-card .featured-label,
+.item-card .offer-label,
+.item-card .card-logo-watermark{
+  max-width:calc(100% - 24px)!important;
+  z-index:4!important;
+}
+
+/* Carrusel de inicio: ocupa el mismo ancho útil que el bloque de presentación.
+   Las flechas quedan en los márgenes exteriores y no reducen el ancho de las 3 tarjetas. */
+body[data-page="home"] .home-slider-wrapper{
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  max-width:1412px!important;
+  margin:0 auto!important;
+  padding:0 54px!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+}
+body[data-page="home"] #specialties-grid.has-slider{
+  display:flex!important;
+  flex-flow:row nowrap!important;
+  justify-content:flex-start!important;
+  align-items:stretch!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  gap:22px!important;
+  padding:12px 0 18px!important;
+  margin:0!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scroll-snap-type:x mandatory!important;
+  scroll-behavior:smooth!important;
+  scrollbar-width:none!important;
+  box-sizing:border-box!important;
+}
+body[data-page="home"] #specialties-grid.has-slider::-webkit-scrollbar{display:none!important;}
+body[data-page="home"] #specialties-grid.has-slider > .item-card{
+  flex:0 0 calc((100% - 44px)/3)!important;
+  width:calc((100% - 44px)/3)!important;
+  min-width:0!important;
+  max-width:none!important;
+  scroll-snap-align:start!important;
+}
+body[data-page="home"] #specialties-grid.is-centered{
+  display:flex!important;
+  flex-flow:row nowrap!important;
+  justify-content:center!important;
+  align-items:stretch!important;
+  width:100%!important;
+  max-width:none!important;
+  gap:22px!important;
+  padding:12px 0 18px!important;
+  margin:0!important;
+  overflow:visible!important;
+}
+body[data-page="home"] #specialties-grid.is-centered > .item-card{
+  flex:0 1 calc((100% - 44px)/3)!important;
+  width:calc((100% - 44px)/3)!important;
+  max-width:none!important;
+  min-width:0!important;
+}
+body[data-page="home"] .home-slider-wrapper .slider-btn{
+  position:absolute!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  z-index:30!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:42px!important;
+  height:42px!important;
+  box-shadow:0 4px 14px rgba(107,78,117,.10)!important;
+}
+body[data-page="home"] .home-slider-wrapper .slider-btn[hidden]{display:none!important;}
+body[data-page="home"] .home-slider-wrapper .slider-btn-left{left:0!important;}
+body[data-page="home"] .home-slider-wrapper .slider-btn-right{right:0!important;}
+@media(max-width:900px){
+  body[data-page="home"] .home-slider-wrapper{padding-inline:46px!important;}
+  body[data-page="home"] #specialties-grid.has-slider > .item-card,
+  body[data-page="home"] #specialties-grid.is-centered > .item-card{
+    flex-basis:calc((100% - 22px)/2)!important;
+    width:calc((100% - 22px)/2)!important;
+  }
+}
+@media(max-width:640px){
+  body[data-page="home"] .home-slider-wrapper{padding-inline:38px!important;}
+  body[data-page="home"] #specialties-grid.has-slider > .item-card,
+  body[data-page="home"] #specialties-grid.is-centered > .item-card{
+    flex-basis:100%!important;width:100%!important;max-width:none!important;
+  }
+  body[data-page="home"] #specialties-grid{gap:0!important;}
+  body[data-page="home"] .home-slider-wrapper .slider-btn{width:34px!important;height:34px!important;}
+}
+
+/* Modales siempre referenciados al viewport visual, nunca al inicio del documento.
+   Las variables se actualizan desde visualViewport en JS. */
+#product-modal.modal-backdrop,
+#fs-modal.fs-modal-backdrop{
+  position:fixed!important;
+  top:var(--silvia-vv-top,0px)!important;
+  left:var(--silvia-vv-left,0px)!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:var(--silvia-vv-width,100vw)!important;
+  height:var(--silvia-vv-height,100dvh)!important;
+  min-height:var(--silvia-vv-height,100dvh)!important;
+  max-height:var(--silvia-vv-height,100dvh)!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+}
+#product-modal.modal-backdrop{
+  display:none!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  padding:clamp(10px,2vw,24px)!important;
+  z-index:2147481000!important;
+}
+#product-modal.open{display:flex!important;}
+#product-modal .product-modal{
+  position:relative!important;
+  inset:auto!important;
+  top:auto!important;
+  left:auto!important;
+  transform:none!important;
+  margin:auto!important;
+  max-height:calc(var(--silvia-vv-height,100dvh) - 24px)!important;
+}
+#fs-modal.fs-modal-backdrop{
+  display:none!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  padding:12px!important;
+  z-index:2147482000!important;
+}
+#fs-modal.open{display:flex!important;}
+#fs-modal .fs-modal-content{
+  position:relative!important;
+  inset:auto!important;
+  top:auto!important;
+  left:auto!important;
+  transform:none!important;
+  margin:0!important;
+  max-width:calc(var(--silvia-vv-width,100vw) - 96px)!important;
+  max-height:calc(var(--silvia-vv-height,100dvh) - 24px)!important;
+  overflow:hidden!important;
+}
+#fs-modal #fs-modal-image{
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:calc(var(--silvia-vv-width,100vw) - 96px)!important;
+  max-height:calc(var(--silvia-vv-height,100dvh) - 24px)!important;
+  object-fit:contain!important;
+}
+@media(max-width:700px){
+  #product-modal .product-modal{max-height:calc(var(--silvia-vv-height,100dvh) - 16px)!important;}
+  #fs-modal .fs-modal-content,
+  #fs-modal #fs-modal-image{
+    max-width:calc(var(--silvia-vv-width,100vw) - 76px)!important;
+    max-height:calc(var(--silvia-vv-height,100dvh) - 24px)!important;
+  }
+}
