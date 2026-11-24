@@ -1,6 +1,8 @@
 (()=>{
 const API='https://worker.silviacrea.es', $=id=>document.getElementById(id);
-const login=$('login-panel'),control=$('control-panel'),status=$('admin-status');
+const login=$('login-panel'),control=$('control-panel'),status=$('admin-status'),notice=$('admin-notice');
+let noticeTimer=null;
+function notify(message){if(!notice)return;notice.textContent=message;notice.hidden=false;clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>{notice.hidden=true;notice.textContent='';},6500);}
 let token=sessionStorage.getItem('silvia_admin_session')||'';
 async function call(path,body={},auth=false,method='POST'){
  const r=await fetch(API+path,{method,cache:'no-store',headers:{'Content-Type':'application/json',...(auth?{Authorization:'Bearer '+token}:{})},...(method==='GET'?{}:{body:JSON.stringify(body)})});
@@ -122,13 +124,14 @@ async function setMode(mode,button){
  finally{button.disabled=false;}
 }
 show();
-$('login-form').addEventListener('submit',async e=>{e.preventDefault();status.textContent='Comprobando acceso…';try{const d=await call('/admin/login',{username:$('admin-user').value,password:$('admin-pass').value});token=d.token;sessionStorage.setItem('silvia_admin_session',token);$('admin-pass').value='';show();status.textContent='Acceso autorizado.';}catch(err){status.textContent=err.message;}});
+$('login-form').addEventListener('submit',async e=>{e.preventDefault();status.textContent='Comprobando acceso…';try{const d=await call('/admin/login',{username:$('admin-user').value,password:$('admin-pass').value});token=d.token;sessionStorage.setItem('silvia_admin_session',token);$('admin-pass').value='';show();notify('Acceso autorizado. Sesión iniciada correctamente.');}catch(err){status.textContent=err.message;}});
 $('set-normal').addEventListener('click',e=>setMode('normal',e.currentTarget));
 $('set-maintenance').addEventListener('click',e=>setMode('maintenance',e.currentTarget));
 $('recheck-version')?.addEventListener('click',checkPublishedVersion);
 $('refresh-orders')?.addEventListener('click',loadOrderStats);
 $('refresh-worker-health')?.addEventListener('click',loadWorkerHealth);
 $('run-generation').addEventListener('click',async()=>{if(!confirm('¿Quieres regenerar y publicar ahora todas las páginas de catálogo, trabajos y el sitemap?'))return;const b=$('run-generation');b.disabled=true;status.textContent='Enviando solicitud a GitHub Actions…';try{const d=await call('/admin/generate',{},true);status.textContent=d.message||'Solicitud aceptada por GitHub.';}catch(e){status.textContent='No se pudo solicitar la actualización SEO: '+e.message;sessionExpired(e);}finally{b.disabled=false;}});
+$('run-indexnow')?.addEventListener('click',async()=>{if(!confirm('Se enviarán a IndexNow todas las URL públicas del sitemap actual. ¿Quieres continuar?'))return;const b=$('run-indexnow'),note=$('indexnow-note');b.disabled=true;note.textContent='Comprobando la clave y el sitemap; después se enviarán las URL…';status.textContent='Enviando las URL del sitemap a IndexNow…';try{const d=await call('/admin/indexnow',{},true);note.textContent=d.message||('IndexNow ha aceptado '+d.notified+' URL.');status.textContent=note.textContent;if(Array.isArray(d.results))note.textContent+=' Lotes: '+d.results.map(x=>'HTTP '+x.status).join(', ')+'.';}catch(e){note.textContent='No se pudo actualizar IndexNow: '+e.message;status.textContent=note.textContent;sessionExpired(e);}finally{b.disabled=false;}});
 
 let cleanupPreview=null;
 function resetCleanup(){cleanupPreview=null;const result=$('cleanup-result'),button=$('execute-cleanup'),list=$('cleanup-list');if(result)result.hidden=true;if(button){button.hidden=true;button.disabled=true;}if(list)list.replaceChildren();}
