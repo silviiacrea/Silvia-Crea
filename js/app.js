@@ -52,11 +52,16 @@ function workerImage(url){
   }catch{return "";}
 }
 const SITE_CACHE_KEY="silviacrea_site_data_v4";
-const SITE_REFRESH_AFTER=15*60*1000;
+const SITE_REFRESH_AFTER=60*1000;
+const MAINTENANCE_CHECK_INTERVAL=30*1000;
+let maintenancePollTimer=null, pageContentLoaded=false, maintenanceCurrentState=null;
 let siteDataPromise=null,siteRefreshPromise=null;
 function readSiteCache(){try{const c=JSON.parse(localStorage.getItem(SITE_CACHE_KEY)||"null");return c&&c.data&&(c.data.catalogo||c.data.trabajos||c.data.especialidades)?c:null;}catch{return null;}}
 function writeSiteCache(data){try{localStorage.setItem(SITE_CACHE_KEY,JSON.stringify({savedAt:Date.now(),data}));}catch(e){}}
 function validSiteData(data){return !!(data&&(Array.isArray(data.catalogo)||Array.isArray(data.trabajos)||Array.isArray(data.especialidades)));}
+function maintenanceStatusUrl(){try{const u=new URL(cfg.appsScriptUrl);u.searchParams.set("action","status");u.searchParams.set("v",String(Date.now()));return u.href;}catch{return "";}}
+async function fetchMaintenanceStatus(){const url=maintenanceStatusUrl();if(!url)return null;const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),4500);try{const r=await fetch(url,{cache:"no-store",signal:controller.signal});if(!r.ok)return null;const d=await r.json();return d&&typeof d.mode==="string"?d:(d&&d.maintenance)||null;}catch{return null;}finally{clearTimeout(timer);}}
+function startMaintenancePolling(){if(maintenancePollTimer)return;maintenancePollTimer=setInterval(async()=>{const state=await fetchMaintenanceStatus();if(state)applyMaintenanceState(state);},MAINTENANCE_CHECK_INTERVAL);}
 async function fetchFreshSiteData(){
   const urls=[cfg.dataJsonUrl?cfg.dataJsonUrl+(cfg.dataJsonUrl.includes("?")?"&":"?")+"v="+Date.now():"",cfg.appsScriptUrl?cfg.appsScriptUrl+"?action=data":""].filter(Boolean);
   let lastError;
@@ -168,11 +173,11 @@ async function loadAlbumPhotos(item){
     "?folder="+encodeURIComponent(group)+"&name="+encodeURIComponent(album);
   try{
     const response=await fetch(endpoint,{cache:"default"});
-    if(!response.ok) return [];
+    if(!response.ok){console.warn("Album Worker respondió",response.status,endpoint);return [];}
     const data=await response.json();
     const photos=Array.isArray(data)?data:(data.images||data.photos||[]);
-    return photos.map(x=>typeof x==="string"?x:(x.url||x.src||x.downloadUrl||"")).filter(safeImg).map(x=>workerModeUrl(x,"card"));
-  }catch{return [];}
+    return photos.map(x=>typeof x==="string"?x:(x.url||x.src||x.downloadUrl||"")).filter(safeImg).map(x=>workerModeUrl(x,"thumb"));
+  }catch(err){console.warn("No se pudo cargar el álbum",item.album,err);return [];}
 }
 function setModalPhoto(index){
   if(!modalPhotos.length)return;
@@ -190,7 +195,7 @@ function setupModalAlbum(photos,mainSrc){
   let gallery=$("#modal-album");if(!gallery){gallery=document.createElement("div");gallery.id="modal-album";gallery.className="modal-album";stage.insertAdjacentElement("afterend",gallery);}
   const all=[mainSrc,...photos].filter(safeImg),seen=new Set();modalPhotos=all.filter(src=>{const key=imageIdentity(src);if(seen.has(key))return false;seen.add(key);return true;});modalPhotoIndex=0;
   gallery.innerHTML="";gallery.style.display=modalPhotos.length>1?"flex":"none";
-  modalPhotos.forEach((src,i)=>{const b=document.createElement("button");b.type="button";b.className="album-thumb"+(i===0?" active":"");b.setAttribute("aria-label","Ver foto "+(i+1));const img=document.createElement("img");img.src=workerModeUrl(src,"card");img.alt="Foto "+(i+1);img.loading="lazy";img.decoding="async";b.appendChild(img);b.addEventListener("click",()=>setModalPhoto(i));gallery.appendChild(b);});
+  modalPhotos.forEach((src,i)=>{const b=document.createElement("button");b.type="button";b.className="album-thumb"+(i===0?" active":"");b.setAttribute("aria-label","Ver foto "+(i+1));const img=document.createElement("img");img.src=workerModeUrl(src,"thumb");img.alt="Foto "+(i+1);img.loading="lazy";img.decoding="async";b.appendChild(img);b.addEventListener("click",()=>setModalPhoto(i));gallery.appendChild(b);});
   if(modalPhotos.length)setModalPhoto(0);
 }
 
@@ -266,7 +271,7 @@ const classes=["item-card",kind==="gallery"?"gallery-card":"",p.featured?"is-fea
   
 return `<article class="${classes}" data-card-kind="${kind}" data-index="${index}" tabindex="0" role="group" aria-label="${esc(p.name||p.title)}. Pulsa para ver el detalle">   
 ${featured}${offer}   
-${image?`<div class="image-wrapper"><img class="item-image" src="${esc(image)}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
+${image?`<div class="image-wrapper"><img class="item-image" src="${esc(workerModeUrl(image,kind==="gallery"?"gallery":"card"))}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
 <div class="item-content"><h3>${esc(p.name||p.title)}</h3><p>${esc(desc)}</p>   
 ${metaHtml}  
 <div class="item-actions"><button class="mini-btn detail-button" type="button" data-detail-card="${kind}" data-index="${index}">Ver detalles</button>${isProduct?`<button class="mini-btn add-button" type="button" data-add="${index}" ${p.stock<=0?"disabled":""}>Añadir carrito</button>`:''}</div>   
@@ -665,32 +670,52 @@ $(".drawer-head .eyebrow").textContent = "Un último paso";
 });   
 $("#contact-form")?.addEventListener("submit",sendContact);   
 $("#year").textContent=new Date().getFullYear();initMenu();updateCart();
+function applyMaintenanceState(state){
+ const mode=state&&state.mode?state.mode:"normal";
+ if(mode==="normal"){
+   const wasActive=document.body.classList.contains("maintenance-active");
+   document.body.classList.remove("maintenance-active","maintenance-checking");
+   const old=$(".maintenance-screen");if(old)old.remove();maintenanceCurrentState=null;
+   if(wasActive&&pageContentLoaded)loadPageContent();
+   return false;
+ }
+ const signature=JSON.stringify({mode,message:state.message||""});
+ if(document.body.classList.contains("maintenance-active")&&maintenanceCurrentState===signature)return true;
+ return showMaintenanceScreen(state);
+}
 function showMaintenanceScreen(state){
- if(!state||!state.mode||state.mode==="normal"||document.body.classList.contains("maintenance-active"))return false;
- const logo="assets/logo%20web.png",instagram="https://www.instagram.com/silviiacrea";
- const overlay=document.createElement("div");overlay.className="maintenance-screen";
- overlay.innerHTML=`<div class="maintenance-card"><img class="maintenance-logo" src="${logo}" alt="Silvia Crea"><div class="maintenance-decor">✿　♡　✧</div><h1>${state.mode==="construction"?"Web en construcción":state.mode==="total"?"Pausa creativa":"Estamos realizando pequeños cambios"}</h1><p>${esc(state.message|| (state.mode==="construction"?"La web está en construcción. Muy pronto volveremos con nuevas creaciones.":state.mode==="total"?"Estamos trabajando para volver lo antes posible. Mientras tanto, puedes seguirnos en Instagram.":"La web está en mantenimiento. Puedes contactar con Silvia mientras terminamos."))}</p>${state.mode==="total"?`<a class="btn btn-primary" href="${instagram}" target="_blank" rel="noopener">Instagram</a>`:`<a class="btn btn-soft" href="${instagram}" target="_blank" rel="noopener">Instagram</a>${state.mode==="maintenance"?`<form id="maintenance-contact"><label>Tu nombre<input name="Nombre" required></label><label>Email<input type="email" name="Email" required></label><label>Mensaje<textarea name="Mensaje" rows="4" required></textarea></label><button class="btn btn-primary" type="submit">Enviar mensaje</button><p id="maintenance-status" aria-live="polite"></p></form>`:""}`}</div>`;
- document.body.appendChild(overlay);document.body.classList.add("maintenance-active");
+ if(!state||!state.mode||state.mode==="normal")return applyMaintenanceState({mode:"normal"});
+ const mode=state.mode,logo="assets/logo%20web.png",instagram="https://www.instagram.com/silviiacrea",contact="contacto.html#contact-form";
+ const copy={construction:{title:"Web en construcción",message:"Estamos preparando un rincón lleno de creatividad. Muy pronto podrás descubrir todas las creaciones.",icon:"🛠️",className:"construction"},maintenance:{title:"Estamos realizando pequeños cuidados",message:"La web está en mantenimiento. Mientras tanto, puedes contactar con Silvia o seguir las novedades en Instagram.",icon:"🧵",className:"maintenance"},total:{title:"Volvemos muy pronto",message:"Estamos realizando trabajos de mantenimiento. Por ahora, puedes seguirnos en Instagram.",icon:"🌙",className:"total"}}[mode]||{title:"Estamos realizando pequeños cuidados",message:"La web está en mantenimiento.",icon:"🧵",className:"maintenance"};
+ let overlay=$(".maintenance-screen");if(!overlay){overlay=document.createElement("div");overlay.className="maintenance-screen";document.body.appendChild(overlay);}
+ const actions=mode==="total"?`<a class="btn btn-primary" href="${instagram}" target="_blank" rel="noopener">Instagram</a>`:`<div class="maintenance-actions"><a class="btn btn-primary" href="#maintenance-contact">Formulario de contacto</a><a class="btn btn-soft" href="${instagram}" target="_blank" rel="noopener">Instagram</a></div><form id="maintenance-contact" class="maintenance-contact"><label>Tu nombre<input name="Nombre" required autocomplete="name"></label><label>Email<input type="email" name="Email" required autocomplete="email"></label><label>Mensaje<textarea name="Mensaje" rows="3" required></textarea></label><button class="btn btn-primary" type="submit">Enviar mensaje</button><p id="maintenance-status" aria-live="polite"></p></form>`;
+ overlay.innerHTML=`<section class="maintenance-card ${copy.className}" role="dialog" aria-modal="true"><img class="maintenance-logo" src="${logo}" alt="Silvia Crea"><div class="maintenance-icon" aria-hidden="true"><span class="maintenance-symbol">${copy.icon}</span><span class="maintenance-spark">✦</span></div><h1>${esc(copy.title)}</h1><p>${esc(state.message||copy.message)}</p>${actions}</section>`;
+ document.body.classList.add("maintenance-active");document.body.classList.remove("maintenance-checking");
+ maintenanceCurrentState=JSON.stringify({mode,message:state.message||""});
  const form=$("#maintenance-contact",overlay);form?.addEventListener("submit",async ev=>{ev.preventDefault();const status=$("#maintenance-status",overlay),button=form.querySelector("button");button.disabled=true;status.textContent="Enviando…";try{const fd=new FormData(form),data={action:"contact"};fd.forEach((v,k)=>data[k]=v);const r=await fetch(cfg.appsScriptUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data)});const out=await r.json();if(out.status!=="success")throw new Error(out.message||"No se pudo enviar");status.textContent="Mensaje enviado. Gracias por contactar.";form.reset();}catch(err){status.textContent="No se ha podido enviar. Escríbenos por Instagram.";}finally{button.disabled=false;}});
  return true;
 }
 async function applyMaintenance(){
- const cached=readSiteCache();
- if(cached){
-   const state=cached.data.maintenance||{mode:"normal"};
-   if(showMaintenanceScreen(state))return true;
-   if(Date.now()-cached.savedAt>SITE_REFRESH_AFTER){refreshSiteDataInBackground().then(fresh=>{if(fresh&&fresh.maintenance)showMaintenanceScreen(fresh.maintenance);});}
-   return false;
- }
- try{const data=await getSiteData();return showMaintenanceScreen(data.maintenance||{mode:"normal"});}
- catch{return false;}
+ const cached=readSiteCache(),cachedState=cached?.data?.maintenance||{mode:"normal"};
+ // An active cached maintenance screen is shown immediately while checking the live sheet state.
+ if(cachedState.mode&&cachedState.mode!=="normal")showMaintenanceScreen(cachedState);
+ else document.body.classList.add("maintenance-checking");
+ const live=await fetchMaintenanceStatus();
+ const state=live||cachedState;
+ applyMaintenanceState(state);
+ if(cached){siteDataPromise=Promise.resolve(cached.data);applyShopAccessImage(cached.data.imagenTiendaInicio||cached.data.shopImage||"");if(Date.now()-cached.savedAt>SITE_REFRESH_AFTER)refreshSiteDataInBackground();}
+ else if(!live){try{const data=await getSiteData();applyMaintenanceState(data.maintenance||{mode:"normal"});}catch{document.body.classList.remove("maintenance-checking");return false;}}
+ startMaintenancePolling();
+ return state.mode!=="normal";
 }
-applyMaintenance().then(active=>{
- if(active)return;
+
+function loadPageContent(){
+ if(pageContentLoaded)return;pageContentLoaded=true;
  if($("#products-grid"))loadProducts().catch(()=>showLoadError("#products-grid"));
  if($("#specialties-grid"))loadSpecialties().catch(()=>showLoadError("#specialties-grid"));
  if($("#gallery-grid"))loadGallery().catch(()=>showLoadError("#gallery-grid"));
  if($("#category-grid"))Promise.all([loadProducts(),loadGallery()]).catch(()=>showLoadError("#category-grid"));
-});
+}
+applyMaintenance().then(active=>{if(!active)loadPageContent();});
 
 })();
