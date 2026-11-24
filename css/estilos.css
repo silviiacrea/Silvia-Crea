@@ -1369,3 +1369,49 @@ body[data-page="home"] .home-slider-wrapper .slider-btn-right{right:0!important;
 }
 #product-modal .modal-stage-arrow[style*="display: none"],
 #product-modal .modal-stage-arrow[style*="display:none"]{display:none!important;}
+
+
+/* Ajustes iterativos: carrusel adaptable y marcas de agua */
+body[data-page="home"] .home-slider-wrapper{
+ width:min(100%,1284px)!important;max-width:1284px!important;margin-inline:auto!important;
+ padding:0 54px!important;box-sizing:border-box!important;overflow:visible!important;
+}
+body[data-page="home"] #specialties-grid.has-slider{
+ display:flex!important;flex-wrap:nowrap!important;gap:26px!important;width:100%!important;
+ max-width:none!important;padding:14px 0 20px!important;overflow-x:auto!important;overflow-y:hidden!important;
+ scroll-snap-type:x mandatory!important;scrollbar-width:none!important;scroll-behavior:smooth!important;
+}
+body[data-page="home"] #specialties-grid.has-slider::-webkit-scrollbar{display:none!important;}
+body[data-page="home"] #specialties-grid.has-slider>.item-card{
+ flex:0 0 calc((100% - 78px)/4)!important;width:calc((100% - 78px)/4)!important;max-width:none!important;scroll-snap-align:start!important;
+}
+body[data-page="home"] #specialties-grid.is-centered{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))!important;justify-content:center!important;}
+body[data-page="home"] .home-slider-wrapper .slider-btn[hidden]{display:none!important;}
+body[data-page="home"] .home-slider-wrapper .slider-btn{z-index:5!important;}
+@media(max-width:1020px){body[data-page="home"] #specialties-grid.has-slider>.item-card{flex-basis:calc((100% - 52px)/3)!important;width:calc((100% - 52px)/3)!important;}}
+@media(max-width:760px){body[data-page="home"] #specialties-grid.has-slider>.item-card{flex-basis:calc((100% - 26px)/2)!important;width:calc((100% - 26px)/2)!important;}}
+@media(max-width:520px){body[data-page="home"] .home-slider-wrapper{padding:0 42px!important;}body[data-page="home"] #specialties-grid.has-slider>.item-card{flex-basis:100%!important;width:100%!important;}}
+
+/* Categorías: centradas y con botones compactos, iguales entre sí. */
+.category-section-block{width:100%!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;margin:0 auto 30px!important;padding:0!important;}
+.category-section-title{width:100%!important;text-align:center!important;margin-inline:auto!important;}
+.category-section-description{width:min(100%,760px)!important;text-align:center!important;margin-inline:auto!important;}
+.category-tiles{
+ display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--category-tile-width,180px)),1fr))!important;
+ width:100%!important;max-width:100%!important;justify-content:center!important;justify-items:stretch!important;
+ gap:10px!important;margin:0 auto!important;box-sizing:border-box!important;
+}
+.category-tiles .category-tile{
+ width:100%!important;min-width:0!important;max-width:none!important;min-height:0!important;height:auto!important;
+ padding:9px 17px!important;display:flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;border-radius:14px!important;text-align:center!important;
+}
+.category-tiles .category-tile span{
+ display:block!important;width:100%!important;text-align:center!important;font-size:clamp(15px,1.25vw,17px)!important;
+ line-height:1.15!important;font-weight:650!important;overflow-wrap:anywhere!important;
+}
+@media(max-width:700px){.category-tiles{width:100%!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;}.category-tiles .category-tile{padding:9px 12px!important;}}
+@media(max-width:380px){.category-tiles{grid-template-columns:1fr!important;width:min(100%,300px)!important;}}
+
+/* La marca de agua de la tarjeta procede del Worker; no duplicar el logo en el centro. */
+.item-card .card-logo-watermark{display:none!important;}

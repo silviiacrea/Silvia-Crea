@@ -158,6 +158,14 @@ const euro=v=>Number(v).toLocaleString("es-ES",{style:"currency",currency:"EUR"}
 const safeImg=(url)=>/^https?:\/\//i.test(url||"")?url:"";
 const cleanCategory=value=>{const c=String(value??"").trim();return !c||c.toLowerCase()==="vacio"?"":c;};
 const categoryParams=()=>{const q=new URLSearchParams(location.search);return {type:q.get("tipo")==="trabajos"?"gallery":"product",name:q.get("categoria")||""};};
+function sizeCategoryTiles(root){
+ const tiles=[...(root?.querySelectorAll(".category-tile")||[])];if(!tiles.length)return;
+ const width=Math.max(...tiles.map(tile=>{const span=tile.querySelector("span");return span?Math.ceil(span.getBoundingClientRect().width):0;}));
+ root.style.setProperty("--category-tile-width",(width+34)+"px");
+ root.style.setProperty("--category-tile-count",String(tiles.length));
+ const available=root.clientWidth||window.innerWidth;
+ root.style.width=Math.min(available,(width+34)*tiles.length+10*(tiles.length-1))+"px";
+}
 function categoryCards(items,type){
   const map=new Map();
   items.forEach(item=>{const name=cleanCategory(item.category);if(name&&!map.has(name))map.set(name,true);});
@@ -276,13 +284,20 @@ function prepareSlider(el,count){
  let left=wrapper.querySelector(".slider-btn-left"),right=wrapper.querySelector(".slider-btn-right");
  if(!left){left=document.createElement("button");left.type="button";left.className="slider-btn slider-btn-left";left.textContent="‹";left.setAttribute("aria-label","Anterior");wrapper.appendChild(left);}
  if(!right){right=document.createElement("button");right.type="button";right.className="slider-btn slider-btn-right";right.textContent="›";right.setAttribute("aria-label","Siguiente");wrapper.appendChild(right);}
- const visible=()=>window.innerWidth<=640?1:window.innerWidth<=900?2:3;
+ const visible=()=>{const w=el.clientWidth||window.innerWidth;return w<=520?1:w<=760?2:w<=1020?3:4;};
  let lastVisible=visible();
- const update=()=>{const v=visible(),active=count>v;el.classList.toggle("has-slider",active);el.classList.toggle("is-centered",!active);el.setAttribute("aria-label",active?"Carrusel de especialidades":"Especialidades");left.hidden=!active;right.hidden=!active;if(v!==lastVisible){el.scrollTo({left:0,behavior:"auto"});lastVisible=v;}};
- const scroll=direction=>{const cards=[...el.querySelectorAll(".item-card")];if(!cards.length)return;const first=cards[0],second=cards[1];const step=second?Math.abs(second.getBoundingClientRect().left-first.getBoundingClientRect().left):first.getBoundingClientRect().width;const max=Math.max(0,el.scrollWidth-el.clientWidth);let target=el.scrollLeft+direction*step;if(direction>0&&target>max+2)target=0;if(direction<0&&target<0)target=max;el.scrollTo({left:target,behavior:"smooth"});};
+ const update=()=>{
+  const v=visible(),max=Math.max(0,el.scrollWidth-el.clientWidth),pos=el.scrollLeft;
+  const active=count>v&&max>2;
+  el.classList.toggle("has-slider",active);el.classList.toggle("is-centered",!active);
+  el.setAttribute("aria-label",active?"Carrusel de especialidades":"Especialidades");
+  left.hidden=!active||pos<=2;right.hidden=!active||pos>=max-2;
+  if(v!==lastVisible){el.scrollTo({left:0,behavior:"auto"});lastVisible=v;requestAnimationFrame(update);}
+ };
+ const scroll=direction=>{const cards=[...el.querySelectorAll(":scope > .item-card")];if(!cards.length)return;const first=cards[0],second=cards[1];const step=second?Math.abs(second.getBoundingClientRect().left-first.getBoundingClientRect().left):first.getBoundingClientRect().width;const max=Math.max(0,el.scrollWidth-el.clientWidth);el.scrollTo({left:Math.max(0,Math.min(max,el.scrollLeft+direction*step)),behavior:"smooth"});};
  left.onclick=()=>scroll(-1);right.onclick=()=>scroll(1);
- if(!el.dataset.sliderResize){window.addEventListener("resize",update,{passive:true});el.dataset.sliderResize="1";}
- update();
+ if(!el.dataset.sliderResize){window.addEventListener("resize",update,{passive:true});el.addEventListener("scroll",update,{passive:true});if("ResizeObserver" in window){const ro=new ResizeObserver(update);ro.observe(el);el._sliderRO=ro;}el.dataset.sliderResize="1";}
+ requestAnimationFrame(update);
 }
 function balanceGrid(el,count){
  if(!el)return;
@@ -315,7 +330,6 @@ const classes=["item-card",kind==="gallery"?"gallery-card":"",p.featured?"is-fea
 return `<article class="${classes}" data-card-kind="${kind}" data-index="${index}" tabindex="0" role="group" aria-label="${esc(p.name||p.title)}. Pulsa para ver el detalle">   
 ${featured}${offer}   
 ${image?`<div class="image-wrapper"><img class="item-image" src="${esc(workerModeUrl(image,kind==="gallery"?"gallery":"card"))}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
-<img class="card-logo-watermark" src="assets/logo%20web.png" alt="" aria-hidden="true" loading="lazy">
 <div class="item-content"><h3>${esc(p.name||p.title)}</h3><p>${esc(desc)}</p>   
 ${metaHtml}  
 <div class="item-actions"><button class="mini-btn detail-button" type="button" data-detail-card="${kind}" data-index="${index}">Ver detalles</button>${isProduct?`<button class="mini-btn add-button" type="button" data-add="${index}" ${p.stock<=0?"disabled":""}>Añadir carrito</button>`:''}</div>   
@@ -330,7 +344,7 @@ if(grid){
  const tiles=categoryCards(products,"product");
  const old=grid.parentElement.querySelector(".category-section-block");
  if(old) old.remove();
- if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Descubre las creaciones por temática y encuentra ese detalle especial que estás buscando.</p><div class="category-tiles" aria-label="Categorías de la tienda">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);}
+ if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Descubre las creaciones por temática y encuentra ese detalle especial que estás buscando.</p><div class="category-tiles" aria-label="Categorías de la tienda">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);sizeCategoryTiles(wrap);}
  if(!grid.parentElement.querySelector(".products-section-title")){const h=document.createElement("h2");h.className="category-section-title products-section-title";h.textContent="Productos";grid.parentElement.insertBefore(h,grid);const d=document.createElement("p");d.className="category-section-description products-section-description";d.textContent="Todas las piezas disponibles, elaboradas con cariño y pensadas para regalar o disfrutar.";grid.parentElement.insertBefore(d,grid);}
  grid.innerHTML=products.length?products.map((p,i)=>card(p,"product",i)).join(""):'<p class="loading-note">Próximamente habrá nuevas creaciones.</p>';
  balanceGrid(grid,products.length);positionCardWatermarks(grid);
@@ -351,7 +365,7 @@ if(grid){
  const tiles=categoryCards(gallery,"gallery");
  const old=grid.parentElement.querySelector(".category-section-block");
  if(old) old.remove();
- if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Explora los trabajos por tipo de creación y déjate inspirar por cada proyecto.</p><div class="category-tiles" aria-label="Categorías de trabajos">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);}
+ if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Explora los trabajos por tipo de creación y déjate inspirar por cada proyecto.</p><div class="category-tiles" aria-label="Categorías de trabajos">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);sizeCategoryTiles(wrap);}
  if(!grid.parentElement.querySelector(".products-section-title")){const h=document.createElement("h2");h.className="category-section-title products-section-title";h.textContent="Trabajos";grid.parentElement.insertBefore(h,grid);const d=document.createElement("p");d.className="category-section-description products-section-description";d.textContent="Una selección de proyectos y creaciones que reflejan el cariño por cada detalle.";grid.parentElement.insertBefore(d,grid);}
  grid.innerHTML=gallery.length?gallery.map((p,i)=>card(p,"gallery",i)).join(""):'<p class="loading-note">Próximamente descubrirás aquí mis trabajos.</p>';
  balanceGrid(grid,gallery.length);positionCardWatermarks(grid);
