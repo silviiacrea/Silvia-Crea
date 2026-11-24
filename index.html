@@ -44,7 +44,7 @@
 </section>  
 <section class="section shop-access">
  <div class="shop-access-copy"><span class="eyebrow">Descubre las creaciones</span><h2>Un rincón lleno de detalles especiales</h2><p>Explora la tienda y encuentra piezas hechas a mano, listas para regalar o personalizar.</p><a class="btn btn-primary" href="tienda.html">Entrar en la tienda</a></div>
- <div class="shop-access-art" aria-hidden="true">🎀 <span>♡</span> ✿</div>
+ <div class="shop-access-art shop-access-frame"><img id="shop-access-image" alt="Imagen personalizada de Silvia Crea" loading="lazy" decoding="async"><div id="shop-access-placeholder" class="shop-access-placeholder"><img src="assets/camara.svg" alt=""></div></div>
 </section>
 <section class="section tinted">  
  <div class="section-heading"><span class="eyebrow" style="font-size: 14.5px;">Un vistazo</span><h2>Mis especialidades</h2><p>Algunas de las técnicas y tipos de creación que encontrarás en Silvia Crea.</p></div>  
@@ -94,10 +94,11 @@
   
 <div class="fs-modal-backdrop" id="fs-modal" aria-hidden="true">  
  <button type="button" class="icon-button fs-modal-close" data-close-fs aria-label="Cerrar imagen">×</button>  
- <div class="fs-modal-content">  
- <img id="fs-modal-image" alt="">  
- <div class="fs-watermark"></div>  
- </div>  
+ <button type="button" class="fs-photo-arrow fs-photo-prev" id="fs-prev" aria-label="Foto anterior">‹</button>
+ <div class="fs-modal-content">
+ <img id="fs-modal-image" alt="">
+ </div>
+ <button type="button" class="fs-photo-arrow fs-photo-next" id="fs-next" aria-label="Foto siguiente">›</button>  
 </div>  
   
 <div class="toast" id="toast" role="status" aria-live="polite"></div>  

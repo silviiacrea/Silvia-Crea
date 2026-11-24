@@ -29,7 +29,7 @@ document.addEventListener("touchstart", updateViewVars, {passive: true, capture:
 const cfg = window.SILVIA_CONFIG || {};   
 const $ = (s, root=document) => root.querySelector(s); const $$ = (s, root=document) => [...root.querySelectorAll(s)];   
 const CART_KEY = "silviacrea_cart_v2";   
-let products = [], specialties = [], gallery = [], cart = loadCart(), modalProduct = null, toastTimer;
+let products = [], specialties = [], gallery = [], cart = loadCart(), modalProduct = null, toastTimer, modalPhotos = [], modalPhotoIndex = 0;
 function workerImage(url){
   if(!url) return "";
   const raw=String(url).trim();
@@ -37,9 +37,9 @@ function workerImage(url){
   try{
     const u=new URL(raw,location.href);
     if(u.hostname.endsWith("backblazeb2.com") && u.pathname.startsWith("/file/silviacreacatalogo/")){
-      return (cfg.workerBaseUrl||"https://worker.silviacrea.es") + u.pathname + u.search;
+      return (cfg.workerBaseUrl||"https://worker.silviacrea.es") + u.pathname + (u.search?u.search+"&wm=card":"?wm=card");
     }
-    if(u.hostname==="worker.silviacrea.es") return raw;
+    if(u.hostname==="worker.silviacrea.es") { if(!/[?&]wm=/.test(raw)) return raw+(raw.includes("?")?"&":"?")+"wm=card"; return raw; }
     return raw;
   }catch{return raw;}
 }
@@ -54,7 +54,7 @@ async function getSiteData(){
           const r=await fetch(url,{cache:"default"});
           if(!r.ok) throw new Error("HTTP "+r.status);
           const data=await r.json();
-          if(data && (data.catalogo || data.trabajos || data.especialidades)) return data;
+          if(data && (data.catalogo || data.trabajos || data.especialidades)) { applyShopAccessImage(data.imagenTiendaInicio||data.shopImage||""); return data; }
         }catch(e){lastError=e;}
       }
       throw lastError||new Error("No se pudieron cargar los datos.");
@@ -67,6 +67,13 @@ async function getSheet(name){
   const key={CATALOGO:"catalogo",TRABAJOS:"trabajos",ESPECIALIDADES:"especialidades"}[name];
   return key && Array.isArray(data[key]) ? data[key] : [];
 }   
+function applyShopAccessImage(url){
+  const frame=$(".shop-access-frame"),img=$("#shop-access-image"),placeholder=$("#shop-access-placeholder");
+  if(!frame||!img||!placeholder)return;
+  const source=workerImage(url);
+  if(source){img.onerror=()=>{img.style.display="none";placeholder.style.display="grid";};img.src=source;img.style.display="block";placeholder.style.display="none";}
+  else{img.onerror=null;img.removeAttribute("src");img.style.display="none";placeholder.style.display="grid";}
+}
 const val=(r,i)=>String(r[i]??"").trim();   
 const yes=v=>["si","sí","true","1","yes","verdadero","x","destacado"].includes(String(v).trim().toLowerCase());   
 const money=v=>Number(String(v??"0").replace(/[€\s]/g,"").replace(/\./g,"").replace(",", "."))||0;   
@@ -76,10 +83,10 @@ const cleanCategory=value=>{const c=String(value??"").trim();return !c||c.toLowe
 const categoryParams=()=>{const q=new URLSearchParams(location.search);return {type:q.get("tipo")==="trabajos"?"gallery":"product",name:q.get("categoria")||""};};
 function categoryCards(items,type){
   const map=new Map();
-  items.forEach(item=>{const name=cleanCategory(item.category);if(name&&!map.has(name))map.set(name,item.image||"");});
-  return [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],"es")).map(([name,image])=>{
+  items.forEach(item=>{const name=cleanCategory(item.category);if(name&&!map.has(name))map.set(name,true);});
+  return [...map.keys()].sort((a,b)=>a.localeCompare(b,"es")).map((name,i)=>{
     const href="categoria.html?tipo="+(type==="gallery"?"trabajos":"tienda")+"&categoria="+encodeURIComponent(name);
-    return `<a class="category-tile" href="${href}">${image?`<img src="${esc(image)}" alt="" loading="lazy" decoding="async">`:'<span class="category-tile-icon" aria-hidden="true">♡</span>'}<span>${esc(name)}</span><span class="category-tile-arrow" aria-hidden="true">›</span></a>`;
+    return `<a class="category-tile category-color-${i%2}" href="${href}"><span>${esc(name)}</span></a>`;
   }).join("");
 }
 function renderCategoryLanding(){
@@ -87,9 +94,18 @@ function renderCategoryLanding(){
   const params=categoryParams();
   const title=$("#category-title");
   if(title) title.textContent=params.name || "Categoría";
+  const primary=$("#category-back-primary"), secondary=$("#category-back-secondary");
+  if(params.type==="gallery"){
+    if(primary){primary.href="galeria.html";primary.textContent="Volver a la galería";}
+    if(secondary){secondary.href="tienda.html";secondary.textContent="Ver tienda";}
+  }else{
+    if(primary){primary.href="tienda.html";primary.textContent="Volver a la tienda";}
+    if(secondary){secondary.href="galeria.html";secondary.textContent="Ver trabajos";}
+  }
   const list=params.type==="gallery"?gallery:products;
   const selected=params.name?list.filter(item=>cleanCategory(item.category)===params.name):[];
   target.innerHTML=selected.length?selected.map(item=>card(item,params.type,list.indexOf(item))).join(""):'<p class="loading-note">No se ha seleccionado una categoría válida o todavía no tiene elementos.</p>';
+  balanceGrid(target,selected.length);
 }
    
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));   
@@ -109,6 +125,8 @@ function openCart(){ $(".cart-drawer")?.classList.add("open");$(".drawer-backdro
 function closeCart(){ $(".cart-drawer")?.classList.remove("open");$(".drawer-backdrop")?.classList.remove("open");$(".cart-drawer")?.setAttribute("aria-hidden","true");document.body.style.overflow="";}   
 function addProduct(p){if(!p||p.stock<=0){showToast("Este producto no está disponible ahora mismo.");return;}const unitPrice=p.offer&&p.offerPrice!==undefined?p.offerPrice:p.price;const found=cart.find(x=>x.name===p.name);if(found){if(found.qty<p.stock)found.qty++;else showToast("Has alcanzado el stock disponible.");}else cart.push({name:p.name,price:unitPrice,qty:1,comment:""});updateCart();showToast("Añadido a tu carrito ♡");}   
   
+function workerModeUrl(src,mode){if(!src)return "";try{const u=new URL(src,location.href);if(u.hostname==="worker.silviacrea.es"||u.pathname.includes("/file/silviacreacatalogo/")){u.searchParams.set("wm",mode);return u.href;}}catch{}return src;}
+function imageIdentity(src){try{const u=new URL(src,location.href);u.search="";return u.href.toLowerCase();}catch{return String(src).split("?")[0].toLowerCase();}}
 async function loadAlbumPhotos(item){
   if(!item || !item.album) return [];
   const group=item.albumFolder || item.albumType || "catalogo";
@@ -121,30 +139,27 @@ async function loadAlbumPhotos(item){
     if(!response.ok) return [];
     const data=await response.json();
     const photos=Array.isArray(data)?data:(data.images||data.photos||[]);
-    return photos.map(x=>typeof x==="string"?x:(x.url||x.src||x.downloadUrl||"")).filter(safeImg);
+    return photos.map(x=>typeof x==="string"?x:(x.url||x.src||x.downloadUrl||"")).filter(safeImg).map(x=>workerModeUrl(x,"card"));
   }catch{return [];}
 }
-function setupModalAlbum(photos){
-  const wrap=$("#modal-img-wrapper");
-  if(!wrap)return;
-  let gallery=$("#modal-album");
-  if(!gallery){
-    gallery=document.createElement("div");gallery.id="modal-album";gallery.className="modal-album";
-    wrap.insertAdjacentElement("afterend",gallery);
-  }
-  gallery.innerHTML="";
-  if(photos.length<2){gallery.style.display="none";return;}
-  gallery.style.display="flex";
-  photos.forEach((src,i)=>{
-    const b=document.createElement("button");b.type="button";b.className="album-thumb"+(i===0?" active":"");
-    b.setAttribute("aria-label","Ver foto "+(i+1));
-    const img=document.createElement("img");img.src=src;img.alt="Foto "+(i+1);img.loading="lazy";img.decoding="async";
-    b.appendChild(img);b.addEventListener("click",()=>{
-      const main=$("#modal-image");main.src=src;main.style.display="block";
-      $("#modal-placeholder").style.display="none";
-      gallery.querySelectorAll(".album-thumb").forEach(x=>x.classList.remove("active"));b.classList.add("active");
-    });gallery.appendChild(b);
-  });
+function setModalPhoto(index){
+  if(!modalPhotos.length)return;
+  modalPhotoIndex=(index+modalPhotos.length)%modalPhotos.length;
+  const source=modalPhotos[modalPhotoIndex];
+  const main=$("#modal-image");main.src=workerModeUrl(source,"modal");main.style.display="block";$("#modal-placeholder").style.display="none";
+  const thumbs=$("#modal-album");if(thumbs)thumbs.querySelectorAll(".album-thumb").forEach((b,i)=>b.classList.toggle("active",i===modalPhotoIndex));
+  ["modal-prev","modal-next"].forEach(id=>{const b=$("#"+id);if(b)b.style.display=modalPhotos.length>1?"flex":"none";});
+}
+function setupModalAlbum(photos,mainSrc){
+  const wrap=$("#modal-img-wrapper");if(!wrap)return;
+  let stage=$("#modal-photo-stage");if(!stage){stage=document.createElement("div");stage.id="modal-photo-stage";stage.className="modal-photo-stage";wrap.insertAdjacentElement("beforebegin",stage);stage.appendChild(wrap);}
+  let prev=$("#modal-prev"),next=$("#modal-next");if(!prev){prev=document.createElement("button");prev.type="button";prev.id="modal-prev";prev.className="modal-stage-arrow";prev.setAttribute("aria-label","Fotografía anterior");prev.textContent="‹";prev.addEventListener("click",()=>setModalPhoto(modalPhotoIndex-1));stage.insertBefore(prev,wrap);}
+  if(!next){next=document.createElement("button");next.type="button";next.id="modal-next";next.className="modal-stage-arrow";next.setAttribute("aria-label","Fotografía siguiente");next.textContent="›";next.addEventListener("click",()=>setModalPhoto(modalPhotoIndex+1));stage.appendChild(next);}
+  let gallery=$("#modal-album");if(!gallery){gallery=document.createElement("div");gallery.id="modal-album";gallery.className="modal-album";stage.insertAdjacentElement("afterend",gallery);}
+  const all=[mainSrc,...photos].filter(safeImg),seen=new Set();modalPhotos=all.filter(src=>{const key=imageIdentity(src);if(seen.has(key))return false;seen.add(key);return true;});modalPhotoIndex=0;
+  gallery.innerHTML="";gallery.style.display=modalPhotos.length>1?"flex":"none";
+  modalPhotos.forEach((src,i)=>{const b=document.createElement("button");b.type="button";b.className="album-thumb"+(i===0?" active":"");b.setAttribute("aria-label","Ver foto "+(i+1));const img=document.createElement("img");img.src=workerModeUrl(src,"card");img.alt="Foto "+(i+1);img.loading="lazy";img.decoding="async";b.appendChild(img);b.addEventListener("click",()=>setModalPhoto(i));gallery.appendChild(b);});
+  if(modalPhotos.length)setModalPhoto(0);
 }
 
 function openProduct(p,isProduct=false,idx=0){   
@@ -159,16 +174,16 @@ $("#modal-add").style.display=p.stock>0?"inline-flex":"none";
 }else{priceEl.textContent="";priceEl.style.display="none";$("#modal-add").style.display="none";}   
   
 const im=$("#modal-image"), ph=$("#modal-placeholder"), src=safeImg(p.largeImage||p.image);  
- if(src){im.src=src;im.alt=p.name||p.title||"";im.style.display="block";if(ph)ph.style.display="none";}  
+ if(src){im.src=workerModeUrl(src,"modal");im.alt=p.name||p.title||"";im.style.display="block";if(ph)ph.style.display="none";}  
  else{im.src="";im.style.display="none";if(ph)ph.style.display="flex";}  
    
 const m=$(".product-modal");  
  if(m){m.classList.remove("theme-pink","theme-lilac");m.classList.add(idx%2===0?"theme-pink":"theme-lilac");}  
   
- setupModalAlbum([]);
+ setupModalAlbum([],src);
  if(p.album){
    loadAlbumPhotos(p).then(photos=>{
-     if(modalProduct===p || $("#modal-title").textContent===(p.name||p.title||"")) setupModalAlbum(photos);
+     if(modalProduct===p || $("#modal-title").textContent===(p.name||p.title||"")) setupModalAlbum(photos,src);
    });
  }
  $("#product-modal")?.classList.add("open");$("#product-modal")?.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";   
@@ -176,89 +191,26 @@ const m=$(".product-modal");
   
 function closeProduct(){$("#product-modal")?.classList.remove("open");$("#product-modal")?.setAttribute("aria-hidden","true");document.body.style.overflow="";}   
   
-function prepareSlider(el,count){   
-if(!el)return;   
-el.classList.remove("has-slider","is-centered");   
-el.classList.add(count>3?"has-slider":"is-centered");   
-el.setAttribute("aria-label",count>3?"Carrusel de elementos; desplázate horizontalmente para ver más":"Elementos destacados");   
-  
-if (count > 3) {  
- el.style.cursor = 'grab';  
- let isDown = false;  
- let startX;  
- let scrollLeft;  
- let isDragging = false;  
-  
- el.addEventListener('mousedown', (e) => {  
- isDown = true;  
- isDragging = false;  
- el.style.cursor = 'grabbing';
- el.style.userSelect = 'none'; 
- startX = e.pageX - el.offsetLeft;  
- scrollLeft = el.scrollLeft;  
- });  
- 
- window.addEventListener('mouseup', () => { 
-     if (isDown) {
-         isDown = false; 
-         el.style.cursor = 'grab'; 
-         el.style.removeProperty('user-select');
-     }
- });  
- 
- el.addEventListener('mouseleave', () => { 
-     isDown = false; 
-     el.style.cursor = 'grab'; 
-     el.style.removeProperty('user-select');
- });  
- 
- el.addEventListener('mousemove', (e) => {  
- if(!isDown) return;  
- e.preventDefault();  
- const x = e.pageX - el.offsetLeft;  
- const walk = (x - startX) * 1.5; 
- if (Math.abs(walk) > 10) isDragging = true; 
- el.scrollLeft = scrollLeft - walk;  
- });  
-   
- el.addEventListener('click', (e) => {  
- if (isDragging) {  
- e.preventDefault();  
- e.stopPropagation();  
- }  
- }, true);  
-}  
-  
-if(count>3 && !el.parentElement.classList.contains("slider-wrapper")){   
-const wrapper = document.createElement("div");   
-wrapper.className = "slider-wrapper";   
-el.parentNode.insertBefore(wrapper, el);   
-wrapper.appendChild(el);   
-  
-const btnLeft = document.createElement("button");   
-btnLeft.className = "slider-btn slider-btn-left";   
-btnLeft.innerHTML = "❮";   
-btnLeft.setAttribute("aria-label", "Anterior");   
-  
-const btnRight = document.createElement("button");   
-btnRight.className = "slider-btn slider-btn-right";   
-btnRight.innerHTML = "❯";   
-btnRight.setAttribute("aria-label", "Siguiente");   
-  
-wrapper.appendChild(btnLeft);   
-wrapper.appendChild(btnRight);   
-  
-btnLeft.addEventListener("click", () => {   
-const card = el.querySelector(".item-card");   
-if(card) el.scrollBy({left: -(card.offsetWidth + 24) * 2, behavior: "smooth"});   
-});   
-btnRight.addEventListener("click", () => {   
-const card = el.querySelector(".item-card");   
-if(card) el.scrollBy({left: (card.offsetWidth + 24) * 2, behavior: "smooth"});   
-});   
-}   
-}   
-  
+function prepareSlider(el,count){
+ if(!el)return;
+ let wrapper=el.closest(".home-slider-wrapper");
+ if(!wrapper){wrapper=document.createElement("div");wrapper.className="slider-wrapper home-slider-wrapper";el.parentNode.insertBefore(wrapper,el);wrapper.appendChild(el);}
+ let left=wrapper.querySelector(".slider-btn-left"),right=wrapper.querySelector(".slider-btn-right");
+ if(!left){left=document.createElement("button");left.type="button";left.className="slider-btn slider-btn-left";left.textContent="‹";left.setAttribute("aria-label","Anterior");wrapper.appendChild(left);}
+ if(!right){right=document.createElement("button");right.type="button";right.className="slider-btn slider-btn-right";right.textContent="›";right.setAttribute("aria-label","Siguiente");wrapper.appendChild(right);}
+ const visible=()=>window.innerWidth<=640?1:window.innerWidth<=900?2:3;
+ const update=()=>{const active=count>visible();el.classList.toggle("has-slider",active);el.classList.toggle("is-centered",!active);el.setAttribute("aria-label",active?"Carrusel de especialidades":"Especialidades");left.hidden=!active;right.hidden=!active;};
+ const scroll=direction=>{const card=el.querySelector(".item-card");if(card)el.scrollBy({left:direction*(card.getBoundingClientRect().width+24),behavior:"smooth"});};
+ left.onclick=()=>scroll(-1);right.onclick=()=>scroll(1);
+ if(!el.dataset.sliderResize){window.addEventListener("resize",update,{passive:true});el.dataset.sliderResize="1";}
+ update();
+}
+function balanceGrid(el,count){
+ if(!el)return;
+ el.classList.remove("grid-balanced-2","grid-balanced-3");
+ if(count===4)el.classList.add("grid-balanced-2");
+ else if(count===5||count===7)el.classList.add("grid-balanced-3");
+}
 function card(p,kind,index){   
 const image=safeImg(p.image), desc=p.description||p.desc||"";   
 const isProduct=kind==="product";   
@@ -282,7 +234,7 @@ const classes=["item-card",kind==="gallery"?"gallery-card":"",p.featured?"is-fea
   
 return `<article class="${classes}" data-card-kind="${kind}" data-index="${index}" tabindex="0" role="group" aria-label="${esc(p.name||p.title)}. Pulsa para ver el detalle">   
 ${featured}${offer}   
-${image?`<div class="image-wrapper"><img class="item-image" src="${esc(image)}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
+${image?`<div class="image-wrapper"><img class="item-image" src="${esc(image)}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"><span class="card-watermark" aria-hidden="true"></span></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
 <div class="item-content"><h3>${esc(p.name||p.title)}</h3><p>${esc(desc)}</p>   
 ${metaHtml}  
 <div class="item-actions"><button class="mini-btn detail-button" type="button" data-detail-card="${kind}" data-index="${index}">Ver detalles</button>${isProduct?`<button class="mini-btn add-button" type="button" data-add="${index}" ${p.stock<=0?"disabled":""}>Añadir carrito</button>`:''}</div>   
@@ -299,6 +251,7 @@ if(grid){
  if(old) old.remove();
  if(tiles){const wrap=document.createElement("div");wrap.className="category-tiles";wrap.setAttribute("aria-label","Categorías de la tienda");wrap.innerHTML=tiles;grid.parentElement.insertBefore(wrap,grid);}
  grid.innerHTML=products.length?products.map((p,i)=>card(p,"product",i)).join(""):'<p class="loading-note">Próximamente habrá nuevas creaciones.</p>';
+ balanceGrid(grid,products.length);
 }
 if($("#category-grid")&&categoryParams().type==="product") renderCategoryLanding();
 }   
@@ -318,6 +271,7 @@ if(grid){
  if(old) old.remove();
  if(tiles){const wrap=document.createElement("div");wrap.className="category-tiles";wrap.setAttribute("aria-label","Categorías de trabajos");wrap.innerHTML=tiles;grid.parentElement.insertBefore(wrap,grid);}
  grid.innerHTML=gallery.length?gallery.map((p,i)=>card(p,"gallery",i)).join(""):'<p class="loading-note">Próximamente descubrirás aquí mis trabajos.</p>';
+ balanceGrid(grid,gallery.length);
 }
 if($("#category-grid")&&categoryParams().type==="gallery") renderCategoryLanding();
 }   
@@ -578,13 +532,14 @@ if(e.target.closest("#modal-img-wrapper")) {
  const img = $("#modal-image");  
  if(img && img.src && img.style.display !== "none") {  
  const fsImg = $("#fs-modal-image");  
- fsImg.src = img.src;  
+ fsImg.src = workerModeUrl(modalPhotos[modalPhotoIndex]||img.src,"fullscreen");  
  const fsModal = $("#fs-modal");  
  const pModal = $(".product-modal");  
  const fsContent = $(".fs-modal-content");  
  fsContent.className = "fs-modal-content";   
 if(pModal.classList.contains("theme-pink")) fsContent.classList.add("theme-pink");  
  if(pModal.classList.contains("theme-lilac")) fsContent.classList.add("theme-lilac");  
+ $("#fs-prev").style.display=modalPhotos.length>1?"flex":"none";$("#fs-next").style.display=modalPhotos.length>1?"flex":"none";
  fsModal.classList.add("open");  
  fsModal.setAttribute("aria-hidden", "false");  
  }  
@@ -593,7 +548,9 @@ if(pModal.classList.contains("theme-pink")) fsContent.classList.add("theme-pink"
 if(e.target.closest("[data-close-fs]") || e.target.id === "fs-modal" || e.target.classList.contains("fs-modal-backdrop")) {  
  $("#fs-modal")?.classList.remove("open");  
  $("#fs-modal")?.setAttribute("aria-hidden", "true");  
-}  
+}
+if(e.target.closest("#fs-prev")){setModalPhoto(modalPhotoIndex-1);$("#fs-modal-image").src=workerModeUrl(modalPhotos[modalPhotoIndex],"fullscreen");}
+if(e.target.closest("#fs-next")){setModalPhoto(modalPhotoIndex+1);$("#fs-modal-image").src=workerModeUrl(modalPhotos[modalPhotoIndex],"fullscreen");}  
    
 const qty=e.target.closest("[data-qty]");if(qty){const item=cart[Number(qty.dataset.index)];item.qty=Math.max(1,item.qty+Number(qty.dataset.qty));const p=products.find(x=>x.name===item.name);if(p)item.qty=Math.min(item.qty,p.stock);updateCart();}   
 const rem=e.target.closest("[data-remove]");if(rem){cart.splice(Number(rem.dataset.remove),1);updateCart();}   
@@ -601,6 +558,7 @@ if(e.target.closest("[data-close-modal]")||e.target.id==="product-modal"||e.targ
 });   
   
 document.addEventListener("keydown",e=>{  
+ if($("#fs-modal")?.classList.contains("open")&&(e.key==="ArrowLeft"||e.key==="ArrowRight")&&modalPhotos.length>1){setModalPhoto(modalPhotoIndex+(e.key==="ArrowLeft"?-1:1));$("#fs-modal-image").src=workerModeUrl(modalPhotos[modalPhotoIndex],"fullscreen");e.preventDefault();return;}
  // 1. Ignoramos teclado si el usuario está escribiendo datos  
  if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;  
   
@@ -674,12 +632,23 @@ $(".drawer-head h2").textContent = "Datos de tu solicitud";
 $(".drawer-head .eyebrow").textContent = "Un último paso";  
 });   
 $("#contact-form")?.addEventListener("submit",sendContact);   
-$("#year").textContent=new Date().getFullYear();initMenu();updateCart();   
-
-if($("#products-grid"))loadProducts().catch(()=>showLoadError("#products-grid"));   
-if($("#specialties-grid"))loadSpecialties().catch(()=>showLoadError("#specialties-grid"));   
-if($("#gallery-grid"))loadGallery().catch(()=>showLoadError("#gallery-grid"));
-if($("#category-grid")){
-  Promise.all([loadProducts(),loadGallery()]).catch(()=>showLoadError("#category-grid"));
+$("#year").textContent=new Date().getFullYear();initMenu();updateCart();
+async function applyMaintenance(){
+ const sources=[cfg.appsScriptUrl?cfg.appsScriptUrl+"?action=status":"",cfg.dataJsonUrl||""].filter(Boolean);let state={mode:"normal"};
+ for(const url of sources){try{const r=await fetch(url,{cache:"no-store"});if(!r.ok)continue;const d=await r.json();const m=d.maintenance||d.estadoWeb||d.webStatus||d; if(m&&m.mode){state=m;break;}}catch{}}
+ if(!state.mode||state.mode==="normal")return false;
+ const logo="assets/logo%20web.png",instagram="https://www.instagram.com/silviiacrea";
+ const overlay=document.createElement("div");overlay.className="maintenance-screen";overlay.innerHTML=`<div class="maintenance-card"><img class="maintenance-logo" src="${logo}" alt="Silvia Crea"><div class="maintenance-decor">✿　♡　✧</div><h1>${state.mode==="construction"?"Web en construcción":state.mode==="total"?"Pausa creativa":"Estamos realizando pequeños cambios"}</h1><p>${esc(state.message|| (state.mode==="construction"?"La web está en construcción. Muy pronto volveremos con nuevas creaciones.":state.mode==="total"?"Estamos trabajando para volver lo antes posible. Mientras tanto, puedes seguirnos en Instagram.":"La web está en mantenimiento. Puedes contactar con Silvia mientras terminamos."))}</p>${state.mode==="total"?`<a class="btn btn-primary" href="${instagram}" target="_blank" rel="noopener">Instagram</a>`:`<a class="btn btn-soft" href="${instagram}" target="_blank" rel="noopener">Instagram</a>${state.mode==="maintenance"?`<form id="maintenance-contact"><label>Tu nombre<input name="Nombre" required></label><label>Email<input type="email" name="Email" required></label><label>Mensaje<textarea name="Mensaje" rows="4" required></textarea></label><button class="btn btn-primary" type="submit">Enviar mensaje</button><p id="maintenance-status" aria-live="polite"></p></form>`:""}`}</div>`;
+ document.body.appendChild(overlay);document.body.classList.add("maintenance-active");
+ const form=$("#maintenance-contact",overlay);form?.addEventListener("submit",async ev=>{ev.preventDefault();const status=$("#maintenance-status",overlay),button=form.querySelector("button");button.disabled=true;status.textContent="Enviando…";try{const fd=new FormData(form),data={action:"contact"};fd.forEach((v,k)=>data[k]=v);const r=await fetch(cfg.appsScriptUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data)});const out=await r.json();if(out.status!=="success")throw new Error(out.message||"No se pudo enviar");status.textContent="Mensaje enviado. Gracias por contactar.";form.reset();}catch(err){status.textContent="No se ha podido enviar. Escríbenos por Instagram.";}finally{button.disabled=false;}});
+ return true;
 }
+applyMaintenance().then(active=>{
+ if(active)return;
+ if($("#products-grid"))loadProducts().catch(()=>showLoadError("#products-grid"));
+ if($("#specialties-grid"))loadSpecialties().catch(()=>showLoadError("#specialties-grid"));
+ if($("#gallery-grid"))loadGallery().catch(()=>showLoadError("#gallery-grid"));
+ if($("#category-grid"))Promise.all([loadProducts(),loadGallery()]).catch(()=>showLoadError("#category-grid"));
+});
+
 })();
