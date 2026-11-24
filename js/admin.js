@@ -10,6 +10,22 @@ async function call(path,body={},auth=false,method='POST'){
  if(!r.ok)throw new Error(data.error||'Error HTTP '+r.status);return data;
 }
 function sessionExpired(e){if(/sesión|autoriz/i.test(e.message)){token='';sessionStorage.removeItem('silvia_admin_session');show();}}
+let indexNowCooldownUntil=0,indexNowCooldownTimer=null,indexNowStatusReady=false;
+function renderIndexNowCooldown(){
+ const button=$('run-indexnow'),note=$('indexnow-note');if(!button||!note)return;
+ if(!indexNowStatusReady){button.disabled=true;return;}
+ const remaining=Math.max(0,indexNowCooldownUntil-Date.now());
+ if(remaining>0){button.disabled=true;const minutes=Math.floor(remaining/60000),seconds=Math.ceil((remaining%60000)/1000);note.textContent='Protección activa: podrás actualizar IndexNow dentro de '+(minutes?minutes+' min':'')+(minutes&&seconds?' y ':'')+(seconds?seconds+' s':'')+'. El límite mínimo entre envíos es de 30 minutos.';}
+ else{button.disabled=false;if(note.dataset.cooldown==='1'){note.textContent='Ya puedes solicitar una nueva actualización. Solo se enviarán URL nuevas, modificadas o eliminadas.';note.dataset.cooldown='0';}}
+}
+async function loadIndexNowStatus(){
+ const note=$('indexnow-note'),button=$('run-indexnow');if(!note||!token)return;
+ indexNowStatusReady=false;if(button)button.disabled=true;
+ try{const d=await call('/admin/indexnow/status',{},true,'GET');indexNowCooldownUntil=Number(d.cooldownUntil||0);note.dataset.cooldown=indexNowCooldownUntil>Date.now()?'1':'0';indexNowStatusReady=true;renderIndexNowCooldown();}
+ catch(e){note.textContent='No se pudo consultar el límite de IndexNow: '+e.message;indexNowStatusReady=false;if(button)button.disabled=true;sessionExpired(e);}
+}
+if(indexNowCooldownTimer)clearInterval(indexNowCooldownTimer);
+indexNowCooldownTimer=setInterval(renderIndexNowCooldown,1000);
 
 const REPO='silviiacrea/Silvia-Crea';
 const RAW_DATA='https://raw.githubusercontent.com/'+REPO+'/main/datos.json';
@@ -99,7 +115,7 @@ async function loadWorkerHealth(){
   sessionExpired(e);
  }
 }
-function show(){login.hidden=!!token;control.hidden=!token;const headerActions=$('admin-header-actions');if(headerActions)headerActions.hidden=!token;if(token){loadMaintenance();checkPublishedVersion();loadOrderStats();loadWorkerHealth();}}
+function show(){login.hidden=!!token;control.hidden=!token;const headerActions=$('admin-header-actions');if(headerActions)headerActions.hidden=!token;if(token){loadMaintenance();checkPublishedVersion();loadOrderStats();loadWorkerHealth();loadIndexNowStatus();}}
 function renderState(mode){
  const active=mode==='maintenance',panel=$('maintenance-state');
  panel.className='admin-state '+(active?'maintenance':'normal');
@@ -131,7 +147,7 @@ $('recheck-version')?.addEventListener('click',checkPublishedVersion);
 $('refresh-orders')?.addEventListener('click',loadOrderStats);
 $('refresh-worker-health')?.addEventListener('click',loadWorkerHealth);
 $('run-generation').addEventListener('click',async()=>{if(!confirm('¿Quieres regenerar y publicar ahora todas las páginas de catálogo, trabajos y el sitemap?'))return;const b=$('run-generation');b.disabled=true;status.textContent='Enviando solicitud a GitHub Actions…';try{const d=await call('/admin/generate',{},true);status.textContent=d.message||'Solicitud aceptada por GitHub.';}catch(e){status.textContent='No se pudo solicitar la actualización SEO: '+e.message;sessionExpired(e);}finally{b.disabled=false;}});
-$('run-indexnow')?.addEventListener('click',async()=>{if(!confirm('Se enviarán a IndexNow todas las URL públicas del sitemap actual. ¿Quieres continuar?'))return;const b=$('run-indexnow'),note=$('indexnow-note');b.disabled=true;note.textContent='Comprobando la clave y el sitemap; después se enviarán las URL…';status.textContent='Enviando las URL del sitemap a IndexNow…';try{const d=await call('/admin/indexnow',{},true);note.textContent=d.message||('IndexNow ha aceptado '+d.notified+' URL.');status.textContent=note.textContent;if(Array.isArray(d.results))note.textContent+=' Lotes: '+d.results.map(x=>'HTTP '+x.status).join(', ')+'.';}catch(e){note.textContent='No se pudo actualizar IndexNow: '+e.message;status.textContent=note.textContent;sessionExpired(e);}finally{b.disabled=false;}});
+$('run-indexnow')?.addEventListener('click',async()=>{if($('run-indexnow').disabled)return;if(!confirm('Se comparará el sitemap con la última referencia guardada. Solo se enviarán URL nuevas, modificadas o eliminadas. Después de un envío aceptado habrá que esperar al menos 30 minutos. ¿Quieres continuar?'))return;const b=$('run-indexnow'),note=$('indexnow-note');b.disabled=true;note.textContent='Comparando el sitemap con el historial guardado…';status.textContent='Comprobando cambios para IndexNow…';try{const d=await call('/admin/indexnow',{},true);note.textContent=d.message||('IndexNow ha aceptado '+d.notified+' URL.');status.textContent=note.textContent;if(d.cooldownUntil)indexNowCooldownUntil=Number(d.cooldownUntil);if(d.baselineCreated||d.noChanges)indexNowCooldownUntil=0;note.dataset.cooldown=indexNowCooldownUntil>Date.now()?'1':'0';}catch(e){note.textContent='No se pudo actualizar IndexNow: '+e.message;status.textContent=note.textContent;await loadIndexNowStatus();sessionExpired(e);}finally{renderIndexNowCooldown();}});
 
 let cleanupPreview=null;
 function resetCleanup(){cleanupPreview=null;const result=$('cleanup-result'),button=$('execute-cleanup'),list=$('cleanup-list');if(result)result.hidden=true;if(button){button.hidden=true;button.disabled=true;}if(list)list.replaceChildren();}
