@@ -12,22 +12,30 @@ function sessionExpired(e){if(/sesión|autoriz/i.test(e.message)){token='';sessi
 const REPO='silviiacrea/Silvia-Crea';
 const RAW_DATA='https://raw.githubusercontent.com/'+REPO+'/main/datos.json';
 const DATA_COMMITS='https://api.github.com/repos/'+REPO+'/commits?path=datos.json&per_page=1&sha=main';
+const VERSION_COMMITS='https://api.github.com/repos/'+REPO+'/commits?path=gestion-privada.html&per_page=1&sha=main';
 async function freshPublic(url,headers={}){
  const response=await fetch(url+(url.includes('?')?'&':'?')+'_fresh='+Date.now(),{cache:'no-store',headers});
  if(!response.ok)throw new Error('HTTP '+response.status);
  return response;
 }
 async function checkPublishedVersion(){
- const version=$('version-current'),info=$('version-info'),updated=$('data-updated'),source=$('data-source'),checked=$('version-checked');
+ const version=$('version-current'),info=$('version-info'),versionUpdated=$('version-updated'),versionSource=$('version-source');
+ const updated=$('data-updated'),source=$('data-source'),checked=$('version-checked');
  if(!version)return;
- version.textContent='Comprobando…';info.textContent='Consultando index.html publicado…';
+ version.textContent='Comprobando…';info.textContent='Consultando gestion-privada.html publicada…';
+ versionUpdated.textContent='Consultando GitHub…';versionSource.textContent='';
  updated.textContent='Consultando GitHub…';source.textContent='';checked.textContent='';
  const results=await Promise.allSettled([
-  (async()=>{const response=await freshPublic('index.html');const html=await response.text();
+  (async()=>{const response=await freshPublic('gestion-privada.html');const html=await response.text();
    const doc=new DOMParser().parseFromString(html,'text/html');
    const live=doc.querySelector('meta[name="silvia-build"]')?.content;
-   if(!live)throw new Error('No se encontró la marca de versión en index.html');
+   if(!live)throw new Error('No se encontró la marca de versión en gestion-privada.html');
    return live;})(),
+  (async()=>{const response=await freshPublic(VERSION_COMMITS,{'Accept':'application/vnd.github+json'});
+   const commits=await response.json();
+   const date=commits?.[0]?.commit?.committer?.date||commits?.[0]?.commit?.author?.date;
+   if(!date)throw new Error('GitHub no facilitó la fecha del último cambio de gestion-privada.html');
+   return date;})(),
   (async()=>{const response=await freshPublic(RAW_DATA);const data=await response.json();
    if(!data||typeof data!=='object')throw new Error('datos.json no es válido');
    const commitResponse=await freshPublic(DATA_COMMITS,{'Accept':'application/vnd.github+json'});
@@ -38,18 +46,26 @@ async function checkPublishedVersion(){
  ]);
  if(results[0].status==='fulfilled'){
   version.textContent='v'+results[0].value;
-  info.textContent='Versión leída directamente de la página principal publicada.';
+  info.textContent='Versión leída directamente de gestion-privada.html publicada.';
  }else{
   version.textContent='No disponible';
   info.textContent='No se pudo consultar la versión publicada: '+(results[0].reason?.message||'error desconocido');
  }
  if(results[1].status==='fulfilled'){
   const date=new Date(results[1].value);
+  versionUpdated.textContent=Number.isNaN(date.getTime())?'GitHub devolvió una fecha no válida.':
+   new Intl.DateTimeFormat('es-ES',{dateStyle:'long',timeStyle:'medium',timeZone:'Europe/Madrid'}).format(date)+' (hora peninsular española).';
+  versionSource.textContent='Fuente: último commit de gestion-privada.html en GitHub.';
+ }else{
+  versionUpdated.textContent='No se pudo obtener una fecha fiable: '+(results[1].reason?.message||'error desconocido');
+ }
+ if(results[2].status==='fulfilled'){
+  const date=new Date(results[2].value);
   updated.textContent=Number.isNaN(date.getTime())?'GitHub devolvió una fecha no válida.':
    new Intl.DateTimeFormat('es-ES',{dateStyle:'long',timeStyle:'short',timeZone:'Europe/Madrid'}).format(date)+' (hora peninsular española).';
   source.textContent='Fuente: último commit de datos.json en GitHub.';
  }else{
-  updated.textContent='No se pudo obtener una fecha fiable: '+(results[1].reason?.message||'error desconocido');
+  updated.textContent='No se pudo obtener una fecha fiable: '+(results[2].reason?.message||'error desconocido');
  }
  checked.textContent='Última comprobación: '+new Date().toLocaleString('es-ES');
 }
