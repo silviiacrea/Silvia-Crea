@@ -46,6 +46,20 @@
       "precioOferta": "",
       "album": "",
       "categoria": ""
+    },
+    {
+      "nombre": "Próximamente...",
+      "descripcion": "En proceso",
+      "precio": 0,
+      "imagen": "",
+      "stock": 0,
+      "descripcionCompleta": "En proceso",
+      "imagenGrande": "",
+      "destacado": false,
+      "oferta": false,
+      "precioOferta": "",
+      "album": "",
+      "categoria": ""
     }
   ],
   "especialidades": [
@@ -111,6 +125,15 @@
       "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/zorrocrochet.jpeg",
+      "album": "",
+      "categoria": ""
+    },
+    {
+      "nombre": "Próximamente...",
+      "imagen": "",
+      "descripcion": "En proceso",
+      "descripcionCompleta": "",
+      "imagenGrande": "",
       "album": "",
       "categoria": ""
     }
