@@ -2310,3 +2310,160 @@ body[data-page="home"] #specialties-grid.is-centered>.item-card{
     flex:0 1 100%!important;width:100%!important;max-width:460px!important;
   }
 }
+
+
+/* VERSION 29 — reglas finales: distribución estable, galería igual a tienda y recorte real de imágenes. */
+#products-grid,#gallery-grid,#category-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  justify-content:start!important;
+  justify-items:stretch!important;
+  align-items:stretch!important;
+  gap:24px!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin-inline:0!important;
+  overflow:visible!important;
+}
+/* Solo una pareja se centra; las filas incompletas de 3+2 permanecen alineadas a la izquierda. */
+#products-grid.grid-count-2,#gallery-grid.grid-count-2,#category-grid.grid-count-2{
+  grid-template-columns:repeat(2,minmax(0,360px))!important;
+  justify-content:center!important;
+  justify-items:stretch!important;
+  margin-inline:auto!important;
+}
+#products-grid.grid-balanced-2,#gallery-grid.grid-balanced-2,#category-grid.grid-balanced-2{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  max-width:1000px!important;
+  margin-inline:auto!important;
+}
+#products-grid.grid-balanced-3,#gallery-grid.grid-balanced-3{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  justify-content:start!important;
+}
+/* La galería hereda exactamente la proporción y el panel de texto de las tarjetas de tienda. */
+#gallery-grid .gallery-card .image-wrapper,
+#category-grid .gallery-card .image-wrapper{
+  aspect-ratio:5/4!important;
+  flex:0 0 auto!important;
+  position:relative!important;
+  width:100%!important;
+  height:auto!important;
+  overflow:hidden!important;
+  clip-path:inset(0)!important;
+  border-radius:0!important;
+  margin:0!important;
+}
+#gallery-grid .gallery-card .item-content,
+#category-grid .gallery-card .item-content{
+  min-height:245px!important;
+  margin-top:-10px!important;
+  border-radius:18px 18px 0 0!important;
+  overflow:hidden!important;
+}
+/* La tarjeta recorta siempre cualquier píxel de foto que intente salir del marco. */
+.item-card,.item-card.is-featured,.item-card.is-offer,.item-card.is-featured.is-offer{
+  position:relative!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  clip-path:inset(0 round 22px)!important;
+  isolation:isolate!important;
+}
+.item-card .image-wrapper{
+  position:relative!important;
+  display:block!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  height:auto!important;
+  aspect-ratio:5/4!important;
+  overflow:hidden!important;
+  clip-path:inset(0)!important;
+  border-radius:0!important;
+  margin:0!important;
+}
+.item-card .image-wrapper>img,.item-card .image-wrapper>.item-image{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  border-radius:0!important;
+  transform:none!important;
+  scale:1!important;
+}
+.item-card .item-content{
+  position:relative!important;
+  z-index:2!important;
+  box-sizing:border-box!important;
+  min-width:0!important;
+  margin-top:-10px!important;
+  border-radius:18px 18px 0 0!important;
+  overflow:hidden!important;
+}
+/* En inicio, dos o pocas especialidades se centran sin convertir la fila en carrusel. */
+body[data-page="home"] #specialties-grid.is-centered{
+  display:flex!important;
+  flex-flow:row wrap!important;
+  justify-content:center!important;
+  align-items:stretch!important;
+  gap:22px!important;
+  width:100%!important;
+  max-width:1412px!important;
+  margin-inline:auto!important;
+  overflow:visible!important;
+}
+body[data-page="home"] #specialties-grid.is-centered>.item-card{
+  flex:0 1 calc((100% - 44px)/3)!important;
+  width:calc((100% - 44px)/3)!important;
+  min-width:0!important;
+  max-width:none!important;
+  margin:0!important;
+}
+@media(max-width:900px){
+  #products-grid,#gallery-grid,#category-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:20px!important;
+  }
+  #products-grid.grid-count-2,#gallery-grid.grid-count-2,#category-grid.grid-count-2{
+    grid-template-columns:repeat(2,minmax(0,360px))!important;
+  }
+  body[data-page="home"] #specialties-grid.is-centered>.item-card{
+    flex-basis:calc((100% - 22px)/2)!important;
+    width:calc((100% - 22px)/2)!important;
+  }
+}
+@media(max-width:700px){
+  #products-grid,#gallery-grid,#category-grid,
+  #products-grid.grid-count-2,#gallery-grid.grid-count-2,#category-grid.grid-count-2,
+  #products-grid.grid-balanced-2,#gallery-grid.grid-balanced-2,#category-grid.grid-balanced-2{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    justify-content:center!important;
+    justify-items:center!important;
+    gap:22px!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin-inline:auto!important;
+  }
+  #products-grid>.item-card,#gallery-grid>.item-card,#category-grid>.item-card{
+    width:100%!important;
+    max-width:520px!important;
+    min-width:0!important;
+    margin-inline:auto!important;
+  }
+  #products-grid .image-wrapper,#gallery-grid .image-wrapper,#category-grid .image-wrapper{
+    aspect-ratio:5/4!important;
+  }
+  body[data-page="home"] #specialties-grid.is-centered>.item-card{
+    flex:0 1 100%!important;
+    width:100%!important;
+    max-width:460px!important;
+  }
+}

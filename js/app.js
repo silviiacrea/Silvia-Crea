@@ -112,16 +112,32 @@ async function fetchJsonNoCache(url){
   return normalizeSiteData(data);
  }finally{clearTimeout(timer);}
 }
+const SITE_DATA_CACHE_KEY="silvia-crea-site-data-v29";
+const SITE_DATA_CACHE_TTL=90*1000;
+function readCachedSiteData(){
+ try{const saved=JSON.parse(localStorage.getItem(SITE_DATA_CACHE_KEY)||"null");
+  if(saved&&validSiteData(saved.data)&&Date.now()-saved.savedAt<SITE_DATA_CACHE_TTL)return saved.data;
+ }catch{}
+ return null;
+}
+function saveCachedSiteData(data){
+ try{localStorage.setItem(SITE_DATA_CACHE_KEY,JSON.stringify({savedAt:Date.now(),data}));}catch{}
+}
 async function fetchFreshSiteData(){
+ const cached=readCachedSiteData();
+ if(cached){applyShopAccessImage(cached.imagenTiendaInicio||cached.shopImage||"");return cached;}
  const failures=[];
  for(const source of getDataSources()){
   try{
    const data=await fetchJsonNoCache(source);
    if(!validSiteData(data))throw new Error("JSON recibido, pero faltan las listas catalogo/trabajos/especialidades");
+   saveCachedSiteData(data);
    applyShopAccessImage(data.imagenTiendaInicio||data.shopImage||"");
    return data;
   }catch(err){failures.push(new URL(source).hostname+": "+(err.message||"error"));}
  }
+ // Si no hay red, permite mostrar el último catálogo guardado durante un máximo de 24 h.
+ try{const saved=JSON.parse(localStorage.getItem(SITE_DATA_CACHE_KEY)||"null");if(saved&&validSiteData(saved.data)&&Date.now()-saved.savedAt<24*60*60*1000){applyShopAccessImage(saved.data.imagenTiendaInicio||saved.data.shopImage||"");return saved.data;}}catch{}
  throw new Error("No se pudo obtener datos.json. "+failures.join(" | "));
 }
 async function fetchMaintenanceStatus(){
@@ -396,7 +412,7 @@ const classes=["item-card",kind==="gallery"?"gallery-card":"",p.featured?"is-fea
   
 return `<article class="${classes}" data-card-kind="${kind}" data-index="${index}" tabindex="0" role="group" aria-label="${esc(p.name||p.title)}. Pulsa para ver el detalle">   
 ${featured}${offer}   
-${image?`<div class="image-wrapper"><img class="item-image" src="${esc(workerModeUrl(image,kind==="gallery"?"gallery":"card"))}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
+${image?`<div class="image-wrapper"><img class="item-image" src="${esc(workerModeUrl(image,"card"))}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
 <img class="card-logo-watermark" src="assets/logo%20web.png" alt="" aria-hidden="true" loading="lazy">
 <div class="item-content"><h3>${esc(p.name||p.title)}</h3><p>${esc(desc)}</p>   
 ${metaHtml}  
