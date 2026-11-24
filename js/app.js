@@ -67,15 +67,9 @@ function validSiteData(data){
 }
 function getDataSources(){
  const sources=[];
- if(cfg.dataJsonUrl){
-  sources.push(cfg.dataJsonUrl);
-  const m=String(cfg.dataJsonUrl).match(/^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/);
-  if(m)sources.push(`https://cdn.jsdelivr.net/gh/${m[1]}/${m[2]}@${m[3]}/${m[4]}`);
- }
- if(cfg.appsScriptUrl){
-  sources.push(cfg.appsScriptUrl);
-  try{const u=new URL(cfg.appsScriptUrl);u.searchParams.set("action","data");sources.push(u.href);}catch{}
- }
+ if(cfg.workerBaseUrl)sources.push(cfg.workerBaseUrl.replace(/\/$/,"")+"/datos.json");
+ if(cfg.dataJsonUrl)sources.push(cfg.dataJsonUrl);
+ if(cfg.appsScriptUrl){sources.push(cfg.appsScriptUrl);try{const u=new URL(cfg.appsScriptUrl);u.searchParams.set("action","data");sources.push(u.href);}catch{}}
  return [...new Set(sources.filter(Boolean))];
 }
 async function fetchJsonNoCache(url){
