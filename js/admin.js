@@ -129,5 +129,40 @@ $('recheck-version')?.addEventListener('click',checkPublishedVersion);
 $('refresh-orders')?.addEventListener('click',loadOrderStats);
 $('refresh-worker-health')?.addEventListener('click',loadWorkerHealth);
 $('run-generation').addEventListener('click',async()=>{if(!confirm('¿Quieres regenerar y publicar ahora todas las páginas de catálogo, trabajos y el sitemap?'))return;const b=$('run-generation');b.disabled=true;status.textContent='Enviando solicitud a GitHub Actions…';try{const d=await call('/admin/generate',{},true);status.textContent=d.message||'Solicitud aceptada por GitHub.';}catch(e){status.textContent='No se pudo solicitar la actualización SEO: '+e.message;sessionExpired(e);}finally{b.disabled=false;}});
+
+let cleanupPreview=null;
+function resetCleanup(){cleanupPreview=null;const result=$('cleanup-result'),button=$('execute-cleanup'),list=$('cleanup-list');if(result)result.hidden=true;if(button){button.hidden=true;button.disabled=true;}if(list)list.replaceChildren();}
+$('preview-cleanup')?.addEventListener('click',async()=>{
+ const button=$('preview-cleanup'),result=$('cleanup-result'),summary=$('cleanup-summary'),list=$('cleanup-list'),execute=$('execute-cleanup');
+ resetCleanup();button.disabled=true;button.textContent='Consultando Google Sheets…';status.textContent='Leyendo las filas activas de Google Sheets y comparándolas con las carpetas de GitHub…';
+ try{
+  const d=await call('/admin/cleanup/preview',{},true);
+  cleanupPreview=d;result.hidden=false;summary.textContent=d.message||'Análisis completado.';
+  if(Array.isArray(d.orphans)&&d.orphans.length){
+   const counts={};d.orphans.forEach(item=>{counts[item.section]=(counts[item.section]||0)+1;const li=document.createElement('li');li.textContent=item.section+': '+item.slug+'/ ('+item.files+' archivo'+(item.files===1?'':'s')+')';list.appendChild(li);});
+   const line=document.createElement('li');line.textContent='Total: '+d.count+' carpeta(s) · '+d.fileCount+' archivo(s).';line.style.fontWeight='700';list.appendChild(line);
+   execute.hidden=false;execute.disabled=false;
+  }else{
+   const li=document.createElement('li');li.textContent='No se ha detectado ninguna carpeta que deba eliminarse.';list.appendChild(li);
+  }
+  status.textContent=d.message||'Análisis completado.';
+ }catch(e){result.hidden=false;summary.textContent='No se pudo completar el análisis: '+e.message;status.textContent=summary.textContent;sessionExpired(e);}
+ finally{button.disabled=false;button.textContent='Volver a revisar carpetas';}
+});
+$('execute-cleanup')?.addEventListener('click',async()=>{
+ if(!cleanupPreview||!cleanupPreview.count)return;
+ const names=(cleanupPreview.orphans||[]).map(x=>x.folder+'/'+x.slug+'/').join('\n');
+ if(!confirm('Se eliminarán '+cleanupPreview.count+' carpeta(s) detectadas en GitHub.\n\n'+names+'\n\nSe volverá a consultar Google Sheets antes de borrar. ¿Quieres continuar?'))return;
+ const button=$('execute-cleanup'),previewButton=$('preview-cleanup');button.disabled=true;previewButton.disabled=true;button.textContent='Limpiando GitHub…';status.textContent='Revalidando Google Sheets y preparando un único commit de eliminación en GitHub…';
+ try{
+  const d=await call('/admin/cleanup/execute',{},true);
+  $('cleanup-summary').textContent=d.message||'Limpieza completada.';
+  $('cleanup-list').replaceChildren();
+  const li=document.createElement('li');li.textContent='Carpetas eliminadas: '+(d.deletedFolders??0)+' · Archivos eliminados: '+(d.deletedFiles??0)+' · URLs retiradas del sitemap: '+(d.sitemapUrlsRemoved??0)+'.';$('cleanup-list').appendChild(li);
+  cleanupPreview=null;button.hidden=true;button.disabled=true;status.textContent=d.message||'Limpieza publicada en GitHub.';
+ }catch(e){$('cleanup-summary').textContent='No se ha completado la limpieza: '+e.message;status.textContent=$('cleanup-summary').textContent;sessionExpired(e);}
+ finally{button.textContent='Eliminar carpetas obsoletas';previewButton.disabled=false;}
+});
+
 $('logout').addEventListener('click',()=>{token='';sessionStorage.removeItem('silvia_admin_session');show();status.textContent='Sesión cerrada.';});
 })();
