@@ -61,7 +61,11 @@ async function loadOrderStats(){
  try{
   const d=await call('/admin/orders/stats',{},true,'GET');
   total.textContent=String(d.total);completed.textContent=String(d.completed);pending.textContent=String(d.pending);
-  note.textContent='Datos leídos directamente de Google Sheets · PEDIDOS, columna N para completados.';
+  const src=d.source||{};
+  const origin=src.spreadsheetName
+   ? ` Archivo: ${src.spreadsheetName} · Pestaña: ${src.sheetName||'PEDIDOS'} · Última fila con contenido: ${src.lastRow??'—'} · IDs detectados: ${d.total}.`
+   : '';
+  note.textContent='Datos leídos directamente de Google Sheets · completados según la columna N.'+origin;
  }catch(e){
   total.textContent=completed.textContent=pending.textContent='—';
   note.textContent=e.message;sessionExpired(e);
