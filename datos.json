@@ -17,7 +17,7 @@
       "oferta": true,
       "precioOferta": 8,
       "album": "Gnomos",
-      "categoria": "q",
+      "categoria": "",
       "descripcionFicha": ""
     },
     {
@@ -32,7 +32,7 @@
       "oferta": false,
       "precioOferta": "",
       "album": "",
-      "categoria": "w",
+      "categoria": "",
       "descripcionFicha": ""
     }
   ],
@@ -43,7 +43,7 @@
       "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadamigurumi.jpg",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadamigurumi.jpg",
-      "descripcionFicha": "asd",
+      "descripcionFicha": "",
       "album": "",
       "destacado": true
     },
@@ -53,26 +53,6 @@
       "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadpulseras.PNG",
       "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadpulseras.PNG",
-      "descripcionFicha": "asd",
-      "album": "",
-      "destacado": false
-    },
-    {
-      "nombre": "Pulsera de Abalorios",
-      "descripcion": "",
-      "imagen": "",
-      "descripcionCompleta": "",
-      "imagenGrande": "",
-      "descripcionFicha": "",
-      "album": "",
-      "destacado": false
-    },
-    {
-      "nombre": "Pulsera de Abalorios",
-      "descripcion": "",
-      "imagen": "",
-      "descripcionCompleta": "",
-      "imagenGrande": "",
       "descripcionFicha": "",
       "album": "",
       "destacado": false
@@ -87,7 +67,7 @@
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/ballenitascrochet.jpg",
       "descripcionFicha": "",
       "album": "",
-      "categoria": "a"
+      "categoria": ""
     },
     {
       "nombre": "Pulsera de Abalorios",
@@ -97,15 +77,9 @@
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/bolsitocrochet.jpg",
       "descripcionFicha": "",
       "album": "",
-      "categoria": "b"
+      "categoria": ""
     }
   ],
-  "categoriasTienda": [
-    "q",
-    "w"
-  ],
-  "categoriasTrabajos": [
-    "a",
-    "b"
-  ]
+  "categoriasTienda": [],
+  "categoriasTrabajos": []
 }
