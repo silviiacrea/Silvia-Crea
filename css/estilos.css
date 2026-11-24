@@ -1492,3 +1492,58 @@ body[data-page="home"] #specialties-grid.is-centered>.item-card{
  body[data-page="home"] #specialties-grid.has-slider>.item-card,
  body[data-page="home"] #specialties-grid.is-centered>.item-card{flex-basis:100%!important;width:100%!important;}
 }
+
+/* VERSION 10: el carrusel de especialidades ocupa el ancho visual del bloque principal. */
+body[data-page="home"] section.section.tinted > .home-slider-wrapper{
+  position:relative!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  width:min(1412px,calc(100vw - 48px))!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:0 26px!important;
+  box-sizing:border-box!important;
+}
+body[data-page="home"] section.section.tinted > .home-slider-wrapper > #specialties-grid{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  gap:24px!important;
+}
+body[data-page="home"] #specialties-grid.has-slider,
+body[data-page="home"] #specialties-grid.is-centered{
+  display:flex!important;
+  flex-flow:row nowrap!important;
+  justify-content:center!important;
+  align-items:stretch!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+}
+body[data-page="home"] #specialties-grid.has-slider{justify-content:flex-start!important;}
+body[data-page="home"] #specialties-grid.has-slider > .item-card,
+body[data-page="home"] #specialties-grid.is-centered > .item-card{
+  flex:0 0 calc((100% - 72px)/4)!important;
+  width:calc((100% - 72px)/4)!important;
+  min-width:0!important;
+  max-width:none!important;
+  margin:0!important;
+}
+@media(max-width:1020px){
+ body[data-page="home"] #specialties-grid.has-slider > .item-card,
+ body[data-page="home"] #specialties-grid.is-centered > .item-card{
+  flex-basis:calc((100% - 48px)/3)!important;width:calc((100% - 48px)/3)!important;
+ }
+}
+@media(max-width:760px){
+ body[data-page="home"] section.section.tinted > .home-slider-wrapper{width:calc(100vw - 36px)!important;padding:0 18px!important;}
+ body[data-page="home"] #specialties-grid.has-slider > .item-card,
+ body[data-page="home"] #specialties-grid.is-centered > .item-card{
+  flex-basis:calc((100% - 24px)/2)!important;width:calc((100% - 24px)/2)!important;
+ }
+}
+@media(max-width:520px){
+ body[data-page="home"] section.section.tinted > .home-slider-wrapper{width:calc(100vw - 24px)!important;padding:0 12px!important;}
+ body[data-page="home"] #specialties-grid.has-slider > .item-card,
+ body[data-page="home"] #specialties-grid.is-centered > .item-card{flex-basis:100%!important;width:100%!important;}
+}
