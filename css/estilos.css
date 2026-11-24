@@ -2794,3 +2794,135 @@ body[data-page="home"] #specialties-grid.is-centered>.item-card{
   left:calc(50% + 12px)!important;
   bottom:calc(var(--card-copy-height,160px) + 48px)!important;
 }
+
+
+/* VERSION 36 — corrección estructural de logos, centrado y dimensiones. */
+
+/* El logo de esquina lo pinta exclusivamente Cloudflare Worker dentro de la foto.
+   Evita que una segunda marca superpuesta desde el HTML vuelva a aparecer. */
+.item-card .card-logo-watermark{display:none!important;}
+
+/* Tres especialidades: el wrapper dinámico y la rejilla ocupan todo el espacio
+   disponible; la rejilla tiene ancho propio centrado, no alineado al margen izquierdo. */
+body[data-page="home"] .home-slider-wrapper{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  box-sizing:border-box!important;
+}
+@media(min-width:901px){
+  body[data-page="home"] #specialties-grid.is-centered{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    width:calc(100% - 52px)!important;
+    max-width:1120px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    justify-content:center!important;
+    justify-items:stretch!important;
+    gap:22px!important;
+    padding:12px 0 18px!important;
+    box-sizing:border-box!important;
+  }
+  body[data-page="home"] #specialties-grid.is-centered>.item-card{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+}
+@media(max-width:900px) and (min-width:701px){
+  body[data-page="home"] #specialties-grid.is-centered{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    width:calc(100% - 44px)!important;
+    max-width:760px!important;
+    margin-inline:auto!important;
+    justify-content:center!important;
+    justify-items:stretch!important;
+    gap:22px!important;
+  }
+  body[data-page="home"] #specialties-grid.is-centered>.item-card:nth-child(3):last-child{
+    grid-column:1/-1!important;
+    width:calc((100% - 22px)/2)!important;
+    justify-self:center!important;
+  }
+}
+@media(max-width:700px){
+  body[data-page="home"] #specialties-grid.is-centered{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:100%!important;
+    margin-inline:auto!important;
+  }
+  body[data-page="home"] #specialties-grid.is-centered>.item-card{
+    width:calc(100% - 24px)!important;
+    max-width:460px!important;
+    margin-inline:auto!important;
+  }
+}
+
+/* Tienda y Galería usan exactamente la misma geometría de tarjeta.
+   Se unifica también el ancho de las rejillas para evitar diferencias heredadas. */
+#products-grid,#gallery-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  justify-items:stretch!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin-inline:0!important;
+  column-gap:18px!important;
+  row-gap:24px!important;
+}
+#products-grid>.item-card,#gallery-grid>.item-card{
+  display:flex!important;
+  flex-direction:column!important;
+  align-self:stretch!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:100%!important;
+  min-height:0!important;
+  box-sizing:border-box!important;
+}
+#products-grid>.item-card .image-wrapper,#gallery-grid>.item-card .image-wrapper{
+  display:block!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:5/4!important;
+  overflow:hidden!important;
+}
+#products-grid>.item-card .image-wrapper>.item-image,
+#gallery-grid>.item-card .image-wrapper>.item-image{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+}
+#products-grid>.item-card .item-content,#gallery-grid>.item-card .item-content{
+  display:flex!important;
+  flex:1 0 245px!important;
+  flex-direction:column!important;
+  width:100%!important;
+  height:245px!important;
+  min-height:245px!important;
+  max-height:245px!important;
+  box-sizing:border-box!important;
+  margin-top:-10px!important;
+  overflow:hidden!important;
+}
+@media(max-width:900px) and (min-width:701px){
+  #products-grid,#gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+}
+@media(max-width:700px){
+  #products-grid,#gallery-grid{grid-template-columns:minmax(0,1fr)!important;}
+  #products-grid>.item-card,#gallery-grid>.item-card{width:100%!important;max-width:520px!important;margin-inline:auto!important;}
+}

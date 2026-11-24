@@ -413,7 +413,6 @@ const classes=["item-card",(kind==="gallery"||kind==="product")?"gallery-card":"
 return `<article class="${classes}" data-card-kind="${kind}" data-index="${index}" tabindex="0" role="group" aria-label="${esc(p.name||p.title)}. Pulsa para ver el detalle">   
 ${featured}${offer}   
 ${image?`<div class="image-wrapper"><img class="item-image" src="${esc(workerModeUrl(image,isProduct?"card":kind==="specialty"?"specialty":"gallery"))}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
-<img class="card-logo-watermark" src="assets/logo%20web.png" alt="" aria-hidden="true" loading="lazy">
 <div class="item-content"><h3>${esc(p.name||p.title)}</h3><p>${esc(desc)}</p>   
 ${metaHtml}  
 <div class="item-actions"><button class="mini-btn detail-button" type="button" data-detail-card="${kind}" data-index="${index}">Ver detalles</button>${isProduct?`<button class="mini-btn add-button" type="button" data-add="${index}" ${p.stock<=0?"disabled":""}>Añadir carrito</button>`:''}</div>   
