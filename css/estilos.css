@@ -921,3 +921,58 @@ html,body{overflow-x:hidden!important;overscroll-behavior-x:none!important;width
 .drawer-backdrop{visibility:hidden!important;opacity:0!important;pointer-events:none!important;transition:opacity .2s ease,visibility .2s!important;}
 .drawer-backdrop.open{visibility:visible!important;opacity:1!important;pointer-events:auto!important;}
 @media(max-width:700px){.cart-drawer{right:-100vw!important;width:100vw!important;max-width:100vw!important;}.cart-drawer.open{right:0!important;}}
+
+
+/* ================== AJUSTES VISUALES V5 ================== */
+/* Fotos contenidas dentro del marco redondeado en inicio, tienda y galería. */
+.item-card{overflow:hidden!important;border-radius:22px!important;}
+.item-card .image-wrapper{overflow:hidden!important;border-radius:21px 21px 12px 12px!important;clip-path:inset(0 round 21px 21px 12px 12px);}
+.item-card .image-wrapper .item-image{display:block;width:100%;height:100%;object-fit:cover;}
+/* El Worker ya incorpora una sola marca de agua en esquina inferior derecha; ocultamos el logo adicional superpuesto. */
+.item-card .card-logo-watermark{display:none!important;}
+/* Inicio: tarjetas de especialidades mayores y con ancho equivalente al bloque de sección. */
+#specialties-grid.has-slider .item-card{flex-basis:clamp(360px,43%,560px)!important;min-width:0!important;max-width:560px!important;}
+#specialties-grid.is-centered{flex-wrap:wrap!important;justify-content:center!important;}
+#specialties-grid.is-centered .item-card{flex:0 1 calc((100% - 32px)/2)!important;max-width:560px!important;min-width:0!important;}
+#specialties-grid .item-card .image-wrapper{aspect-ratio:5/4!important;}
+#specialties-grid .item-card .item-content{min-height:230px!important;padding:22px 24px 24px!important;}
+@media(max-width:900px){
+ #specialties-grid.has-slider .item-card{flex-basis:calc((100% - 24px)/2)!important;max-width:none!important;}
+ #specialties-grid.is-centered .item-card{flex-basis:calc((100% - 24px)/2)!important;max-width:none!important;}
+}
+@media(max-width:640px){
+ #specialties-grid.has-slider .item-card,#specialties-grid.is-centered .item-card{flex:0 0 100%!important;width:100%!important;max-width:520px!important;}
+ #specialties-grid .item-card .item-content{min-height:200px!important;padding:18px!important;}
+}
+/* Más espacio para fotos y tarjetas grandes en Tienda y Galería. */
+#products-grid,#gallery-grid,#category-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:clamp(20px,2.6vw,34px)!important;}
+#products-grid .image-wrapper,#gallery-grid .image-wrapper,#category-grid .image-wrapper{aspect-ratio:5/4!important;}
+#products-grid .item-card,#gallery-grid .item-card,#category-grid .item-card{width:100%!important;max-width:none!important;min-width:0!important;}
+@media(max-width:640px){#products-grid,#gallery-grid,#category-grid{grid-template-columns:1fr!important;}#products-grid .item-card,#gallery-grid .item-card,#category-grid .item-card{max-width:520px!important;margin-inline:auto!important;}}
+/* Modal: fixed al viewport, centrado en escritorio y móvil. No se posiciona sobre el inicio del documento. */
+#product-modal.modal-backdrop{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;display:none!important;align-items:center!important;justify-content:center!important;overflow:auto!important;padding:clamp(8px,2vw,24px)!important;box-sizing:border-box!important;z-index:2147481000!important;background:rgba(48,36,53,.42)!important;}
+#product-modal.open{display:flex!important;}
+#product-modal .product-modal{position:relative!important;top:auto!important;left:auto!important;transform:none!important;margin:auto!important;max-height:calc(100dvh - 24px)!important;max-width:min(1180px,96vw)!important;width:min(1180px,96vw)!important;overflow:auto!important;overscroll-behavior:contain!important;}
+#product-modal .modal-photo-stage{background:var(--lilac-pale)!important;border-radius:22px 0 0 0!important;overflow:hidden!important;position:relative!important;}
+#product-modal .modal-image-container{background:var(--lilac-pale)!important;border-radius:0!important;}
+#product-modal .modal-copy{background:inherit!important;}
+#product-modal .modal-album{background:var(--blue-pastel-soft)!important;justify-content:center!important;scrollbar-width:thin!important;}
+#product-modal .modal-album .album-thumb{flex-shrink:0!important;}
+#product-modal .modal-stage-arrow{position:absolute!important;top:50%!important;transform:translateY(-50%)!important;z-index:10!important;display:none!important;}
+#product-modal .modal-stage-arrow[style*="display: flex"],#product-modal .modal-stage-arrow[style*="display:flex"]{display:flex!important;}
+#product-modal #modal-prev{left:10px!important;}
+#product-modal #modal-next{right:10px!important;}
+@media(max-width:700px){
+ #product-modal.modal-backdrop{align-items:center!important;justify-content:center!important;padding:8px!important;}
+ #product-modal .product-modal{width:min(560px,96vw)!important;max-width:96vw!important;max-height:calc(100dvh - 16px)!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important;}
+ #product-modal .modal-photo-stage{grid-column:1!important;grid-row:1!important;border-radius:22px 22px 0 0!important;}
+ #product-modal .modal-album{grid-column:1!important;grid-row:2!important;justify-content:center!important;width:100%!important;}
+ #product-modal .modal-copy{grid-column:1!important;grid-row:3!important;max-height:none!important;}
+ #product-modal .modal-stage-arrow{width:38px!important;height:38px!important;}
+}
+/* Visor de imagen grande: fijo al viewport, sin scroll, y centrado igual en móvil/PC. */
+#fs-modal{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-height:100dvh!important;overflow:hidden!important;display:none!important;align-items:center!important;justify-content:center!important;padding:12px!important;box-sizing:border-box!important;z-index:2147482000!important;}
+#fs-modal.open{display:flex!important;}
+#fs-modal .fs-modal-content{position:relative!important;top:auto!important;left:auto!important;transform:none!important;margin:0!important;max-width:calc(100vw - 96px)!important;max-height:calc(100dvh - 24px)!important;overflow:hidden!important;}
+#fs-modal #fs-modal-image{width:auto!important;height:auto!important;max-width:calc(100vw - 96px)!important;max-height:calc(100dvh - 24px)!important;object-fit:contain!important;}
+@media(max-width:700px){#fs-modal .fs-modal-content,#fs-modal #fs-modal-image{max-width:calc(100vw - 76px)!important;max-height:calc(100dvh - 24px)!important;}#fs-modal #fs-prev{left:6px!important;}#fs-modal #fs-next{right:6px!important;}}

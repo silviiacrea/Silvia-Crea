@@ -27,7 +27,7 @@ document.addEventListener("touchstart", updateViewVars, {passive: true, capture:
 // -----------------------------------------------------  
   
 const cfg = window.SILVIA_CONFIG || {};
-window.addEventListener("DOMContentLoaded",()=>{const fs=document.getElementById("fs-modal");if(fs&&fs.parentElement!==document.body)document.body.appendChild(fs);},{once:true});   
+window.addEventListener("DOMContentLoaded",()=>{const fs=document.getElementById("fs-modal");if(fs&&fs.parentElement!==document.body)document.body.appendChild(fs);const pm=document.getElementById("product-modal");if(pm&&pm.parentElement!==document.body)document.body.appendChild(pm);},{once:true});   
 const $ = (s, root=document) => root.querySelector(s); const $$ = (s, root=document) => [...root.querySelectorAll(s)];   
 const CART_KEY = "silviacrea_cart_v2";   
 let products = [], specialties = [], gallery = [], cart = loadCart(), modalProduct = null, toastTimer, modalPhotos = [], modalPhotoIndex = 0;
@@ -212,7 +212,7 @@ function setupModalAlbum(photos,mainSrc){
   if(!next){next=document.createElement("button");next.type="button";next.id="modal-next";next.className="modal-stage-arrow";next.setAttribute("aria-label","Fotografía siguiente");next.textContent="›";next.addEventListener("click",()=>setModalPhoto(modalPhotoIndex+1));stage.appendChild(next);}
   let gallery=$("#modal-album");if(!gallery){gallery=document.createElement("div");gallery.id="modal-album";gallery.className="modal-album";stage.insertAdjacentElement("afterend",gallery);}
   const all=[mainSrc,...photos].filter(safeImg),seen=new Set();modalPhotos=all.filter(src=>{const key=imageIdentity(src);if(seen.has(key))return false;seen.add(key);return true;});modalPhotoIndex=0;
-  gallery.innerHTML="";gallery.style.display=modalPhotos.length>1?"flex":"none";
+  gallery.innerHTML="";gallery.style.display=modalPhotos.length>1?"flex":"none";gallery.style.justifyContent=modalPhotos.length<=5?"center":"flex-start";
   modalPhotos.forEach((src,i)=>{const b=document.createElement("button");b.type="button";b.className="album-thumb"+(i===0?" active":"");b.setAttribute("aria-label","Ver foto "+(i+1));const img=document.createElement("img");img.src=workerModeUrl(src,"thumb");img.alt="Foto "+(i+1);img.loading="lazy";img.decoding="async";b.appendChild(img);b.addEventListener("click",()=>setModalPhoto(i));gallery.appendChild(b);});
   if(modalPhotos.length)setModalPhoto(0);
 }
@@ -241,10 +241,10 @@ const m=$(".product-modal");
      if(modalProduct===p || $("#modal-title").textContent===(p.name||p.title||"")) setupModalAlbum(photos,src);
    });
  }
- $("#product-modal")?.classList.add("open");$("#product-modal")?.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";   
+ $("#product-modal")?.classList.add("open");$("#product-modal")?.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";document.documentElement.style.overflow="hidden";   
 }   
   
-function closeProduct(){$("#product-modal")?.classList.remove("open");$("#product-modal")?.setAttribute("aria-hidden","true");document.body.style.overflow="";}   
+function closeProduct(){$("#product-modal")?.classList.remove("open");$("#product-modal")?.setAttribute("aria-hidden","true");if(!$("#fs-modal")?.classList.contains("open")){document.body.style.overflow="";document.documentElement.style.overflow="";}}   
   
 function prepareSlider(el,count){
  if(!el)return;
@@ -609,7 +609,7 @@ if(pModal.classList.contains("theme-pink")) fsContent.classList.add("theme-pink"
  if(pModal.classList.contains("theme-lilac")) fsContent.classList.add("theme-lilac");  
  $("#fs-prev").style.display=modalPhotos.length>1?"flex":"none";$("#fs-next").style.display=modalPhotos.length>1?"flex":"none";
  fsModal.classList.add("open");  
- fsModal.setAttribute("aria-hidden", "false");  
+ fsModal.setAttribute("aria-hidden", "false");document.body.style.overflow="hidden";document.documentElement.style.overflow="hidden";  
  }  
 }  
   
