@@ -76,7 +76,7 @@ async function fetchJsonNoCache(url){
  const u=url+(url.includes("?")?"&":"?")+"scv="+Date.now()+"_"+Math.random().toString(36).slice(2);
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
  try{
-  const response=await fetch(u,{cache:"no-store",headers:{"Cache-Control":"no-cache","Pragma":"no-cache"},signal:controller.signal});
+  const response=await fetch(u,{cache:"no-store",mode:"cors",signal:controller.signal});
   if(!response.ok)throw new Error("HTTP "+response.status);
   const text=await response.text();let data;
   try{data=JSON.parse(text);}catch{throw new Error("La respuesta no es JSON válido");}
