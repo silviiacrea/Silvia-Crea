@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow,noarchive"><meta name="silvia-build" content="48.0">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="silvia-build" content="49.0">
 <title>Administración privada | Silvia Crea</title><link rel="icon" href="assets/logo%20web.png">
-<link rel="stylesheet" href="css/estilos.css?v=48.0">
+<link rel="stylesheet" href="css/estilos.css?v=49.0">
 <style>
 .admin-wrap{width:min(920px,calc(100% - 32px));margin:48px auto;padding:clamp(20px,4vw,38px);background:#fff;border:1px solid #eadfd8;border-radius:22px;box-shadow:0 14px 42px #5d392012}
 .admin-wrap h1,.admin-wrap h2{font-family:'Playfair Display',serif;color:#493b4d}.admin-intro{color:#655b55;max-width:720px;line-height:1.65}
@@ -31,9 +31,20 @@ button:disabled{opacity:.48;cursor:not-allowed}.admin-divider{border:0;border-to
 <div id="maintenance-state" class="admin-state"><span class="admin-dot"></span><span id="maintenance-current">Consultando el servidor…</span></div>
 <div class="admin-actions"><button class="btn btn-primary" id="set-normal" type="button">Poner web en modo normal</button><button class="btn" id="set-maintenance" type="button">Activar modo mantenimiento</button></div>
 </section>
+<section class="admin-card" id="version-card"><h2>Versión web</h2>
+<p class="admin-note">Consulta la versión que está publicada y la fecha de la última actualización de datos.json en GitHub.</p>
+<div class="admin-state"><span class="admin-dot"></span><span id="version-current">Comprobando versión publicada…</span></div>
+<p class="admin-note" id="version-info" role="status">Consultando la página principal publicada.</p>
+<div class="admin-divider"></div>
+<h3>Última actualización de datos.json</h3>
+<div class="admin-state"><span class="admin-dot"></span><span id="data-updated">Consultando GitHub…</span></div>
+<p class="admin-note" id="data-source"></p>
+<div class="admin-actions"><button class="btn" id="recheck-version" type="button">Volver a comprobar</button></div>
+<p class="admin-note" id="version-checked"></p>
+</section>
 <section class="admin-card"><h2>Actualización SEO</h2><p class="admin-note">Solicita la actualización automática de las páginas individuales del catálogo, la galería y el sitemap. El proceso se ejecuta en GitHub Actions y puede tardar unos minutos.</p>
 <div class="admin-actions"><button class="btn btn-primary" id="run-generation" type="button">Actualizar catálogo, galería y SEO ahora</button></div>
 </section></div>
 <div class="admin-actions"><button class="btn" id="logout" type="button">Cerrar sesión</button></div></section>
 <div class="admin-status" id="admin-status" role="status" aria-live="polite">Introduce tus credenciales de administrador.</div></main>
-<footer class="site-footer"><p>Silvia Crea · Panel privado</p></footer><script src="js/admin.js?v=48.0" defer></script></body></html>
+<footer class="site-footer"><p>Silvia Crea · Panel privado</p></footer><script src="js/admin.js?v=49.0" defer></script></body></html>
