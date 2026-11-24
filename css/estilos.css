@@ -1976,86 +1976,79 @@ body[data-page="home"] #specialties-grid.has-slider > .item-card {
    Se conserva también con ahorro de energía o prefers-reduced-motion. */
 
 
-/* VERSION 18 — remates visuales de tarjetas, categorías y cierres. */
-/* Imagen y panel de texto comparten una única unión limpia: sin esquinas de fondo visibles. */
-.item-card{border-radius:20px!important;overflow:hidden!important;}
-.item-card .image-wrapper{
-  border-radius:19px 19px 0 0!important;
-  clip-path:none!important;
-  overflow:hidden!important;
-  margin:0!important;
-  line-height:0!important;
+/* VERSION 19 — filas de categorías equilibradas y marcos de tarjetas sin fugas. */
+.category-tiles{
+  display:grid!important;
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  width:min(100%,1460px)!important;
+  max-width:1460px!important;
+  justify-content:center!important;
+  justify-items:stretch!important;
+  align-items:stretch!important;
+  gap:10px!important;
+  margin-inline:auto!important;
+  box-sizing:border-box!important;
 }
-.item-card .image-wrapper img,
-.item-card .image-wrapper .item-image{
-  display:block!important;
-  border-radius:0!important;
-  clip-path:none!important;
-  transform:none!important;
-  transition:none!important;
+.category-tiles>.category-tile{
+  width:100%!important;min-width:0!important;max-width:none!important;
+  box-sizing:border-box!important;justify-self:stretch!important;
 }
-.item-card .item-content{
-  margin-top:0!important;
-  border-radius:0!important;
-  position:relative!important;
-  z-index:2!important;
+.category-tiles>.category-tile.category-color-1{
+  background:var(--lilac-card)!important;border-color:#dfceeb!important;
 }
-/* Movimiento más delicado y uniforme para todas las tarjetas. */
+.category-tiles>.category-tile.category-color-2{
+  background:var(--pink-soft)!important;border-color:#f0d5e1!important;
+}
+@media(max-width:900px) and (min-width:521px){
+  .category-tiles{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+}
+@media(max-width:520px){
+  .category-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .category-tiles>.category-tile:nth-child(4n+1),
+  .category-tiles>.category-tile:nth-child(4n+4){background:var(--lilac-card)!important;border-color:#dfceeb!important;}
+  .category-tiles>.category-tile:nth-child(4n+2),
+  .category-tiles>.category-tile:nth-child(4n+3){background:var(--pink-soft)!important;border-color:#f0d5e1!important;}
+}
+
+/* El marco forma parte de la tarjeta: nada puede pintar por fuera de él. */
 .item-card,
 .item-card.is-featured,
 .item-card.is-offer,
 .item-card.is-featured.is-offer{
-  transition:transform .38s cubic-bezier(.2,.7,.25,1),box-shadow .38s ease!important;
+  position:relative!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  border-radius:22px!important;
+  clip-path:inset(0 round 22px)!important;
+  isolation:isolate!important;
 }
-.item-card:hover,
-.item-card:focus-within,
-.item-card.is-featured:hover,
-.item-card.is-offer:hover,
-.item-card.is-featured.is-offer:hover{
-  transform:translateY(-3px)!important;
-  box-shadow:0 8px 19px rgba(107,78,117,.11)!important;
+.item-card.is-featured{border:3px solid #c5afe0!important;}
+.item-card.is-offer,
+.item-card.is-featured.is-offer{border:3px solid #f0c49f!important;}
+.item-card.is-featured::after,
+.item-card.is-offer::after,
+.item-card.is-featured.is-offer::after{display:none!important;content:none!important;}
+.item-card .image-wrapper{
+  position:relative!important;z-index:0!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  overflow:hidden!important;clip-path:inset(0)!important;
+  border-radius:0!important;
 }
-.item-card:hover .item-image,
+.item-card .image-wrapper img,
+.item-card .image-wrapper .item-image{
+  display:block!important;width:100%!important;max-width:100%!important;height:100%!important;
+  object-fit:cover!important;transform:none!important;scale:1!important;
+  border-radius:0!important;
+}
+.item-card .item-content{
+  position:relative!important;z-index:1!important;
+  border-radius:18px 18px 0 0!important;
+  overflow:hidden!important;
+}
 .item-card:hover .image-wrapper img,
-.item-card.is-featured:hover .item-image,
-.item-card.is-offer:hover .item-image,
-.item-card:focus-within .item-image{transform:none!important;}
-/* Rejilla de categorías: el patrón alterna también al comenzar cada nueva fila. */
-.category-tiles{
-  display:grid!important;
-  grid-template-columns:repeat(7,minmax(0,1fr))!important;
-  justify-content:center!important;
-  align-items:stretch!important;
+.item-card:hover .item-image,
+.item-card.is-featured:hover .image-wrapper img,
+.item-card.is-offer:hover .image-wrapper img,
+.item-card.is-featured.is-offer:hover .image-wrapper img{
+  transform:none!important;scale:1!important;
 }
-.category-tiles>.category-tile:nth-child(14n+1),
-.category-tiles>.category-tile:nth-child(14n+3),
-.category-tiles>.category-tile:nth-child(14n+5),
-.category-tiles>.category-tile:nth-child(14n+7),
-.category-tiles>.category-tile:nth-child(14n+10),
-.category-tiles>.category-tile:nth-child(14n+12),
-.category-tiles>.category-tile:nth-child(14n+14){
-  background:var(--lilac-card)!important;border-color:#dfceeb!important;
-}
-.category-tiles>.category-tile:nth-child(14n+2),
-.category-tiles>.category-tile:nth-child(14n+4),
-.category-tiles>.category-tile:nth-child(14n+6),
-.category-tiles>.category-tile:nth-child(14n+8),
-.category-tiles>.category-tile:nth-child(14n+9),
-.category-tiles>.category-tile:nth-child(14n+11),
-.category-tiles>.category-tile:nth-child(14n+13){
-  background:var(--pink-soft)!important;border-color:#f0d5e1!important;
-}
-@media(max-width:900px){.category-tiles{grid-template-columns:repeat(4,minmax(0,1fr))!important;}}
-@media(max-width:600px){.category-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
-/* Centrado geométrico de la cruz dentro de su botón circular. */
-.icon-button.modal-close,
-.icon-button.fs-modal-close,
-.order-contact-close,
-.maintenance-contact-close{
-  display:flex!important;align-items:center!important;justify-content:center!important;
-  box-sizing:border-box!important;padding:0!important;line-height:1!important;
-  text-align:center!important;font-family:Arial,sans-serif!important;
-}
-.icon-button.modal-close{width:36px!important;height:36px!important;border-radius:50%!important;}
-.maintenance-contact-close{width:36px!important;height:36px!important;font-size:23px!important;}
-.order-contact-close{width:36px!important;height:36px!important;border-radius:50%!important;font-size:23px!important;}

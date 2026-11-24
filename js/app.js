@@ -166,6 +166,20 @@ function sizeCategoryTiles(root){
  const tileWidth=Math.min(Math.max(maxText+36,132),260);
  tilesRoot.style.setProperty("--category-tile-width",tileWidth+"px");
  tilesRoot.style.setProperty("--category-tile-count",String(tiles.length));
+ // Seis columnas equilibradas; la última fila queda centrada si está incompleta.
+ const columns=window.matchMedia("(max-width: 520px)").matches?2:(window.matchMedia("(max-width: 900px)").matches?4:6);
+ const remainder=tiles.length%columns;
+ tiles.forEach((tile,index)=>{
+   tile.style.gridColumnStart="";
+   const row=Math.floor(index/columns),column=index%columns;
+   const shade=((row+column)%2===0)?1:2;
+   tile.classList.toggle("category-color-1",shade===1);
+   tile.classList.toggle("category-color-2",shade===2);
+   if(remainder && index>=tiles.length-remainder){
+     const offset=Math.floor((columns-remainder)/2);
+     if(index===tiles.length-remainder) tile.style.gridColumnStart=String(offset+1);
+   }
+ });
 }
 
 function categoryCards(items,type){
@@ -173,7 +187,9 @@ function categoryCards(items,type){
   items.forEach(item=>{const name=cleanCategory(item.category);if(name&&!map.has(name))map.set(name,true);});
   return [...map.keys()].sort((a,b)=>a.localeCompare(b,"es")).map((name,i)=>{
     const href="categoria.html?tipo="+(type==="gallery"?"trabajos":"tienda")+"&categoria="+encodeURIComponent(name);
-    return `<a class="category-tile category-color-${i%2}" href="${href}"><span>${esc(name)}</span></a>`;
+    const row=Math.floor(i/6),column=i%6;
+    const shade=((row+column)%2===0)?1:2; // fila 1: oscuro/claro; fila 2: claro/oscuro
+    return `<a class="category-tile category-color-${shade}" href="${href}"><span>${esc(name)}</span></a>`;
   }).join("");
 }
 function renderCategoryLanding(){
