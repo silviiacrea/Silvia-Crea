@@ -2052,3 +2052,15 @@ body[data-page="home"] #specialties-grid.has-slider > .item-card {
 .item-card.is-featured.is-offer:hover .image-wrapper img{
   transform:none!important;scale:1!important;
 }
+
+
+/* VERSION 20 — distribución equilibrada y adaptable de categorías. */
+.category-tiles{
+  display:grid!important;
+  grid-template-columns:repeat(var(--category-columns, 1),minmax(0,1fr))!important;
+  width:min(100%,1460px)!important;max-width:1460px!important;
+  margin-inline:auto!important;justify-content:center!important;
+  justify-items:stretch!important;align-items:stretch!important;
+  gap:var(--category-gap,10px)!important;box-sizing:border-box!important;
+}
+.category-tiles>.category-tile{width:100%!important;min-width:0!important;max-width:none!important;box-sizing:border-box!important;}

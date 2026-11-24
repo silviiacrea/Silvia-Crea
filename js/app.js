@@ -166,8 +166,17 @@ function sizeCategoryTiles(root){
  const tileWidth=Math.min(Math.max(maxText+36,132),260);
  tilesRoot.style.setProperty("--category-tile-width",tileWidth+"px");
  tilesRoot.style.setProperty("--category-tile-count",String(tiles.length));
- // Seis columnas equilibradas; la última fila queda centrada si está incompleta.
- const columns=window.matchMedia("(max-width: 520px)").matches?2:(window.matchMedia("(max-width: 900px)").matches?4:6);
+ // Ajusta el número de columnas al ancho real disponible y reparte las filas
+ // de forma equilibrada: 10 elementos en un espacio para 7 => 5 + 5.
+ const styles=getComputedStyle(tilesRoot);
+ const gap=parseFloat(styles.columnGap)||10;
+ const width=tilesRoot.clientWidth;
+ const maxColumns=Math.max(1,Math.floor((width+gap)/(tileWidth+gap)));
+ const rows=Math.ceil(tiles.length/maxColumns);
+ const columns=Math.max(1,Math.ceil(tiles.length/rows));
+ tilesRoot.style.setProperty("--category-columns",String(columns));
+ tilesRoot.style.setProperty("--category-gap",gap+"px");
+ tilesRoot.style.gridTemplateColumns=`repeat(${columns},minmax(0,1fr))`;
  const remainder=tiles.length%columns;
  tiles.forEach((tile,index)=>{
    tile.style.gridColumnStart="";
@@ -181,6 +190,14 @@ function sizeCategoryTiles(root){
    }
  });
 }
+let categoryResizeFrame=0;
+window.addEventListener("resize",()=>{
+ if(categoryResizeFrame)cancelAnimationFrame(categoryResizeFrame);
+ categoryResizeFrame=requestAnimationFrame(()=>{
+   categoryResizeFrame=0;
+   document.querySelectorAll(".category-section-block").forEach(section=>sizeCategoryTiles(section));
+ });
+},{passive:true});
 
 function categoryCards(items,type){
   const map=new Map();
