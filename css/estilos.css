@@ -2580,81 +2580,89 @@ body[data-page="home"] #specialties-grid.is-centered>.item-card{
 }
 
 
-/* VERSION 33 — correcciones finales de alineación, logotipo y dimensiones. */
-/* Tres especialidades: rejilla centrada de verdad, sin desplazamiento lateral. */
-@media(min-width:701px){
+/* VERSION 34 — corrección fiel a las tarjetas de Galería. */
+/* El logo existente se coloca en la esquina inferior derecha de la foto; no se añade otro. */
+.item-card .card-logo-watermark{
+  left:auto!important;
+  right:12px!important;
+  transform:none!important;
+  width:clamp(58px,7vw,82px)!important;
+  max-width:82px!important;
+  max-height:58px!important;
+  object-fit:contain!important;
+  z-index:4!important;
+}
+#gallery-grid .gallery-card .card-logo-watermark,
+#products-grid .gallery-card .card-logo-watermark{
+  left:auto!important;
+  right:12px!important;
+  transform:none!important;
+}
+/* Tres especialidades: una fila centrada, sin carrusel. El wrapper no se ensancha hacia la izquierda. */
+@media(min-width:901px){
+  body[data-page="home"] .home-slider-wrapper:has(#specialties-grid.is-centered){
+    width:min(100%,1120px)!important;
+    max-width:1120px!important;
+    margin-inline:auto!important;
+    padding:0!important;
+    box-sizing:border-box!important;
+  }
   body[data-page="home"] #specialties-grid.is-centered{
-    display:grid!important;
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    display:flex!important;
+    flex-flow:row nowrap!important;
     justify-content:center!important;
-    justify-items:stretch!important;
     align-items:stretch!important;
+    gap:22px!important;
     width:100%!important;
     max-width:1120px!important;
     margin-inline:auto!important;
-    padding-inline:0!important;
-    gap:22px!important;
+    padding:0!important;
     overflow:visible!important;
   }
   body[data-page="home"] #specialties-grid.is-centered>.item-card{
-    width:100%!important;
+    flex:0 1 calc((100% - 44px)/3)!important;
+    width:calc((100% - 44px)/3)!important;
+    max-width:360px!important;
     min-width:0!important;
-    max-width:none!important;
     margin:0!important;
   }
 }
-/* La tienda y la galería comparten exactamente el mismo marco y contenido. */
-#products-grid>.item-card,
-#gallery-grid>.item-card{
-  width:100%!important;
-  min-width:0!important;
-  max-width:none!important;
-  box-sizing:border-box!important;
-}
-#products-grid>.item-card .image-wrapper,
-#gallery-grid>.item-card .image-wrapper{
-  width:100%!important;
-  height:auto!important;
-  aspect-ratio:5/4!important;
-  flex:0 0 auto!important;
-}
-#products-grid>.item-card .item-content,
-#gallery-grid>.item-card .item-content{
-  box-sizing:border-box!important;
-  min-height:245px!important;
-  margin-top:-10px!important;
-}
-/* Logotipo más alto para que no quede cubierto por el panel del nombre. */
-.item-card .card-logo-watermark{
-  display:block!important;
-  left:50%!important;
-  bottom:calc(var(--card-copy-height,160px) + 34px)!important;
-  z-index:4!important;
-  max-height:58px!important;
-  object-fit:contain!important;
-  pointer-events:none!important;
-}
-/* En galería, un desplazamiento mínimo a la derecha y algo más arriba. */
-#gallery-grid .gallery-card .card-logo-watermark{
-  left:calc(50% + 7px)!important;
-  bottom:calc(var(--card-copy-height,160px) + 40px)!important;
-}
 @media(max-width:900px) and (min-width:701px){
+  body[data-page="home"] .home-slider-wrapper:has(#specialties-grid.is-centered){
+    width:100%!important;max-width:760px!important;margin-inline:auto!important;padding:0!important;
+  }
   body[data-page="home"] #specialties-grid.is-centered{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    display:flex!important;flex-flow:row wrap!important;justify-content:center!important;
+    align-items:stretch!important;gap:22px!important;width:100%!important;margin-inline:auto!important;
+    padding:0!important;overflow:visible!important;
+  }
+  body[data-page="home"] #specialties-grid.is-centered>.item-card{
+    flex:0 1 calc((100% - 22px)/2)!important;width:calc((100% - 22px)/2)!important;
+    max-width:360px!important;margin:0!important;
   }
 }
 @media(max-width:700px){
+  body[data-page="home"] .home-slider-wrapper:has(#specialties-grid.is-centered){
+    width:100%!important;max-width:100%!important;margin-inline:auto!important;padding:0 12px!important;
+  }
   body[data-page="home"] #specialties-grid.is-centered{
-    display:flex!important;
-    flex-flow:column nowrap!important;
-    align-items:center!important;
-    justify-content:center!important;
-    width:100%!important;
+    display:flex!important;flex-flow:column nowrap!important;align-items:center!important;
+    justify-content:center!important;gap:22px!important;width:100%!important;margin-inline:auto!important;
   }
   body[data-page="home"] #specialties-grid.is-centered>.item-card{
-    width:100%!important;
-    max-width:460px!important;
-    flex:none!important;
+    flex:0 1 auto!important;width:100%!important;max-width:460px!important;margin-inline:auto!important;
   }
+}
+/* Tienda usa la misma clase y estructura visual que Galería: marco de foto y panel inferior idénticos. */
+#products-grid>.item-card.gallery-card .image-wrapper,
+#gallery-grid>.item-card.gallery-card .image-wrapper{
+  aspect-ratio:5/4!important;flex:0 0 auto!important;position:relative!important;
+  width:100%!important;height:auto!important;overflow:hidden!important;
+  clip-path:inset(0)!important;border-radius:0!important;margin:0!important;
+}
+#products-grid>.item-card.gallery-card .item-content,
+#gallery-grid>.item-card.gallery-card .item-content{
+  min-height:245px!important;margin-top:-10px!important;
+  border-radius:18px 18px 0 0!important;overflow:hidden!important;
+  box-sizing:border-box!important;
 }
