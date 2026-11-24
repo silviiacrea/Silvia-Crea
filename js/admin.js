@@ -97,7 +97,7 @@ async function loadWorkerHealth(){
   sessionExpired(e);
  }
 }
-function show(){login.hidden=!!token;control.hidden=!token;if(token){loadMaintenance();checkPublishedVersion();loadOrderStats();loadWorkerHealth();}}
+function show(){login.hidden=!!token;control.hidden=!token;const headerActions=$('admin-header-actions');if(headerActions)headerActions.hidden=!token;if(token){loadMaintenance();checkPublishedVersion();loadOrderStats();loadWorkerHealth();}}
 function renderState(mode){
  const active=mode==='maintenance',panel=$('maintenance-state');
  panel.className='admin-state '+(active?'maintenance':'normal');
