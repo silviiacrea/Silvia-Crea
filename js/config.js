@@ -5,5 +5,5 @@ window.SILVIA_CONFIG = {
   dataJsonUrl: "https://raw.githubusercontent.com/silviiacrea/Silvia-Crea/main/datos.json",
   workerBaseUrl: "https://worker.silviacrea.es",
   albumApiUrl: "https://worker.silviacrea.es/album",
-  email: "silviiacrea@gmail.com"
+  email: "contacto@silviacrea.es"
 };

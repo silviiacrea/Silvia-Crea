@@ -99,7 +99,7 @@ async function sendOrder(e){
   const result=await response.json();if(result.status!=='success'||!result.order)throw new Error(result.message||'No se ha podido confirmar el registro del pedido.');
   writeCart([]);renderCart();backToCart();closeCart();$('#order-form').reset();
   showAlert('¡Solicitud enviada!','Tu solicitud se ha registrado correctamente. Silvia se pondrá en contacto contigo para confirmar los detalles y la forma de pago.');
- }catch(err){showAlert('Hubo un problema','No hemos podido verificar el registro de tu solicitud. El carrito se conserva. Puedes intentarlo de nuevo más tarde o escribir a '+(cfg.email||'silviiacrea@gmail.com')+'. Detalle: '+err.message);}
+ }catch(err){showAlert('Hubo un problema','No hemos podido verificar el registro de tu solicitud. El carrito se conserva. Puedes intentarlo de nuevo más tarde o escribir a '+(cfg.email||'contacto@silviacrea.es')+'. Detalle: '+err.message);}
  finally{button.disabled=false;button.textContent='Enviar solicitud de pedido';}
 }
 $('#order-form')?.addEventListener('submit',sendOrder);
