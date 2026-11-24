@@ -674,7 +674,7 @@ if(!response.ok)throw new Error("El servidor no ha aceptado la solicitud.");
 const result=await response.json();   
 if(result.status!=="success")throw new Error(result.message||"No se ha podido registrar el pedido.");   
 cart=[];updateCart();closeCart();$("#order-form")?.reset();$("#back-to-cart")?.click();   
-showCustomAlert("¡Solicitud enviada!", "Tu solicitud se ha registrado correctamente. Silvia se pondrá en contacto contigo para confirmar los detalles y el pago por Bizum.");   
+showCustomAlert("¡Solicitud enviada!", "Tu solicitud se ha registrado correctamente. Silvia se pondrá en contacto contigo para confirmar los detalles y la forma de pago.");   
 }catch(err){   
 showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu solicitud. No se ha vaciado tu carrito. Puedes intentarlo de nuevo más tarde o escribir a "+cfg.email+". Detalle: "+err.message);   
 }finally{btn.disabled=false;btn.textContent="Enviar solicitud de pedido";}   
