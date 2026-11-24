@@ -268,7 +268,7 @@ function workerModeUrl(src,mode){
   const u=new URL(normalized,location.href);
   if(u.hostname==="worker.silviacrea.es"&&u.pathname.startsWith("/i/")){
    u.searchParams.set("wm",mode);
-   u.searchParams.set("v","41");
+   u.searchParams.set("v","42");
    return u.href;
   }
  }catch{}
@@ -425,8 +425,9 @@ function balanceGrid(el,count){
  // Tienda y Galería usan una cuadrícula responsive común; CSS controla sus columnas.
  if(el.id==="products-grid"||el.id==="gallery-grid"){
   el.classList.remove("grid-balanced-2","grid-balanced-3","grid-count-2","grid-count-4","grid-count-5","grid-single","balanced-cols-1","balanced-cols-2","balanced-cols-3");
-  el.classList.add("balanced-card-grid");
-  el.setAttribute("data-balanced-columns",String(total?3:0));
+  const cols=total===2?2:3;
+  el.classList.add("balanced-card-grid","balanced-cols-"+cols);
+  el.setAttribute("data-balanced-columns",String(total?cols:0));
   el.style.removeProperty("grid-template-columns");
   cards.forEach(card=>{
    card.style.removeProperty("grid-column");
@@ -456,6 +457,8 @@ function balanceGrid(el,count){
  }
 }
 function positionCardWatermarks(root=document){root.querySelectorAll(".item-card").forEach(cardEl=>{const logo=cardEl.querySelector(".card-logo-watermark"),copy=cardEl.querySelector(".item-content");if(!logo||!copy)return;const sync=()=>{const h=copy.getBoundingClientRect().height;cardEl.style.setProperty("--card-copy-height",Math.ceil(h)+"px");logo.style.bottom=Math.ceil(h+18)+"px";};sync();if(!logo.dataset.measure){logo.dataset.measure="1";if("ResizeObserver" in window){const ro=new ResizeObserver(sync);ro.observe(copy);logo._cardRO=ro;}window.addEventListener("resize",sync,{passive:true});}});}
+function detailSlug(value){return String(value||"pieza").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"pieza";}
+function detailUrl(item,kind,index){const list=kind==="product"?products:gallery;const base=detailSlug(item.name||item.title);const preceding=list.slice(0,index).filter(x=>detailSlug(x.name||x.title)===base&&safeImg(x.largeImage||x.image)).length;return (kind==="product"?"catalogo/":"trabajo/")+base+(preceding?"-"+(preceding+1):"")+"/";}
 function card(p,kind,index){   
 const image=safeImg(p.image), desc=p.description||p.desc||"";   
 const isProduct=kind==="product";   
@@ -792,6 +795,8 @@ const add=e.target.closest("[data-add]");if(add){e.stopPropagation();addProduct(
 const detail=e.target.closest("[data-detail-card]");   
 if(detail){const i=Number(detail.dataset.index),kind=detail.dataset.detailCard;openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product", i);return;}   
   
+const cardContent=e.target.closest(".item-content");
+if(cardContent&&!e.target.closest("button")){const parent=cardContent.closest("[data-card-kind]");if(parent){const i=Number(parent.dataset.index),kind=parent.dataset.cardKind;if(kind==="product"||kind==="gallery"){const item=kind==="product"?products[i]:gallery[i];const url=detailUrl(item,kind,i);window.open(url,"_blank","noopener");return;}}}
 const cardEl=e.target.closest("[data-card-kind]");   
 if(cardEl&&!e.target.closest("button")){   
 const i=Number(cardEl.dataset.index),kind=cardEl.dataset.cardKind;   
@@ -862,7 +867,7 @@ const walk = card ? (card.offsetWidth + 24) * 2 : 300;
  // ----------------------------------------------  
   
  const c=e.target.closest("[data-card-kind]");  
- if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault();const i=Number(c.dataset.index),kind=c.dataset.cardKind;openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product",i);}  
+ if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault();const i=Number(c.dataset.index),kind=c.dataset.cardKind;if(kind==="product"||kind==="gallery"){window.open(detailUrl(kind==="product"?products[i]:gallery[i],kind,i),"_blank","noopener");}else openProduct(specialties[i],false,i);}  
 });   
   
 document.addEventListener("input",e=>{

@@ -1,0 +1,109 @@
+SILVIA CREA — VERSIÓN 42
+INFORME DE CAMBIOS Y PLAN DE POSICIONAMIENTO SEO
+================================================
+
+1. CAMBIOS INCORPORADOS EN V42
+------------------------------
+- Tienda y Galería: cuando quedan exactamente dos tarjetas, se distribuyen en dos columnas centradas. No se han cambiado el ancho, alto, proporción 5:4 ni los 245 px de contenido que ya se habían recuperado en V41.
+- Tarjetas: al pulsar en el bloque de contenido (título/descripción), el detalle se abre en una pestaña nueva. Los botones conservan sus acciones y la imagen principal conserva la ampliación/modal.
+- Marca de agua: el Worker vuelve a componer una marca central grande, de opacidad 0,045 (4,5 %), y mantiene el logotipo pequeño en la esquina inferior derecha en las imágenes de modal, pantalla completa y páginas de detalle. Se incrementa la versión interna de caché del Worker para evitar servir transformaciones antiguas.
+- Páginas SEO: se crean páginas HTML individuales bajo /catalogo/slug/ y /trabajo/slug/. Cada página incluye header y footer del sitio, tipografías y estilos comunes, imagen principal procesada por el Worker, descripción, miniaturas de álbum cuando exista y botón de añadir al carrito solo para productos de catálogo.
+- Las páginas incluyen título, meta description, canonical, Open Graph, Twitter Card y datos estructurados JSON-LD (Product/Offer para catálogo y CreativeWork para trabajos).
+- Se añade sitemap.xml, robots.txt, CSS y JS específicos de las páginas de detalle.
+- Se añade un generador Node.js y un workflow de GitHub Actions: se ejecuta al cambiar datos.json, manualmente y diariamente. Consulta Apps Script (datos de Google Sheets) y genera HTML estático; si falla, intenta el Worker y finalmente usa datos.json local.
+- Versionado de páginas principales actualizado a 42. No se han cambiado datos de productos, imágenes, hojas, IDs, endpoints de pedidos ni credenciales.
+
+2. CÓMO SE GENERAN LAS PÁGINAS DINÁMICAS
+----------------------------------------
+Las páginas son HTML estático generado automáticamente a partir del objeto de catálogo/trabajos que devuelve Apps Script. Esto es deliberado: el contenido y los metadatos están presentes en el HTML inicial y no dependen de que Google renderice JavaScript para descubrir el nombre y la descripción.
+
+El archivo generador está en:
+  scripts/generate-detail-pages.js
+
+Para regenerar manualmente desde el equipo, desde la raíz del repositorio:
+  node scripts/generate-detail-pages.js
+
+Para regenerar usando solamente el datos.json local:
+  node scripts/generate-detail-pages.js --local
+
+El workflow está en:
+  .github/workflows/generar-paginas-seo.yml
+
+Se ejecuta al actualizar Silvia-Crea web/datos.json, por ejecución manual (Actions > Generar páginas SEO de catálogo y trabajos > Run workflow) y una vez al día. El workflow confirma los cambios generados en el repositorio. La sincronización Apps Script -> datos.json existente sigue siendo la fuente que activa el workflow cuando se publica un cambio de hoja.
+
+IMPORTANTE: GitHub Actions debe tener permiso de escritura en el repositorio (Settings > Actions > General > Workflow permissions > Read and write permissions). Si la organización bloquea ese permiso, ejecutar el generador manualmente y subir las carpetas generadas.
+
+3. ARCHIVOS / COMPONENTES QUE CAMBIAN
+-------------------------------------
+- Silvia-Crea web/js/app.js
+- Silvia-Crea web/css/estilos.css
+- Silvia-Crea web/version.html y metadatos/recursos versionados de páginas HTML
+- Cloudflare Worker/worker.js (OBLIGATORIO desplegar V42 para recuperar la marca central en modal/fullscreen y servir wm=detail)
+- Silvia-Crea web/css/detalle-seo.css
+- Silvia-Crea web/js/detalle-seo.js
+- Silvia-Crea web/catalogo/ (páginas generadas)
+- Silvia-Crea web/trabajo/ (páginas generadas)
+- Silvia-Crea web/sitemap.xml y robots.txt
+- scripts/generate-detail-pages.js
+- .github/workflows/generar-paginas-seo.yml
+
+No se modifica Apps Script ni Google Sheets. El generador usa el endpoint GET público ya existente de Apps Script, que devuelve buildWebsiteData_() por defecto. No requiere publicar una nueva implementación si la URL actual sigue respondiendo como hasta ahora.
+
+4. PUBLICACIÓN DE V42 — ORDEN RECOMENDADO
+-----------------------------------------
+1) Guarda una copia de seguridad de V41.
+2) Sube el contenido completo de este ZIP manteniendo las carpetas y archivos en sus rutas.
+3) Comprueba que el repositorio conserva la raíz "Silvia-Crea web" como raíz publicada por GitHub Pages (o el directorio configurado en el alojamiento).
+4) Despliega el Worker actualizado desde la carpeta "Cloudflare Worker". Con Wrangler: entrar en esa carpeta y ejecutar `wrangler deploy`. No sustituir ni borrar los secretos B2_KEY_ID, B2_APPLICATION_KEY o B2_BUCKET_ID; se conservan en el entorno Cloudflare.
+5) Espera a que Pages termine el despliegue.
+6) En GitHub > Actions, ejecuta manualmente "Generar páginas SEO de catálogo y trabajos" la primera vez. Comprueba que se crean/actualizan las páginas y sitemap. El workflow también se ejecuta diariamente y ante cambios en datos.json.
+7) Comprueba /version.html: debe mostrar v42.
+8) Prueba un producto en /catalogo/slug/ y un trabajo en /trabajo/slug/. Comprueba imágenes, marca de agua, álbum, enlaces y carrito.
+9) Comprueba /sitemap.xml y /robots.txt.
+10) Purga la caché de Cloudflare si todavía aparecen imágenes con la composición antigua. El Worker utiliza nueva clave de caché wm16; los navegadores reciben URLs con v=43.
+
+5. RESTO DE ACCIONES SEO PARA HACER DESPUÉS
+-------------------------------------------
+PRIORIDAD 1 — INDEXACIÓN
+- Crear/validar la propiedad de dominio silviacrea.es en Google Search Console mediante DNS.
+- Enviar https://silviacrea.es/sitemap.xml desde Search Console > Sitemaps.
+- Inspeccionar la URL de inicio, tienda, galería y varias páginas individuales; usar "Solicitar indexación" cuando ya estén publicadas.
+- Revisar el informe de indexación: páginas descubiertas, rastreadas, indexadas, duplicadas y excluidas.
+- Registrar también el sitio en Bing Webmaster Tools e importar/verificar el sitemap.
+
+PRIORIDAD 2 — CONTENIDO
+- Escribir descripciones originales y concretas para cada producto/trabajo; evitar textos repetidos o demasiado breves.
+- Añadir términos naturales que describan técnica, material, uso, ocasión, personalización y tipo de pieza cuando sean ciertos.
+- Añadir títulos H1 únicos y subtítulos H2 útiles en páginas de categorías.
+- Sustituir nombres genéricos de imágenes por nombres descriptivos antes de subir nuevas fotografías; mantener alt descriptivos y no saturados de palabras clave.
+- Crear textos introductorios únicos en Tienda, Galería y páginas de categorías.
+- Añadir preguntas frecuentes reales sobre encargos, personalización, plazos, materiales y cuidados cuando exista información confirmada.
+
+PRIORIDAD 3 — DATOS ESTRUCTURADOS
+- Validar Product/Offer con Rich Results Test y Schema Markup Validator. Mantener precio, disponibilidad y moneda sincronizados con el catálogo real.
+- En trabajos/portfolio, validar CreativeWork. No etiquetar un trabajo como producto en venta.
+- Añadir datos Organization/Person y datos de negocio local solo cuando se disponga de datos públicos exactos (nombre, contacto, dirección/área de servicio, perfiles oficiales). No inventar dirección ni horarios.
+- Si el catálogo cumple los requisitos comerciales, estudiar Google Merchant Center y un feed de productos; no es requisito para indexar las páginas.
+
+PRIORIDAD 4 — TÉCNICO Y EXPERIENCIA
+- Comprobar HTTPS, redirección consistente a una sola variante del dominio (https y sin www, según la configuración elegida), canonical y ausencia de cadenas de redirección.
+- Revisar Core Web Vitals en PageSpeed Insights y Search Console: LCP, INP y CLS. Comprimir fotografías originales, dimensiones adecuadas y lazy loading en imágenes no principales.
+- Comprobar que las páginas funcionan en móvil, no generan scroll horizontal y que las miniaturas tienen texto alternativo.
+- Mantener enlaces internos desde Tienda/Galería y categorías hacia cada ficha. Añadir enlaces relacionados entre piezas de una misma técnica/categoría cuando tenga sentido.
+- Crear una página 404 útil y redirecciones 301 para slugs antiguos cuando se renombre o retire un producto ya indexado.
+- Evitar que productos provisionales, sin imagen o sin contenido útil se publiquen como páginas indexables. Revisar el catálogo antes de activar elementos vacíos.
+
+PRIORIDAD 5 — MEDICIÓN Y AUTORIDAD
+- Configurar Google Analytics 4 o una alternativa respetuosa con privacidad y el consentimiento aplicable.
+- Medir visitas orgánicas, clics en productos, añadir al carrito, solicitudes de encargo y formularios.
+- Conseguir enlaces legítimos desde perfiles sociales, colaboraciones, directorios artesanales relevantes y menciones de clientes; evitar compra de enlaces o prácticas artificiales.
+- Revisar Search Console mensualmente y actualizar páginas con información nueva, fotos y descripciones reales.
+
+6. COMPROBACIONES Y LIMITACIONES
+--------------------------------
+- Se ha generado el conjunto inicial de páginas desde el datos.json disponible en el paquete: 1 ficha de catálogo y 4 fichas de trabajos con imagen válida. En este entorno no se pudo acceder por red al endpoint de Apps Script ni al Worker, por lo que no fue posible consultar el catálogo vivo de Google Sheets. El workflow de GitHub Actions consulta primero Apps Script y debe regenerar el conjunto completo de fichas al ejecutarse en GitHub.
+- No se han ejecutado pruebas de navegador real, Lighthouse, Search Console ni Rich Results Test; requieren el sitio desplegado y/o acceso a esas plataformas.
+- No se puede garantizar la indexación ni el posicionamiento: Google decide rastreo, indexación y resultados. El sitemap facilita el descubrimiento, no garantiza inclusión.
+- La marca de agua depende de que Cloudflare Worker y Cloudflare Image Resizing acepten la configuración draw. Debe verificarse visualmente tras desplegar el Worker.
+- El botón de carrito en las fichas comparte la clave localStorage `silviacrea_cart_v2` y el formato de producto que ya usa la web.
+- El nombre y el slug de cada ficha se derivan del nombre actual. Si se cambia el nombre de un producto, el slug cambia; si ya está indexado, crear una redirección 301 desde el slug anterior.

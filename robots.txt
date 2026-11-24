@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /version.html
+Sitemap: https://silviacrea.es/sitemap.xml
+
+Disallow: /gestion-privada.html

@@ -1942,7 +1942,7 @@ body{animation:silviaPageEnter .22s ease-out both;}
 #gallery-grid.grid-count-2,
 #category-grid.grid-count-2{
   display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,360px))!important;
+  grid-template-columns:repeat(2,minmax(0,min(360px,calc((100% - 22px)/2))))!important;
   justify-content:center!important;
   justify-items:stretch!important;
   width:100%!important;
@@ -1996,7 +1996,7 @@ body{animation:silviaPageEnter .22s ease-out both;}
 }
 /* Solo una pareja se centra; las filas incompletas de 3+2 permanecen alineadas a la izquierda. */
 #products-grid.grid-count-2,#gallery-grid.grid-count-2,#category-grid.grid-count-2{
-  grid-template-columns:repeat(2,minmax(0,360px))!important;
+  grid-template-columns:repeat(2,minmax(0,min(360px,calc((100% - 22px)/2))))!important;
   justify-content:center!important;
   justify-items:stretch!important;
   margin-inline:auto!important;
@@ -2663,6 +2663,10 @@ body[data-page="home"] .home-slider-wrapper>#specialties-grid.has-slider>.item-c
 @media(min-width:901px){body[data-page="home"] .home-slider-wrapper{width:min(calc(100% - 48px),1200px)!important;max-width:1200px!important;}}
 
 
+/* V42: cuando quedan exactamente dos fichas, se mantienen sus dimensiones y se centran como conjunto. */
+#products-grid.balanced-cols-2,#gallery-grid.balanced-cols-2{grid-template-columns:repeat(2,minmax(0,360px))!important;justify-content:center!important;justify-items:stretch!important;margin-inline:auto!important;}
+@media(max-width:900px) and (min-width:701px){#products-grid.balanced-cols-2,#gallery-grid.balanced-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
+
 /* SILVIA CREA — VERSIÓN 41
    Geometría restaurada desde V38; Tienda/Galería se distribuyen con CSS responsive. */
 #products-grid.balanced-card-grid,
@@ -2766,5 +2770,15 @@ body[data-page="home"] .home-slider-wrapper>#specialties-grid.has-slider>.item-c
   width:100%!important;
   max-width:100%!important;
   margin-inline:0!important;
+ }
+}
+/* V42 — centrar dos tarjetas en escritorio/tablet sin modificar su geometría restaurada. */
+@media(min-width:701px){
+ #products-grid.balanced-card-grid.balanced-cols-2,
+ #gallery-grid.balanced-card-grid.balanced-cols-2{
+  grid-template-columns:repeat(2,minmax(0,min(360px,calc((100% - 22px)/2))))!important;
+  justify-content:center!important;
+  justify-items:stretch!important;
+  margin-inline:auto!important;
  }
 }
