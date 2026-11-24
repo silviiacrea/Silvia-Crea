@@ -388,7 +388,7 @@ function balanceGrid(el,count){
  else if(count===4)el.classList.add("grid-balanced-2");
  else if(count===5||count===7)el.classList.add("grid-balanced-3");
 }
-function positionCardWatermarks(root=document){root.querySelectorAll(".item-card").forEach(cardEl=>{const logo=cardEl.querySelector(".card-logo-watermark"),copy=cardEl.querySelector(".item-content");if(!logo||!copy)return;const sync=()=>{const h=copy.getBoundingClientRect().height;cardEl.style.setProperty("--card-copy-height",Math.ceil(h)+"px");logo.style.bottom=Math.ceil(h+18)+"px";logo.style.left="auto";logo.style.right="12px";logo.style.transform="none";};sync();if(!logo.dataset.measure){logo.dataset.measure="1";if("ResizeObserver" in window){const ro=new ResizeObserver(sync);ro.observe(copy);logo._cardRO=ro;}window.addEventListener("resize",sync,{passive:true});}});}
+function positionCardWatermarks(root=document){root.querySelectorAll(".item-card").forEach(cardEl=>{const logo=cardEl.querySelector(".card-logo-watermark"),copy=cardEl.querySelector(".item-content");if(!logo||!copy)return;const sync=()=>{const h=copy.getBoundingClientRect().height;cardEl.style.setProperty("--card-copy-height",Math.ceil(h)+"px");logo.style.bottom=Math.ceil(h+18)+"px";};sync();if(!logo.dataset.measure){logo.dataset.measure="1";if("ResizeObserver" in window){const ro=new ResizeObserver(sync);ro.observe(copy);logo._cardRO=ro;}window.addEventListener("resize",sync,{passive:true});}});}
 function card(p,kind,index){   
 const image=safeImg(p.image), desc=p.description||p.desc||"";   
 const isProduct=kind==="product";   
