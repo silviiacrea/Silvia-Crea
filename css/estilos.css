@@ -2113,3 +2113,56 @@ body.page-leaving{animation:silviaPageLeave .15s ease-in both;pointer-events:non
 }
 #product-modal .album-thumb img[src]{opacity:0;}
 #product-modal .album-thumb img.is-loaded{opacity:1;}
+
+/* VERSION 22 — centrado estable, transiciones sin transformaciones ni filtros GPU y unión de imagen limpia. */
+#product-modal.modal-backdrop{
+  position:fixed!important;inset:0!important;
+  display:none!important;align-items:center!important;justify-content:center!important;
+  padding:clamp(8px,2vw,24px)!important;box-sizing:border-box!important;
+  opacity:0!important;visibility:hidden!important;
+  background:rgba(48,36,53,.42)!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  transition:opacity .22s ease,visibility .22s ease!important;
+}
+#product-modal.modal-backdrop.open{
+  display:flex!important;opacity:1!important;visibility:visible!important;
+}
+#product-modal .product-modal{
+  position:relative!important;inset:auto!important;top:auto!important;left:auto!important;
+  margin:auto!important;transform:none!important;translate:none!important;
+  opacity:0!important;transition:opacity .22s ease!important;
+  transform-origin:initial!important;
+}
+#product-modal.open .product-modal{opacity:1!important;transform:none!important;translate:none!important;}
+#product-modal.is-closing .product-modal{opacity:0!important;transform:none!important;translate:none!important;}
+#product-modal .modal-photo-stage,
+#product-modal .modal-image-container{overflow:hidden!important;}
+#product-modal .modal-image-container{position:relative!important;border-radius:0!important;}
+#product-modal .modal-image-container>img{
+  position:absolute!important;inset:0 0 -3px 0!important;
+  width:100%!important;height:calc(100% + 3px)!important;
+  max-width:none!important;object-fit:contain!important;object-position:center center!important;
+  transform:none!important;scale:1!important;
+}
+#product-modal .modal-copy{border-radius:0 0 24px 24px!important;}
+.item-card .image-wrapper{overflow:hidden!important;position:relative!important;}
+.item-card .image-wrapper>img,
+.item-card .image-wrapper .item-image{
+  position:relative!important;display:block!important;
+  width:100%!important;height:calc(100% + 3px)!important;max-width:none!important;
+  object-fit:cover!important;object-position:center center!important;
+  transform:none!important;scale:1!important;
+}
+.item-card .item-content{
+  position:relative!important;z-index:2!important;
+  border-radius:18px 18px 0 0!important;
+  overflow:hidden!important;margin-top:-2px!important;
+  background:inherit!important;
+}
+/* No usar translate, scale, filtros ni desenfoques: las transiciones dependen solo de opacidad. */
+#product-modal.modal-backdrop,#product-modal .product-modal,
+#product-modal .modal-album,#product-modal .album-thumb,
+#product-modal .album-thumb img{transform:none!important;filter:none!important;}
+#product-modal .modal-album{transition:opacity .24s ease!important;}
+#product-modal .album-thumb{transition:opacity .2s ease!important;}
+#product-modal .album-thumb img{transition:opacity .24s ease!important;}
