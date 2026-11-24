@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="silvia-build" content="38">
+  <meta name="silvia-build" content="39">
   <title>Versión de Silvia Crea</title>
   <style>
     *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;
@@ -25,30 +25,76 @@
     <p>Versión publicada de la web</p>
     <div class="version" id="version">Comprobando…</div>
     <div class="status" id="status" role="status">Consultando la versión que sirve el servidor…</div>
+    <div class="status" id="data-updated" role="status">Consultando la última actualización de datos.json en GitHub…</div>
     <button type="button" onclick="checkVersion()">Volver a comprobar</button>
     <small id="checked"></small>
   </main>
   <script>
+    const GITHUB_REPO = "silviiacrea/Silvia-Crea";
+    const GITHUB_DATA_RAW = "https://raw.githubusercontent.com/silviiacrea/Silvia-Crea/main/datos.json";
+    const GITHUB_COMMITS = "https://api.github.com/repos/" + GITHUB_REPO + "/commits?path=datos.json&per_page=1&sha=main";
+
     async function checkVersion(){
       const status=document.getElementById('status');
       const version=document.getElementById('version');
+      const dataUpdated=document.getElementById('data-updated');
       const checked=document.getElementById('checked');
       status.textContent='Consultando la versión que sirve el servidor…';
-      try{
-        const response=await fetch('index.html?version_check='+Date.now(),{cache:'no-store'});
-        if(!response.ok) throw new Error('HTTP '+response.status);
-        const html=await response.text();
-        const doc=new DOMParser().parseFromString(html,'text/html');
-        const live=doc.querySelector('meta[name="silvia-build"]')?.content;
-        if(!live) throw new Error('No se encontró la marca de versión en index.html');
-        version.textContent='v'+live;
-        status.textContent='Versión leída directamente de index.html en el servidor.';
-        checked.textContent='Última comprobación: '+new Date().toLocaleString('es-ES');
-      }catch(error){
+      dataUpdated.textContent='Consultando la última actualización de datos.json en GitHub…';
+
+      const tasks = await Promise.allSettled([
+        (async()=>{
+          const response=await fetch('index.html?version_check='+Date.now(),{cache:'no-store'});
+          if(!response.ok) throw new Error('HTTP '+response.status);
+          const html=await response.text();
+          const doc=new DOMParser().parseFromString(html,'text/html');
+          const live=doc.querySelector('meta[name="silvia-build"]')?.content;
+          if(!live) throw new Error('No se encontró la marca de versión en index.html');
+          return live;
+        })(),
+        (async()=>{
+          // Leer el JSON publicado en GitHub evita mostrar la fecha de una copia local.
+          const raw=await fetch(GITHUB_DATA_RAW+'?v='+Date.now(),{cache:'no-store'});
+          if(!raw.ok) throw new Error('No se pudo leer datos.json ('+raw.status+')');
+          const json=await raw.json();
+          if(!json || typeof json!=='object') throw new Error('datos.json no contiene un objeto válido');
+          let date=null, source='GitHub';
+          try{
+            const commits=await fetch(GITHUB_COMMITS,{cache:'no-store',headers:{'Accept':'application/vnd.github+json'}});
+            if(commits.ok){
+              const rows=await commits.json();
+              date=rows?.[0]?.commit?.committer?.date||rows?.[0]?.commit?.author?.date||null;
+            }
+          }catch(_){}
+          if(!date){
+            const modified=raw.headers.get('Last-Modified');
+            if(modified)date=modified;
+          }
+          if(!date)throw new Error('GitHub no ha facilitado la fecha de modificación del archivo');
+          return {date,source};
+        })()
+      ]);
+
+      if(tasks[0].status==='fulfilled'){
+        version.textContent='v'+tasks[0].value;
+        status.textContent='Versión leída directamente de index.html publicado.';
+      }else{
         version.textContent='No disponible';
-        status.textContent='No se pudo leer la versión publicada: '+error.message;
-        checked.textContent='Última comprobación: '+new Date().toLocaleString('es-ES');
+        status.textContent='No se pudo leer la versión publicada: '+tasks[0].reason.message;
       }
+
+      if(tasks[1].status==='fulfilled'){
+        const when=new Date(tasks[1].value.date);
+        if(Number.isNaN(when.getTime()))throw new Error('Fecha de GitHub no válida');
+        const formatted=new Intl.DateTimeFormat('es-ES',{
+          weekday:'long',year:'numeric',month:'long',day:'numeric',
+          hour:'2-digit',minute:'2-digit',timeZone:'Europe/Madrid'
+        }).format(when);
+        dataUpdated.textContent='Última actualización de datos.json en GitHub: '+formatted+' (hora peninsular española).';
+      }else{
+        dataUpdated.textContent='No se pudo consultar la fecha de datos.json en GitHub: '+tasks[1].reason.message;
+      }
+      checked.textContent='Última comprobación: '+new Date().toLocaleString('es-ES');
     }
     checkVersion();
   </script>

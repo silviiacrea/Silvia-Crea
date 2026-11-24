@@ -178,33 +178,21 @@ const cleanCategory=value=>{const c=String(value??"").trim();return !c||c.toLowe
 const categoryParams=()=>{const q=new URLSearchParams(location.search);return {type:q.get("tipo")==="trabajos"?"gallery":"product",name:q.get("categoria")||""};};
 function sizeCategoryTiles(root){
  const tilesRoot=root?.querySelector(".category-tiles")||root;
- const tiles=[...(tilesRoot?.querySelectorAll(".category-tile")||[])];if(!tiles.length)return;
- const maxText=Math.max(...tiles.map(tile=>{const span=tile.querySelector("span");if(!span)return 0;const oldWidth=span.style.width,oldMax=span.style.maxWidth;span.style.width="max-content";span.style.maxWidth="none";const measured=Math.ceil(span.scrollWidth);span.style.width=oldWidth;span.style.maxWidth=oldMax;return measured;}));
- const tileWidth=Math.min(Math.max(maxText+20,112),220);
+ const tiles=[...(tilesRoot?.querySelectorAll(".category-tile")||[])];
+ if(!tiles.length)return;
+ const maxText=Math.max(...tiles.map(tile=>{
+  const span=tile.querySelector("span");return span?span.scrollWidth:0;
+ }));
+ const tileWidth=Math.min(Math.max(maxText+36,150),220);
  tilesRoot.style.setProperty("--category-tile-width",tileWidth+"px");
- tilesRoot.style.setProperty("--category-tile-count",String(tiles.length));
- // Ajusta el número de columnas al ancho real disponible y reparte las filas
- // de forma equilibrada: 10 elementos en un espacio para 7 => 5 + 5.
- const styles=getComputedStyle(tilesRoot);
- const gap=parseFloat(styles.columnGap)||10;
- const width=tilesRoot.clientWidth;
- const maxColumns=Math.max(1,Math.floor((width+gap)/(tileWidth+gap)));
- const rows=Math.ceil(tiles.length/maxColumns);
- const columns=Math.max(1,Math.ceil(tiles.length/rows));
- tilesRoot.style.setProperty("--category-columns",String(columns));
- tilesRoot.style.setProperty("--category-gap",gap+"px");
- tilesRoot.style.gridTemplateColumns=`repeat(${columns},minmax(0,1fr))`;
- const remainder=tiles.length%columns;
+ tilesRoot.style.removeProperty("grid-template-columns");
+ tilesRoot.style.removeProperty("grid-column-gap");
+ tilesRoot.style.removeProperty("grid-row-gap");
  tiles.forEach((tile,index)=>{
-   tile.style.gridColumnStart="";
-   const row=Math.floor(index/columns),column=index%columns;
-   const shade=((row+column)%2===0)?1:2;
-   tile.classList.toggle("category-color-1",shade===1);
-   tile.classList.toggle("category-color-2",shade===2);
-   if(remainder && index>=tiles.length-remainder){
-     const offset=Math.floor((columns-remainder)/2);
-     if(index===tiles.length-remainder) tile.style.gridColumnStart=String(offset+1);
-   }
+  tile.style.removeProperty("grid-column-start");
+  const shade=index%2===0?1:2;
+  tile.classList.toggle("category-color-1",shade===1);
+  tile.classList.toggle("category-color-2",shade===2);
  });
 }
 let categoryResizeFrame=0;
@@ -225,6 +213,12 @@ function categoryCards(items,type){
     const shade=((row+column)%2===0)?1:2; // fila 1: oscuro/claro; fila 2: claro/oscuro
     return `<a class="category-tile category-color-${shade}" href="${href}"><span>${esc(name)}</span></a>`;
   }).join("");
+}
+function renderCategoryIndex(items,type){
+ const target=$("#category-index-grid");if(!target)return;
+ const tiles=categoryCards(items,type);
+ target.innerHTML=tiles||'<p class="loading-note">Todavía no hay categorías disponibles.</p>';
+ sizeCategoryTiles(target);
 }
 function renderCategoryLanding(){
   const target=$("#category-grid"); if(!target) return;
@@ -269,7 +263,7 @@ function workerModeUrl(src,mode){
   const u=new URL(normalized,location.href);
   if(u.hostname==="worker.silviacrea.es"&&u.pathname.startsWith("/i/")){
    u.searchParams.set("wm",mode);
-   u.searchParams.set("v","38");
+   u.searchParams.set("v","39");
    return u.href;
   }
  }catch{}
@@ -345,18 +339,37 @@ function closeProduct(){const overlay=$("#product-modal");if(!overlay||!overlay.
   
 function prepareSlider(el,count){
  if(!el)return;
+ const mobile=()=>window.matchMedia("(max-width:700px)").matches;
+ const staticLayout=()=>{
+  const existing=el.closest(".home-slider-wrapper");
+  if(existing){
+   const parent=existing.parentNode;
+   parent.insertBefore(el,existing);
+   existing.remove();
+  }
+  el.classList.remove("has-slider","is-centered","is-mobile-list","is-dragging");
+  el.classList.add("specialties-static-grid");
+  el.removeAttribute("aria-label");
+  el.style.removeProperty("scroll-snap-type");
+  el.style.removeProperty("overflow");
+ };
+ // Tres o menos especialidades nunca deben entrar en el modo carrusel.
+ // No se crea wrapper ni botones: el grid es un elemento normal del flujo.
+ if(count<=3){staticLayout();return;}
+ el.classList.remove("specialties-static-grid");
  let wrapper=el.closest(".home-slider-wrapper");
- if(!wrapper){wrapper=document.createElement("div");wrapper.className="slider-wrapper home-slider-wrapper";el.parentNode.insertBefore(wrapper,el);wrapper.appendChild(el);}
+ if(!wrapper){
+  wrapper=document.createElement("div");
+  wrapper.className="slider-wrapper home-slider-wrapper";
+  el.parentNode.insertBefore(wrapper,el);
+  wrapper.appendChild(el);
+ }
  let left=wrapper.querySelector(".slider-btn-left"),right=wrapper.querySelector(".slider-btn-right");
  if(!left){left=document.createElement("button");left.type="button";left.className="slider-btn slider-btn-left";left.textContent="‹";left.setAttribute("aria-label","Anterior");wrapper.appendChild(left);}
  if(!right){right=document.createElement("button");right.type="button";right.className="slider-btn slider-btn-right";right.textContent="›";right.setAttribute("aria-label","Siguiente");wrapper.appendChild(right);}
- const mobile=()=>window.matchMedia("(max-width:700px)").matches;
- const visible=()=>{const w=wrapper.clientWidth||window.innerWidth;return w<=700?1:w<=900?2:3;};
+ const visible=()=>{const w=wrapper.clientWidth||window.innerWidth;return w<=900?2:3;};
  const update=()=>{
-  const isMobile=mobile(),v=visible(),max=Math.max(0,el.scrollWidth-el.clientWidth),pos=el.scrollLeft;
-  // En móvil no se usa carrusel: se muestran todas las tarjetas en una columna,
-  // igual que en Tienda y Galería, evitando gestos horizontales no fiables.
-  const active=!isMobile&&count>v;
+  const isMobile=mobile(),active=!isMobile&&count>visible();
   el.classList.toggle("has-slider",active);
   el.classList.toggle("is-centered",!active);
   el.classList.toggle("is-mobile-list",isMobile);
@@ -365,6 +378,7 @@ function prepareSlider(el,count){
   wrapper.style.maxWidth=isMobile?"520px":"1120px";
   wrapper.style.marginInline="auto";
   el.setAttribute("aria-label",active?"Carrusel de especialidades":"Especialidades");
+  const max=Math.max(0,el.scrollWidth-el.clientWidth),pos=el.scrollLeft;
   left.hidden=!active||pos<=2;right.hidden=!active||pos>=max-2;
   if(!active&&el.scrollLeft!==0)el.scrollTo({left:0,behavior:"auto"});
  };
@@ -380,8 +394,7 @@ function prepareSlider(el,count){
  if(!el.dataset.sliderDrag){
   let dragging=false,startX=0,startScroll=0,moved=false,suppressClick=false;
   const onPointerDown=ev=>{
-   if(ev.pointerType!=="mouse"||ev.button!==0||ev.target.closest("button,a,input,textarea,select"))return;
-   if(!el.classList.contains("has-slider"))return;
+   if(ev.pointerType!=="mouse"||ev.button!==0||ev.target.closest("button,a,input,textarea,select")||!el.classList.contains("has-slider"))return;
    dragging=true;moved=false;startX=ev.clientX;startScroll=el.scrollLeft;el.classList.add("is-dragging");
   };
   const onPointerMove=ev=>{if(!dragging)return;const delta=ev.clientX-startX;if(Math.abs(delta)>5)moved=true;if(moved){el.scrollLeft=startScroll-delta;ev.preventDefault();}};
@@ -402,18 +415,27 @@ function prepareSlider(el,count){
 }
 function balanceGrid(el,count){
  if(!el)return;
- el.classList.remove("grid-balanced-2","grid-balanced-3","grid-count-2","grid-count-4","grid-count-5","grid-single");
- if(el.id==="#category-grid"||el.id==="category-grid"){
-  if(count===2)el.classList.add("grid-count-2");
-  else if(count===4)el.classList.add("grid-balanced-2");
-  else if(count===5||count===7)el.classList.add("grid-balanced-3");
-  return;
- }
- if(el.id==="gallery-grid"){
-  if(count===1)el.classList.add("grid-single");
-  else if(count===2)el.classList.add("grid-count-2");
-  else if(count===4)el.classList.add("grid-count-4");
-  else if(count===5)el.classList.add("grid-count-5");
+ const cards=[...el.querySelectorAll(":scope > .item-card")];
+ const total=cards.length||Number(count)||0;
+ el.classList.remove("grid-balanced-2","grid-balanced-3","grid-count-2","grid-count-4","grid-count-5","grid-single","balanced-card-grid","balanced-cols-1","balanced-cols-2","balanced-cols-3");
+ cards.forEach(card=>{card.style.removeProperty("grid-column");card.style.removeProperty("grid-column-start");});
+ if(!total)return;
+ // Dos columnas para 2 y 4 elementos; el resto se equilibra en filas de hasta 3.
+ const columns=total===1?1:(total===2||total===4?2:3);
+ el.setAttribute("data-balanced-columns",String(columns));
+ el.style.removeProperty("grid-template-columns");
+ el.classList.add("balanced-card-grid","balanced-cols-"+columns);
+ if(columns===1)el.classList.add("grid-single");
+ else if(columns===2)el.classList.add("grid-count-2");
+ else if(total===5)el.classList.add("grid-count-5");
+ const rows=Math.ceil(total/columns),base=Math.floor(total/rows),extra=total%rows;
+ let index=0;
+ for(let row=0;row<rows;row++){
+  const rowLength=base+(row<extra?1:0);
+  const offset=columns===3?(columns-rowLength):0;
+  for(let col=0;col<rowLength&&index<cards.length;col++,index++){
+   if(columns===3)cards[index].style.gridColumn=`${(offset+col)*2+1} / span 2`;
+  }
  }
 }
 function positionCardWatermarks(root=document){root.querySelectorAll(".item-card").forEach(cardEl=>{const logo=cardEl.querySelector(".card-logo-watermark"),copy=cardEl.querySelector(".item-content");if(!logo||!copy)return;const sync=()=>{const h=copy.getBoundingClientRect().height;cardEl.style.setProperty("--card-copy-height",Math.ceil(h)+"px");logo.style.bottom=Math.ceil(h+18)+"px";};sync();if(!logo.dataset.measure){logo.dataset.measure="1";if("ResizeObserver" in window){const ro=new ResizeObserver(sync);ro.observe(copy);logo._cardRO=ro;}window.addEventListener("resize",sync,{passive:true});}});}
@@ -446,6 +468,17 @@ ${metaHtml}
 <div class="item-actions"><button class="mini-btn detail-button" type="button" data-detail-card="${kind}" data-index="${index}">Ver detalles</button>${isProduct?`<button class="mini-btn add-button" type="button" data-add="${index}" ${p.stock<=0?"disabled":""}>Añadir carrito</button>`:''}</div>   
 </div></article>`;   
 }   
+function renderShopProducts(query=""){
+ const grid=$("#products-grid");if(!grid)return;
+ const normalized=String(query||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ const matches=products.map((p,index)=>({p,index})).filter(({p})=>{
+  if(!normalized)return true;
+  const hay=[p.name,p.description,p.detail,p.category].join(" ").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+  return hay.includes(normalized);
+ });
+ grid.innerHTML=matches.length?matches.map(({p,index})=>card(p,"product",index)).join(""):'<p class="loading-note search-empty">No se han encontrado productos con esa búsqueda.</p>';
+ balanceGrid(grid,matches.length);positionCardWatermarks(grid);
+}
 async function loadProducts(){
 const rows=await getSheet("CATALOGO");
 products=rows.filter(r=>r.nombre).map(r=>({name:r.nombre,description:r.descripcion||"",price:money(r.precio),image:workerImage(r.imagen),stock:r.stock===""||r.stock==null?99:Math.max(0,parseInt(r.stock,10)||0),detail:r.descripcionCompleta||"",largeImage:workerImage(r.imagenGrande),featured:yes(r.destacado),offer:yes(r.oferta),offerPrice:r.precioOferta===""||r.precioOferta==null?undefined:money(r.precioOferta),category:cleanCategory(r.categoria),album:r.album||"",albumFolder:"catalogo"}));
@@ -455,12 +488,12 @@ if(grid){
  const tiles=categoryCards(products,"product");
  const old=grid.parentElement.querySelector(".category-section-block");
  if(old) old.remove();
- if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Descubre las creaciones por temática y encuentra ese detalle especial que estás buscando.</p><div class="category-tiles" aria-label="Categorías de la tienda">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);sizeCategoryTiles(wrap);}
+ if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Descubre las creaciones por temática y encuentra ese detalle especial que estás buscando.</p><div class="category-tiles" aria-label="Categorías de la tienda">${tiles}</div><a class="category-index-link" href="categorias-tienda.html">Ver todas las categorías de tienda</a>`;grid.parentElement.insertBefore(wrap,grid);sizeCategoryTiles(wrap);}
  if(!grid.parentElement.querySelector(".products-section-title")){const h=document.createElement("h2");h.className="category-section-title products-section-title";h.textContent="Productos";grid.parentElement.insertBefore(h,grid);const d=document.createElement("p");d.className="category-section-description products-section-description";d.textContent="Todas las piezas disponibles, elaboradas con cariño y pensadas para regalar o disfrutar.";grid.parentElement.insertBefore(d,grid);}
- grid.innerHTML=products.length?products.map((p,i)=>card(p,"product",i)).join(""):'<p class="loading-note">Próximamente habrá nuevas creaciones.</p>';
- balanceGrid(grid,products.length);positionCardWatermarks(grid);
+ renderShopProducts($("#shop-search")?.value||"");
 }
 if($("#category-grid")&&categoryParams().type==="product") renderCategoryLanding();
+if($("#category-index-grid")&&document.body.dataset.categoryType==="product")renderCategoryIndex(products,"product");
 }   
 async function loadSpecialties(){   
 const rows=await getSheet("ESPECIALIDADES");   
@@ -476,12 +509,13 @@ if(grid){
  const tiles=categoryCards(gallery,"gallery");
  const old=grid.parentElement.querySelector(".category-section-block");
  if(old) old.remove();
- if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Explora los trabajos por tipo de creación y déjate inspirar por cada proyecto.</p><div class="category-tiles" aria-label="Categorías de trabajos">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);sizeCategoryTiles(wrap);}
+ if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Explora los trabajos por tipo de creación y déjate inspirar por cada proyecto.</p><div class="category-tiles" aria-label="Categorías de trabajos">${tiles}</div><a class="category-index-link" href="categorias-trabajos.html">Ver todas las categorías de trabajos</a>`;grid.parentElement.insertBefore(wrap,grid);sizeCategoryTiles(wrap);}
  if(!grid.parentElement.querySelector(".products-section-title")){const h=document.createElement("h2");h.className="category-section-title products-section-title";h.textContent="Trabajos";grid.parentElement.insertBefore(h,grid);const d=document.createElement("p");d.className="category-section-description products-section-description";d.textContent="Una selección de proyectos y creaciones que reflejan el cariño por cada detalle.";grid.parentElement.insertBefore(d,grid);}
  grid.innerHTML=gallery.length?gallery.map((p,i)=>card(p,"gallery",i)).join(""):'<p class="loading-note">Próximamente descubrirás aquí mis trabajos.</p>';
  balanceGrid(grid,gallery.length);positionCardWatermarks(grid);
 }
 if($("#category-grid")&&categoryParams().type==="gallery") renderCategoryLanding();
+if($("#category-index-grid")&&document.body.dataset.categoryType==="gallery")renderCategoryIndex(gallery,"gallery");
 }   
 function showLoadError(id,err){
  const el=$(id);if(!el)return;
@@ -611,6 +645,7 @@ showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu
 // Efectos decorativos recuperados con un presupuesto global de partículas.
 // Solo se animan transform y opacity: sin blur, filtros dinámicos ni bucles JS.
 const decorParticles = (() => {
+ window.addEventListener("pageshow",()=>{document.body.classList.remove("page-leaving");document.body.style.removeProperty("pointer-events");});
   const active = {petal:0, crayon:0, yarn:0, heart:0};
   const limits = {petal:18, crayon:12, yarn:5, heart:8};
   const maxTotal = 26;
@@ -733,22 +768,7 @@ document.addEventListener("click",e=>{
  const aboutHeading=e.target.closest('h2');
  if(aboutHeading && aboutHeading.textContent.includes('Soy Silvia Rodríguez')) decorParticles.falling('heart');
 
- // CONTROLADOR DE NAVEGACIÓN DIRECTA
- const link = e.target.closest("a");  
- if (link && link.href) {  
-     const isInternal = link.getAttribute("href").includes(".html") && !link.getAttribute("href").startsWith("http") && link.target !== "_blank";
-     if (isInternal) {  
-         // En inicio, pulsar el logotipo solo dispara la animación de ovillos.
-         if (link.classList.contains("brand") && document.body.dataset.page === "home") return;
-         // Navega instantáneamente sin transiciones, guardando la página actual en localStorage
-         localStorage.setItem("silviacrea_current_page", link.getAttribute("href"));
-         e.preventDefault();
-         document.body.classList.add("page-leaving");
-         window.setTimeout(()=>{window.location.href=link.href;},150);
-         return;
-     }  
- }
-
+ // Navegación interna nativa: evita dejar la página bloqueada al volver desde BFCache.\n
  if(e.target.closest("[data-open-cart]"))openCart();   
 if(e.target.closest("[data-close-cart]"))closeCart();   
 const add=e.target.closest("[data-add]");if(add){e.stopPropagation();addProduct(products[Number(add.dataset.add)]);return;}   
@@ -828,7 +848,11 @@ const walk = card ? (card.offsetWidth + 24) * 2 : 300;
  if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault();const i=Number(c.dataset.index),kind=c.dataset.cardKind;openProduct(kind==="product"?products[i]:kind==="specialty"?specialties[i]:gallery[i],kind==="product",i);}  
 });   
   
-document.addEventListener("input",e=>{const el=e.target.closest("[data-comment]");if(el){cart[Number(el.dataset.comment)].comment=el.value;saveCart();}});   
+document.addEventListener("input",e=>{
+ const search=e.target.closest("#shop-search");
+ if(search){renderShopProducts(search.value);return;}
+ const el=e.target.closest("[data-comment]");if(el){cart[Number(el.dataset.comment)].comment=el.value;saveCart();}
+});   
 $("#modal-add")?.addEventListener("click",()=>{if(modalProduct){const p=products.find(x=>x.name===modalProduct.name);if(p)addProduct(p);closeProduct();}});   
 $("#continue-order")?.addEventListener("click",()=>{   
 if(!cart.length){showToast("Añade algún producto primero.");return;}   
@@ -910,6 +934,7 @@ function loadPageContent(){
  if($("#specialties-grid"))loadSpecialties().catch(err=>showLoadError("#specialties-grid",err));
  if($("#gallery-grid"))loadGallery().catch(err=>showLoadError("#gallery-grid",err));
  if($("#category-grid"))Promise.all([loadProducts(),loadGallery()]).catch(err=>showLoadError("#category-grid",err));
+ if($("#category-index-grid"))Promise.all([loadProducts(),loadGallery()]).catch(err=>showLoadError("#category-index-grid",err));
 }
 applyMaintenance().then(active=>{if(!active)loadPageContent();});
 
