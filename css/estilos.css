@@ -2518,3 +2518,63 @@ body[data-page="home"] #specialties-grid.is-centered>.item-card{
 @media(max-width:700px){
   #products-grid,#gallery-grid,#category-grid{column-gap:0!important;}
 }
+
+
+/* VERSION 31 — ajustes solicitados: centrado, logotipo y dimensiones coherentes. */
+@media(min-width:701px){
+  body[data-page="home"] #specialties-grid.is-centered{
+    display:flex!important;
+    flex-flow:row wrap!important;
+    justify-content:center!important;
+    align-items:stretch!important;
+    width:100%!important;
+    max-width:1120px!important;
+    margin-inline:auto!important;
+    gap:22px!important;
+  }
+  body[data-page="home"] #specialties-grid.is-centered>.item-card{
+    flex:0 1 calc((100% - 44px)/3)!important;
+    width:calc((100% - 44px)/3)!important;
+    min-width:0!important;
+    max-width:none!important;
+    margin:0!important;
+  }
+  @media(max-width:900px){
+    body[data-page="home"] #specialties-grid.is-centered>.item-card{
+      flex-basis:calc((100% - 22px)/2)!important;
+      width:calc((100% - 22px)/2)!important;
+    }
+  }
+}
+/* La tienda y la galería comparten proporción de imagen y altura de contenido. */
+#products-grid .item-card .image-wrapper,
+#gallery-grid .item-card .image-wrapper{
+  aspect-ratio:5/4!important;
+}
+#products-grid .item-card .item-content,
+#gallery-grid .item-card .item-content{
+  min-height:245px!important;
+  margin-top:-10px!important;
+}
+/* El logo queda completamente en la imagen, por encima del panel del nombre. */
+.item-card .card-logo-watermark{
+  bottom:calc(var(--card-copy-height,160px) + 18px)!important;
+}
+#gallery-grid .gallery-card .card-logo-watermark{
+  left:calc(50% + 4px)!important;
+  bottom:calc(var(--card-copy-height,160px) + 20px)!important;
+}
+@media(max-width:700px){
+  body[data-page="home"] #specialties-grid.is-centered{
+    display:flex!important;
+    flex-flow:column nowrap!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:100%!important;
+  }
+  body[data-page="home"] #specialties-grid.is-centered>.item-card{
+    width:100%!important;
+    max-width:460px!important;
+    flex:none!important;
+  }
+}

@@ -112,7 +112,7 @@ async function fetchJsonNoCache(url){
   return normalizeSiteData(data);
  }finally{clearTimeout(timer);}
 }
-const SITE_DATA_CACHE_KEY="silvia-crea-site-data-v29";
+const SITE_DATA_CACHE_KEY="silvia-crea-site-data-v31";
 const SITE_DATA_CACHE_TTL=90*1000;
 function readCachedSiteData(){
  try{const saved=JSON.parse(localStorage.getItem(SITE_DATA_CACHE_KEY)||"null");
@@ -342,7 +342,7 @@ function prepareSlider(el,count){
  let lastVisible=visible();
  const update=()=>{
   const v=visible(),wasActive=el.classList.contains("has-slider"),max=Math.max(0,el.scrollWidth-el.clientWidth),pos=el.scrollLeft;
-  const active=count>v&&count>2;
+  const active=count>v&&count>3;
   el.classList.toggle("has-slider",active);el.classList.toggle("is-centered",!active);
   el.setAttribute("aria-label",active?"Carrusel de especialidades":"Especialidades");
   left.hidden=!active||pos<=2;right.hidden=!active||pos>=max-2;
@@ -388,7 +388,7 @@ function balanceGrid(el,count){
  else if(count===4)el.classList.add("grid-balanced-2");
  else if(count===5||count===7)el.classList.add("grid-balanced-3");
 }
-function positionCardWatermarks(root=document){root.querySelectorAll(".item-card").forEach(cardEl=>{const logo=cardEl.querySelector(".card-logo-watermark"),copy=cardEl.querySelector(".item-content");if(!logo||!copy)return;const sync=()=>{const h=copy.getBoundingClientRect().height;cardEl.style.setProperty("--card-copy-height",Math.ceil(h)+"px");logo.style.bottom=Math.ceil(h)+"px";};sync();if(!logo.dataset.measure){logo.dataset.measure="1";if("ResizeObserver" in window){const ro=new ResizeObserver(sync);ro.observe(copy);logo._cardRO=ro;}window.addEventListener("resize",sync,{passive:true});}});}
+function positionCardWatermarks(root=document){root.querySelectorAll(".item-card").forEach(cardEl=>{const logo=cardEl.querySelector(".card-logo-watermark"),copy=cardEl.querySelector(".item-content");if(!logo||!copy)return;const sync=()=>{const h=copy.getBoundingClientRect().height;cardEl.style.setProperty("--card-copy-height",Math.ceil(h)+"px");logo.style.bottom=Math.ceil(h+18)+"px";};sync();if(!logo.dataset.measure){logo.dataset.measure="1";if("ResizeObserver" in window){const ro=new ResizeObserver(sync);ro.observe(copy);logo._cardRO=ro;}window.addEventListener("resize",sync,{passive:true});}});}
 function card(p,kind,index){   
 const image=safeImg(p.image), desc=p.description||p.desc||"";   
 const isProduct=kind==="product";   
