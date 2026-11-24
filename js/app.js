@@ -324,7 +324,7 @@ const modalCopy=$("#product-modal .modal-copy");
 if(modalCopy){
   modalCopy.classList.remove("has-detail-link");modalCopy.removeAttribute("role");modalCopy.removeAttribute("aria-label");modalCopy.removeAttribute("data-detail-url");modalCopy.setAttribute("tabindex","-1");
   modalCopy.querySelector(".modal-full-detail")?.remove();
-  if(kind==="specialty"||safeImg(p.largeImage||p.image)){
+  {
     const detailLink=document.createElement("a");
     detailLink.className="modal-full-detail";
     detailLink.href=detailUrl(p,kind,idx);
@@ -476,7 +476,7 @@ function balanceGrid(el,count){
 }
 function positionCardWatermarks(root=document){root.querySelectorAll(".item-card").forEach(cardEl=>{const logo=cardEl.querySelector(".card-logo-watermark"),copy=cardEl.querySelector(".item-content");if(!logo||!copy)return;const sync=()=>{const h=copy.getBoundingClientRect().height;cardEl.style.setProperty("--card-copy-height",Math.ceil(h)+"px");logo.style.bottom=Math.ceil(h+18)+"px";};sync();if(!logo.dataset.measure){logo.dataset.measure="1";if("ResizeObserver" in window){const ro=new ResizeObserver(sync);ro.observe(copy);logo._cardRO=ro;}window.addEventListener("resize",sync,{passive:true});}});}
 function detailSlug(value){return String(value||"pieza").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"pieza";}
-function detailUrl(item,kind,index){const list=kind==="product"?products:kind==="specialty"?specialties:gallery;const base=detailSlug(item.name||item.title);const preceding=list.slice(0,index).filter(x=>detailSlug(x.name||x.title)===base&&(kind==="specialty"||safeImg(x.largeImage||x.image))).length;return (kind==="product"?"catalogo/":kind==="specialty"?"especialidades/":"trabajo/")+base+(preceding?"-"+(preceding+1):"")+"/";}
+function detailUrl(item,kind,index){const list=kind==="product"?products:kind==="specialty"?specialties:gallery;const base=detailSlug(item.name||item.title);const preceding=list.slice(0,index).filter(x=>detailSlug(x.name||x.title)===base).length;return (kind==="product"?"catalogo/":kind==="specialty"?"especialidades/":"trabajo/")+base+(preceding?"-"+(preceding+1):"")+"/";}
 function card(p,kind,index){   
 const image=safeImg(p.image), desc=p.description||p.desc||"";   
 const isProduct=kind==="product";   

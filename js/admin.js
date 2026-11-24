@@ -54,7 +54,20 @@ async function checkPublishedVersion(){
  checked.textContent='Última comprobación: '+new Date().toLocaleString('es-ES');
 }
 
-function show(){login.hidden=!!token;control.hidden=!token;if(token){loadMaintenance();checkPublishedVersion();}}
+async function loadOrderStats(){
+ const total=$('orders-total'),completed=$('orders-completed'),pending=$('orders-pending'),note=$('orders-note');
+ if(!total||!token)return;
+ total.textContent=completed.textContent=pending.textContent='…';note.textContent='Consultando la hoja PEDIDOS…';
+ try{
+  const d=await call('/admin/orders/stats',{},true,'GET');
+  total.textContent=String(d.total);completed.textContent=String(d.completed);pending.textContent=String(d.pending);
+  note.textContent='Datos leídos directamente de Google Sheets · PEDIDOS, columna N para completados.';
+ }catch(e){
+  total.textContent=completed.textContent=pending.textContent='—';
+  note.textContent=e.message;sessionExpired(e);
+ }
+}
+function show(){login.hidden=!!token;control.hidden=!token;if(token){loadMaintenance();checkPublishedVersion();loadOrderStats();}}
 function renderState(mode){
  const active=mode==='maintenance',panel=$('maintenance-state');
  panel.className='admin-state '+(active?'maintenance':'normal');
@@ -83,6 +96,7 @@ $('login-form').addEventListener('submit',async e=>{e.preventDefault();status.te
 $('set-normal').addEventListener('click',e=>setMode('normal',e.currentTarget));
 $('set-maintenance').addEventListener('click',e=>setMode('maintenance',e.currentTarget));
 $('recheck-version')?.addEventListener('click',checkPublishedVersion);
+$('refresh-orders')?.addEventListener('click',loadOrderStats);
 $('run-generation').addEventListener('click',async()=>{if(!confirm('¿Quieres regenerar y publicar ahora todas las páginas de catálogo, trabajos y el sitemap?'))return;const b=$('run-generation');b.disabled=true;status.textContent='Enviando solicitud a GitHub Actions…';try{const d=await call('/admin/generate',{},true);status.textContent=d.message||'Solicitud aceptada por GitHub.';}catch(e){status.textContent='No se pudo solicitar la actualización SEO: '+e.message;sessionExpired(e);}finally{b.disabled=false;}});
 $('logout').addEventListener('click',()=>{token='';sessionStorage.removeItem('silvia_admin_session');show();status.textContent='Sesión cerrada.';});
 })();
