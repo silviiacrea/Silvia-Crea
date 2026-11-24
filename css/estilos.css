@@ -976,3 +976,62 @@ html,body{overflow-x:hidden!important;overscroll-behavior-x:none!important;width
 #fs-modal .fs-modal-content{position:relative!important;top:auto!important;left:auto!important;transform:none!important;margin:0!important;max-width:calc(100vw - 96px)!important;max-height:calc(100dvh - 24px)!important;overflow:hidden!important;}
 #fs-modal #fs-modal-image{width:auto!important;height:auto!important;max-width:calc(100vw - 96px)!important;max-height:calc(100dvh - 24px)!important;object-fit:contain!important;}
 @media(max-width:700px){#fs-modal .fs-modal-content,#fs-modal #fs-modal-image{max-width:calc(100vw - 76px)!important;max-height:calc(100dvh - 24px)!important;}#fs-modal #fs-prev{left:6px!important;}#fs-modal #fs-next{right:6px!important;}}
+
+
+/* ================= AJUSTES V6: carrusel, categorías y modal ================= */
+/* Tienda y galería vuelven al tamaño previo a V5: 3 columnas en escritorio, 2 en tablet/móvil. */
+#products-grid,#gallery-grid,#category-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:22px!important;}
+#products-grid .item-card,#gallery-grid .item-card,#category-grid .item-card{width:auto!important;max-width:none!important;min-width:0!important;margin:0!important;}
+#products-grid .image-wrapper,#gallery-grid .image-wrapper,#category-grid .image-wrapper{aspect-ratio:4/3!important;}
+@media(max-width:900px){#products-grid,#gallery-grid,#category-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
+@media(max-width:700px){#products-grid,#gallery-grid,#category-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important;}#products-grid .item-card,#gallery-grid .item-card,#category-grid .item-card{max-width:none!important;margin:0!important;}}
+/* Inicio: área útil igual al bloque de introducción, con tres tarjetas enteras y flechas por fuera. */
+.home-slider-wrapper{position:relative!important;width:100%!important;max-width:1412px!important;margin-inline:auto!important;padding:0!important;box-sizing:border-box!important;overflow:visible!important;}
+#specialties-grid.has-slider{width:100%!important;max-width:none!important;display:flex!important;flex-wrap:nowrap!important;justify-content:flex-start!important;gap:22px!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory!important;scroll-behavior:smooth!important;scrollbar-width:none!important;padding:12px 0 18px!important;box-sizing:border-box!important;}
+#specialties-grid.has-slider::-webkit-scrollbar{display:none!important;}
+#specialties-grid.has-slider .item-card{flex:0 0 calc((100% - 44px)/3)!important;width:calc((100% - 44px)/3)!important;max-width:none!important;min-width:0!important;scroll-snap-align:start!important;margin:0!important;}
+.home-slider-wrapper .slider-btn{position:absolute!important;top:50%!important;transform:translateY(-50%)!important;display:flex!important;width:44px!important;height:44px!important;z-index:20!important;}
+.home-slider-wrapper .slider-btn-left{left:-54px!important;}
+.home-slider-wrapper .slider-btn-right{right:-54px!important;}
+@media(max-width:1100px){.home-slider-wrapper{max-width:100%!important;padding-inline:44px!important;} .home-slider-wrapper .slider-btn-left{left:0!important;} .home-slider-wrapper .slider-btn-right{right:0!important;}}
+@media(max-width:900px){#specialties-grid.has-slider .item-card{flex-basis:calc((100% - 22px)/2)!important;width:calc((100% - 22px)/2)!important;} .home-slider-wrapper{padding-inline:36px!important;}}
+@media(max-width:640px){#specialties-grid.has-slider .item-card{flex-basis:100%!important;width:100%!important;}#specialties-grid.has-slider{gap:0!important;} .home-slider-wrapper{padding-inline:30px!important;} .home-slider-wrapper .slider-btn{width:34px!important;height:34px!important;} .home-slider-wrapper .slider-btn-left{left:0!important;} .home-slider-wrapper .slider-btn-right{right:0!important;}}
+#specialties-grid.is-centered{width:100%!important;max-width:1412px!important;display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:22px!important;overflow:visible!important;}
+#specialties-grid.is-centered .item-card{flex:0 0 calc((100% - 44px)/3)!important;max-width:none!important;min-width:0!important;}
+@media(max-width:900px){#specialties-grid.is-centered .item-card{flex-basis:calc((100% - 22px)/2)!important;}}
+@media(max-width:640px){#specialties-grid.is-centered .item-card{flex-basis:100%!important;max-width:460px!important;}}
+/* Las fotos nunca desbordan el contorno redondeado. */
+.item-card{overflow:hidden!important;border-radius:22px!important;clip-path:none!important;}
+.item-card .image-wrapper{overflow:hidden!important;border-radius:21px 21px 0 0!important;clip-path:none!important;}
+.item-card .image-wrapper img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important;}
+/* Categorías: título y textos centrados, con separación más equilibrada entre hero y tarjetas. */
+.category-section-block{width:100%!important;margin:0 auto 22px!important;text-align:center!important;}
+.category-section-title{font-size:clamp(30px,3.8vw,44px)!important;margin:0 0 8px!important;text-align:center!important;}
+.category-section-description{max-width:760px;margin:0 auto 24px!important;text-align:center!important;color:var(--muted)!important;font-size:clamp(14px,1.4vw,17px)!important;line-height:1.65!important;padding-inline:8px!important;}
+.products-section-title{margin:18px 0 8px!important;}
+.products-section-description{margin-bottom:28px!important;}
+/* Modal de tarjeta: fijo a la ventana, el documento de fondo sigue desplazándose. */
+#product-modal.modal-backdrop{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;display:none!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;padding:clamp(10px,2vw,24px)!important;box-sizing:border-box!important;z-index:2147481000!important;background:rgba(48,36,53,.38)!important;backdrop-filter:blur(6px)!important;-webkit-backdrop-filter:blur(6px)!important;touch-action:pan-y!important;}
+#product-modal.open{display:flex!important;}
+#product-modal .product-modal{position:relative!important;top:auto!important;left:auto!important;transform:none!important;margin:0!important;width:min(1260px,96vw)!important;max-width:96vw!important;max-height:min(90dvh,1000px)!important;min-height:0!important;overflow:auto!important;overscroll-behavior:contain!important;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr)!important;grid-template-rows:auto auto!important;align-items:stretch!important;border-radius:26px!important;box-shadow:0 25px 85px rgba(45,30,55,.24)!important;}
+#product-modal .modal-photo-stage{grid-column:1!important;grid-row:1!important;min-width:0!important;display:flex!important;align-self:stretch!important;background:var(--lilac-pale)!important;border-radius:24px 0 0 0!important;overflow:hidden!important;}
+#product-modal .modal-image-container{background:var(--lilac-pale)!important;aspect-ratio:4/3!important;min-height:0!important;height:auto!important;width:100%!important;border-radius:0!important;overflow:hidden!important;}
+#product-modal .modal-image-container>img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;}
+#product-modal .modal-copy{grid-column:2!important;grid-row:1!important;align-self:stretch!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:auto!important;padding:clamp(24px,3.5vw,48px)!important;background:inherit!important;}
+#product-modal #modal-price{align-items:center!important;justify-content:center!important;width:100%!important;text-align:center!important;margin:16px 0 12px!important;}
+#product-modal #modal-price .old-price-box,#product-modal #modal-price .current-price-box{justify-content:center!important;align-items:center!important;width:100%!important;}
+#product-modal #modal-add{align-self:center!important;justify-content:center!important;margin:0 0 16px!important;}
+#product-modal .modal-album{grid-column:1/-1!important;grid-row:2!important;width:100%!important;max-width:100%!important;min-height:0!important;height:auto!important;max-height:94px!important;display:none!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;justify-content:center!important;box-sizing:border-box!important;padding:10px 14px!important;background:var(--blue-pastel-soft)!important;border-radius:0 0 24px 24px!important;scrollbar-width:thin!important;}
+#product-modal.has-album .modal-album{display:flex!important;}
+#product-modal .modal-album .album-thumb{flex-shrink:0!important;}
+#product-modal .modal-stage-arrow{position:absolute!important;top:50%!important;transform:translateY(-50%)!important;z-index:10!important;display:none!important;}
+#product-modal .modal-stage-arrow[style*="display: flex"],#product-modal .modal-stage-arrow[style*="display:flex"]{display:flex!important;}
+#product-modal #modal-prev{left:10px!important;}#product-modal #modal-next{right:10px!important;}
+@media(max-width:700px){#product-modal.modal-backdrop{padding:8px!important;}#product-modal .product-modal{width:min(640px,96vw)!important;max-width:96vw!important;max-height:90dvh!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important;overflow:auto!important;}#product-modal .modal-photo-stage{grid-column:1!important;grid-row:1!important;border-radius:24px 24px 0 0!important;}#product-modal .modal-copy{grid-column:1!important;grid-row:2!important;max-height:none!important;padding:22px!important;}#product-modal .modal-album{grid-column:1!important;grid-row:3!important;border-radius:0 0 24px 24px!important;}#product-modal .modal-stage-arrow{width:38px!important;height:38px!important;}}
+/* Modal de tarjeta no bloquea el scroll de la página; la imagen fullscreen sí. */
+#product-modal .product-modal{touch-action:pan-y!important;}
+#fs-modal{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-height:100dvh!important;overflow:hidden!important;display:none!important;align-items:center!important;justify-content:center!important;padding:12px!important;box-sizing:border-box!important;z-index:2147482000!important;background:rgba(28,20,32,.92)!important;backdrop-filter:none!important;}
+#fs-modal.open{display:flex!important;}
+#fs-modal .fs-modal-content{position:relative!important;top:auto!important;left:auto!important;transform:none!important;margin:0!important;max-width:calc(100vw - 96px)!important;max-height:calc(100dvh - 24px)!important;overflow:hidden!important;}
+#fs-modal #fs-modal-image{width:auto!important;height:auto!important;max-width:calc(100vw - 96px)!important;max-height:calc(100dvh - 24px)!important;object-fit:contain!important;}
+@media(max-width:700px){#fs-modal .fs-modal-content,#fs-modal #fs-modal-image{max-width:calc(100vw - 76px)!important;max-height:calc(100dvh - 24px)!important;}}

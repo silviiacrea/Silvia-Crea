@@ -24,6 +24,11 @@ function updateViewVars(e) {
 }
 document.addEventListener("click", updateViewVars, true);
 document.addEventListener("touchstart", updateViewVars, {passive: true, capture: true});
+// La ficha queda fija a la pantalla; los gestos sobre el área exterior desplazan el documento de fondo.
+let modalBackgroundTouchY=0;
+document.addEventListener("wheel",ev=>{if(ev.target.closest?.("#product-modal.open")&&!ev.target.closest(".product-modal")){window.scrollBy({top:ev.deltaY,left:ev.deltaX,behavior:"auto"});ev.preventDefault();}}, {passive:false,capture:true});
+document.addEventListener("touchstart",ev=>{if(ev.target.closest?.("#product-modal.open")&&!ev.target.closest(".product-modal"))modalBackgroundTouchY=ev.touches[0]?.clientY||0;},{passive:true,capture:true});
+document.addEventListener("touchmove",ev=>{if(ev.target.closest?.("#product-modal.open")&&!ev.target.closest(".product-modal")){const y=ev.touches[0]?.clientY||modalBackgroundTouchY;window.scrollBy({top:modalBackgroundTouchY-y,behavior:"auto"});modalBackgroundTouchY=y;ev.preventDefault();}},{passive:false,capture:true});
 // -----------------------------------------------------  
   
 const cfg = window.SILVIA_CONFIG || {};
@@ -212,7 +217,7 @@ function setupModalAlbum(photos,mainSrc){
   if(!next){next=document.createElement("button");next.type="button";next.id="modal-next";next.className="modal-stage-arrow";next.setAttribute("aria-label","Fotografía siguiente");next.textContent="›";next.addEventListener("click",()=>setModalPhoto(modalPhotoIndex+1));stage.appendChild(next);}
   let gallery=$("#modal-album");if(!gallery){gallery=document.createElement("div");gallery.id="modal-album";gallery.className="modal-album";stage.insertAdjacentElement("afterend",gallery);}
   const all=[mainSrc,...photos].filter(safeImg),seen=new Set();modalPhotos=all.filter(src=>{const key=imageIdentity(src);if(seen.has(key))return false;seen.add(key);return true;});modalPhotoIndex=0;
-  gallery.innerHTML="";gallery.style.display=modalPhotos.length>1?"flex":"none";gallery.style.justifyContent=modalPhotos.length<=5?"center":"flex-start";
+  gallery.innerHTML="";gallery.style.display=modalPhotos.length>1?"flex":"none";gallery.style.justifyContent=modalPhotos.length<=5?"center":"flex-start";$("#product-modal")?.classList.toggle("has-album",modalPhotos.length>1);
   modalPhotos.forEach((src,i)=>{const b=document.createElement("button");b.type="button";b.className="album-thumb"+(i===0?" active":"");b.setAttribute("aria-label","Ver foto "+(i+1));const img=document.createElement("img");img.src=workerModeUrl(src,"thumb");img.alt="Foto "+(i+1);img.loading="lazy";img.decoding="async";b.appendChild(img);b.addEventListener("click",()=>setModalPhoto(i));gallery.appendChild(b);});
   if(modalPhotos.length)setModalPhoto(0);
 }
@@ -241,10 +246,10 @@ const m=$(".product-modal");
      if(modalProduct===p || $("#modal-title").textContent===(p.name||p.title||"")) setupModalAlbum(photos,src);
    });
  }
- $("#product-modal")?.classList.add("open");$("#product-modal")?.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";document.documentElement.style.overflow="hidden";   
+ $("#product-modal")?.classList.add("open");$("#product-modal")?.setAttribute("aria-hidden","false");document.body.style.overflow="";document.documentElement.style.overflow="";   
 }   
   
-function closeProduct(){$("#product-modal")?.classList.remove("open");$("#product-modal")?.setAttribute("aria-hidden","true");if(!$("#fs-modal")?.classList.contains("open")){document.body.style.overflow="";document.documentElement.style.overflow="";}}   
+function closeProduct(){$("#product-modal")?.classList.remove("open","has-album");$("#product-modal")?.setAttribute("aria-hidden","true");if(!$("#fs-modal")?.classList.contains("open")){document.body.style.overflow="";document.documentElement.style.overflow="";}}   
   
 function prepareSlider(el,count){
  if(!el)return;
@@ -254,8 +259,8 @@ function prepareSlider(el,count){
  if(!left){left=document.createElement("button");left.type="button";left.className="slider-btn slider-btn-left";left.textContent="‹";left.setAttribute("aria-label","Anterior");wrapper.appendChild(left);}
  if(!right){right=document.createElement("button");right.type="button";right.className="slider-btn slider-btn-right";right.textContent="›";right.setAttribute("aria-label","Siguiente");wrapper.appendChild(right);}
  const visible=()=>window.innerWidth<=640?1:window.innerWidth<=900?2:3;
- const update=()=>{const active=count>visible();el.classList.toggle("has-slider",active);el.classList.toggle("is-centered",!active);el.setAttribute("aria-label",active?"Carrusel de especialidades":"Especialidades");left.hidden=!active;right.hidden=!active;};
- const scroll=direction=>{const card=el.querySelector(".item-card");if(card)el.scrollBy({left:direction*(card.getBoundingClientRect().width+24),behavior:"smooth"});};
+ const update=()=>{const active=count>visible();el.classList.toggle("has-slider",active);el.classList.toggle("is-centered",!active);el.setAttribute("aria-label",active?"Carrusel de especialidades":"Especialidades");left.hidden=!active;right.hidden=!active;el.scrollLeft=0;};
+ const scroll=direction=>{const cards=[...el.querySelectorAll(".item-card")];if(!cards.length)return;const first=cards[0],second=cards[1];const gap=second?second.getBoundingClientRect().left-first.getBoundingClientRect().left:first.getBoundingClientRect().width;el.scrollBy({left:direction*gap,behavior:"smooth"});};
  left.onclick=()=>scroll(-1);right.onclick=()=>scroll(1);
  if(!el.dataset.sliderResize){window.addEventListener("resize",update,{passive:true});el.dataset.sliderResize="1";}
  update();
@@ -304,10 +309,10 @@ products.sort((a,b)=>(a.featured===b.featured?0:a.featured?-1:1));
 const grid=$("#products-grid");
 if(grid){
  const tiles=categoryCards(products,"product");
- const old=grid.parentElement.querySelector(".category-tiles");
+ const old=grid.parentElement.querySelector(".category-section-block");
  if(old) old.remove();
- if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><div class="category-tiles" aria-label="Categorías de la tienda">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);}
- if(!grid.parentElement.querySelector(".products-section-title")){const h=document.createElement("h2");h.className="category-section-title products-section-title";h.textContent="Productos";grid.parentElement.insertBefore(h,grid);}
+ if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Descubre las creaciones por temática y encuentra ese detalle especial que estás buscando.</p><div class="category-tiles" aria-label="Categorías de la tienda">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);}
+ if(!grid.parentElement.querySelector(".products-section-title")){const h=document.createElement("h2");h.className="category-section-title products-section-title";h.textContent="Productos";grid.parentElement.insertBefore(h,grid);const d=document.createElement("p");d.className="category-section-description products-section-description";d.textContent="Todas las piezas disponibles, elaboradas con cariño y pensadas para regalar o disfrutar.";grid.parentElement.insertBefore(d,grid);}
  grid.innerHTML=products.length?products.map((p,i)=>card(p,"product",i)).join(""):'<p class="loading-note">Próximamente habrá nuevas creaciones.</p>';
  balanceGrid(grid,products.length);positionCardWatermarks(grid);
 }
@@ -325,10 +330,10 @@ gallery=rows.filter(r=>r.nombre).map(r=>({name:r.nombre,image:workerImage(r.imag
 const grid=$("#gallery-grid");
 if(grid){
  const tiles=categoryCards(gallery,"gallery");
- const old=grid.parentElement.querySelector(".category-tiles");
+ const old=grid.parentElement.querySelector(".category-section-block");
  if(old) old.remove();
- if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><div class="category-tiles" aria-label="Categorías de trabajos">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);}
- if(!grid.parentElement.querySelector(".products-section-title")){const h=document.createElement("h2");h.className="category-section-title products-section-title";h.textContent="Productos";grid.parentElement.insertBefore(h,grid);}
+ if(tiles){const wrap=document.createElement("section");wrap.className="category-section-block";wrap.innerHTML=`<h2 class="category-section-title">Categorías</h2><p class="category-section-description">Explora los trabajos por tipo de creación y déjate inspirar por cada proyecto.</p><div class="category-tiles" aria-label="Categorías de trabajos">${tiles}</div>`;grid.parentElement.insertBefore(wrap,grid);}
+ if(!grid.parentElement.querySelector(".products-section-title")){const h=document.createElement("h2");h.className="category-section-title products-section-title";h.textContent="Trabajos";grid.parentElement.insertBefore(h,grid);const d=document.createElement("p");d.className="category-section-description products-section-description";d.textContent="Una selección de proyectos y creaciones que reflejan el cariño por cada detalle.";grid.parentElement.insertBefore(d,grid);}
  grid.innerHTML=gallery.length?gallery.map((p,i)=>card(p,"gallery",i)).join(""):'<p class="loading-note">Próximamente descubrirás aquí mis trabajos.</p>';
  balanceGrid(grid,gallery.length);positionCardWatermarks(grid);
 }
