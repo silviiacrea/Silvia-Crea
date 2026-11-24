@@ -1,5 +1,11 @@
 {
-  "actualizado": "2026-11-24T00:40:03.816Z",
+  "actualizado": "2026-11-24T00:55:06.204Z",
+  "maintenance": {
+    "mode": "normal",
+    "message": "",
+    "updated": ""
+  },
+  "imagenTiendaInicio": "",
   "catalogo": [
     {
       "nombre": "Gnomo Navideño",
@@ -12,6 +18,7 @@
       "destacado": true,
       "oferta": true,
       "precioOferta": 8,
+      "album": "Gnomos",
       "categoria": "prueba"
     },
     {
@@ -25,6 +32,7 @@
       "destacado": false,
       "oferta": false,
       "precioOferta": "",
+      "album": "",
       "categoria": "test"
     },
     {
@@ -38,6 +46,7 @@
       "destacado": false,
       "oferta": false,
       "precioOferta": "",
+      "album": "",
       "categoria": ""
     }
   ],
@@ -48,6 +57,7 @@
       "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadamigurumi.jpg",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadamigurumi.jpg",
+      "album": "",
       "destacado": true
     },
     {
@@ -56,6 +66,7 @@
       "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadpulseras.PNG",
       "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/especialidadpulseras.PNG",
+      "album": "",
       "destacado": false
     },
     {
@@ -64,6 +75,7 @@
       "imagen": "",
       "descripcionCompleta": "",
       "imagenGrande": "",
+      "album": "",
       "destacado": false
     }
   ],
@@ -74,6 +86,7 @@
       "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/bolsitocrochet.jpg",
+      "album": "",
       "categoria": "pruebaaa"
     },
     {
@@ -82,6 +95,7 @@
       "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
       "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/mu%C3%B1ecodenieve.jpg",
+      "album": "",
       "categoria": "tesst"
     },
     {
@@ -90,6 +104,7 @@
       "descripcion": "Decorada a mano con técnicas de acuarela y lettering.",
       "descripcionCompleta": "Decorada a mano con técnicas de acuarela y lettering.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/zorrocrochet.jpeg",
+      "album": "",
       "categoria": ""
     },
     {
@@ -98,6 +113,7 @@
       "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/ballenitascrochet.jpg",
+      "album": "",
       "categoria": ""
     }
   ],
