@@ -225,6 +225,11 @@ function renderCategoryLanding(){
   const params=categoryParams();
   const title=$("#category-title");
   if(title) title.textContent=params.name || "Categoría";
+  const categoryIndexLink=$("#category-index-link");
+  if(categoryIndexLink){
+    categoryIndexLink.href=params.type==="gallery"?"categorias-trabajos.html":"categorias-tienda.html";
+    categoryIndexLink.textContent=params.type==="gallery"?"Ver todas las categorías de trabajos":"Ver todas las categorías de tienda";
+  }
   const primary=$("#category-back-primary"), secondary=$("#category-back-secondary");
   if(params.type==="gallery"){
     if(primary){primary.href="galeria.html";primary.textContent="Volver a la galería";}
@@ -374,8 +379,8 @@ function prepareSlider(el,count){
   el.classList.toggle("is-centered",!active);
   el.classList.toggle("is-mobile-list",isMobile);
   wrapper.classList.toggle("is-mobile-list-wrapper",isMobile);
-  wrapper.style.width=isMobile?"100%":"min(calc(100% - 48px), 1120px)";
-  wrapper.style.maxWidth=isMobile?"520px":"1120px";
+  wrapper.style.width=isMobile?"100%":"min(calc(100% - 48px), 1200px)";
+  wrapper.style.maxWidth=isMobile?"520px":"1200px";
   wrapper.style.marginInline="auto";
   el.setAttribute("aria-label",active?"Carrusel de especialidades":"Especialidades");
   const max=Math.max(0,el.scrollWidth-el.clientWidth),pos=el.scrollLeft;
