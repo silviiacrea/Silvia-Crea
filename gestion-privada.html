@@ -1,10 +1,34 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="silvia-build" content="46.0"><title>Administración privada | Silvia Crea</title><link rel="icon" href="assets/logo%20web.png"><link rel="stylesheet" href="css/estilos.css?v=46.0"><style>
-.admin-wrap{max-width:680px;margin:70px auto;padding:28px;background:#fff;border:1px solid #eadfd8;border-radius:20px;box-shadow:0 12px 40px #5d392012}.admin-wrap h1{font-family:'Playfair Display',serif}.admin-form{display:grid;gap:14px}.admin-form label{font-weight:600}.admin-form input{width:100%;padding:13px;border:1px solid #d8c8bd;border-radius:10px;font:inherit}.admin-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}.admin-status{padding:14px;border-radius:10px;background:#f8f3ef;margin-top:18px;white-space:pre-wrap}.admin-note{font-size:.94rem;color:#655b55}.admin-hidden[hidden]{display:none!important}
-.admin-wrap select{width:100%;padding:13px;border:1px solid #d8c8bd;border-radius:10px;font:inherit;background:white}.admin-wrap h2{margin-top:28px}</style></head><body><header class="site-header"><div class="header-inner"><a class="brand" href="index.html"><img src="assets/logo%20web.png" alt="" class="header-logo"><span><strong>Silvia Crea ♡</strong><small>Administración privada</small></span></a><nav class="main-nav"><a href="index.html">Volver a la web</a></nav></div></header>
-<main class="admin-wrap"><span class="eyebrow">Zona privada</span><h1>Administración de la web</h1><p class="admin-note">Desde aquí puedes solicitar la actualización automática de las páginas individuales del catálogo, la galería y el sitemap. El proceso se ejecuta en GitHub Actions.</p>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="silvia-build" content="47.0">
+<title>Administración privada | Silvia Crea</title><link rel="icon" href="assets/logo%20web.png">
+<link rel="stylesheet" href="css/estilos.css?v=47.0">
+<style>
+.admin-wrap{width:min(920px,calc(100% - 32px));margin:48px auto;padding:clamp(20px,4vw,38px);background:#fff;border:1px solid #eadfd8;border-radius:22px;box-shadow:0 14px 42px #5d392012}
+.admin-wrap h1,.admin-wrap h2{font-family:'Playfair Display',serif;color:#493b4d}.admin-intro{color:#655b55;max-width:720px;line-height:1.65}
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:24px}
+.admin-card{padding:22px;border:1px solid #eadfd8;border-radius:16px;background:#fffdfc}.admin-card h2{font-size:1.35rem;margin:0 0 10px}
+.admin-note{color:#6d6269;line-height:1.55;font-size:.94rem}.admin-form{display:grid;gap:13px}.admin-form label{font-weight:600}
+.admin-form input{width:100%;padding:13px;border:1px solid #d8c8bd;border-radius:10px;font:inherit}
+.admin-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.admin-actions button{min-height:44px}
+.admin-state{display:flex;align-items:center;gap:12px;padding:15px;border-radius:12px;background:#f7f2f8;margin:16px 0;font-weight:700}
+.admin-dot{width:13px;height:13px;border-radius:50%;background:#999;box-shadow:0 0 0 4px #9992}.admin-state.normal .admin-dot{background:#21864a;box-shadow:0 0 0 4px #21864a22}.admin-state.maintenance .admin-dot{background:#c63838;box-shadow:0 0 0 4px #c6383822}
+.admin-hidden[hidden]{display:none!important}.admin-status{padding:14px;border-radius:10px;background:#f8f3ef;margin-top:20px;white-space:pre-wrap}
+button:disabled{opacity:.48;cursor:not-allowed}.admin-divider{border:0;border-top:1px solid #eee4eb;margin:22px 0}
+</style></head><body>
+<header class="site-header"><div class="header-inner"><a class="brand" href="index.html"><img src="assets/logo%20web.png" alt="" class="header-logo"><span><strong>Silvia Crea ♡</strong><small>Administración privada</small></span></a><nav class="main-nav"><a href="index.html">Volver a la web</a></nav></div></header>
+<main class="admin-wrap"><span class="eyebrow">Zona privada</span><h1>Administración de la web</h1>
+<p class="admin-intro">Desde aquí puedes solicitar la actualización automática de las páginas individuales del catálogo, la galería y el sitemap. El proceso se ejecuta en GitHub Actions.</p>
 <section id="login-panel"><form id="login-form" class="admin-form"><label>Usuario administrador<input id="admin-user" autocomplete="username" required></label><label>Contraseña<input id="admin-pass" type="password" autocomplete="current-password" required></label><button class="btn btn-primary" type="submit">Iniciar sesión</button></form></section>
-<section id="control-panel" class="admin-hidden" hidden><p>Sesión iniciada correctamente.</p>
-<h2>Estado de la web</h2><p class="admin-note">Este control es independiente del mantenimiento de Apps Script. Si lo dejas en «Normal», la web vuelve a obedecer los modos de mantenimiento y construcción configurados en Apps Script.</p>
-<div class="admin-form"><label for="maintenance-mode">Modo propio de la web</label><select id="maintenance-mode"><option value="normal">Normal (respetar Apps Script)</option><option value="maintenance">Mantenimiento</option><option value="construction">En construcción</option><option value="total">Mantenimiento total</option></select><label for="maintenance-message">Mensaje opcional</label><input id="maintenance-message" maxlength="240" placeholder="Mensaje que verán los visitantes"></div><div class="admin-actions"><button class="btn btn-primary" id="save-maintenance" type="button">Guardar modo de la web</button><button class="btn" id="run-generation" type="button">Actualizar catálogo, galería y SEO ahora</button><button class="btn" id="logout" type="button">Cerrar sesión</button></div><p class="admin-note" id="maintenance-current">Consultando el estado…</p><p class="admin-note">La actualización SEO puede tardar unos minutos. El estado final se consulta en GitHub → Actions.</p></section><div class="admin-status" id="admin-status" role="status" aria-live="polite">Introduce tus credenciales de administrador.</div></main>
-<footer class="site-footer"><p>Silvia Crea · Panel privado</p></footer><script src="js/admin.js?v=46.0" defer></script></body></html>
+<section id="control-panel" class="admin-hidden" hidden>
+<div class="admin-grid">
+<section class="admin-card"><h2>Estado de la web</h2><p class="admin-note">Consulta el estado efectivo comunicado por Cloudflare Worker y cambia entre web normal y mantenimiento.</p>
+<div id="maintenance-state" class="admin-state"><span class="admin-dot"></span><span id="maintenance-current">Consultando el servidor…</span></div>
+<div class="admin-actions"><button class="btn btn-primary" id="set-normal" type="button">Poner web en modo normal</button><button class="btn" id="set-maintenance" type="button">Activar modo mantenimiento</button></div>
+</section>
+<section class="admin-card"><h2>Actualización SEO</h2><p class="admin-note">Solicita la actualización automática de las páginas individuales del catálogo, la galería y el sitemap. El proceso se ejecuta en GitHub Actions y puede tardar unos minutos.</p>
+<div class="admin-actions"><button class="btn btn-primary" id="run-generation" type="button">Actualizar catálogo, galería y SEO ahora</button></div>
+</section></div>
+<div class="admin-actions"><button class="btn" id="logout" type="button">Cerrar sesión</button></div></section>
+<div class="admin-status" id="admin-status" role="status" aria-live="polite">Introduce tus credenciales de administrador.</div></main>
+<footer class="site-footer"><p>Silvia Crea · Panel privado</p></footer><script src="js/admin.js?v=47.0" defer></script></body></html>

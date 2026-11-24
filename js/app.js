@@ -141,12 +141,14 @@ async function fetchFreshSiteData(){
  throw new Error("No se pudo obtener datos.json. "+failures.join(" | "));
 }
 async function fetchMaintenanceStatus(){
- // El modo propio del panel tiene prioridad. Si está en normal, se conserva
- // íntegramente el mantenimiento/construcción que venga del Apps Script.
- try{const base=(cfg.workerBaseUrl||"https://worker.silviacrea.es").replace(/\/$/,"");const r=await fetch(base+"/site-status?ts="+Date.now(),{cache:"no-store"});if(r.ok){const payload=await r.json(),state=payload.maintenance;if(state&&typeof state.mode==="string"&&state.mode!=="normal")return state;}}
- catch(err){console.warn("No se pudo consultar el mantenimiento propio:",err);}
- try{const data=await fetchFreshSiteData();return data.maintenance&&typeof data.maintenance.mode==="string"?data.maintenance:{mode:"normal"};}
- catch(err){console.warn("No se pudo comprobar el estado de la web:",err);return null;}
+ try{
+  const base=(cfg.workerBaseUrl||"https://worker.silviacrea.es").replace(/\/$/,"");
+  const r=await fetch(base+"/site-status?ts="+Date.now(),{cache:"no-store"});
+  if(!r.ok)throw new Error("HTTP "+r.status);
+  const payload=await r.json(),mode=payload?.maintenance?.mode;
+  if(mode!=="normal"&&mode!=="maintenance")throw new Error("Estado de mantenimiento no válido");
+  return {mode,updatedAt:payload.maintenance.updatedAt||null};
+ }catch(err){console.error("No se pudo verificar el estado del servidor:",err);return null;}
 }
 function startMaintenancePolling(){
  if(maintenancePollTimer)return;
@@ -938,7 +940,7 @@ $(".drawer-head .eyebrow").textContent = "Un último paso";
 $("#contact-form")?.addEventListener("submit",sendContact);   
 $("#year").textContent=new Date().getFullYear();initMenu();updateCart();
 function applyMaintenanceState(state){
- const mode=state&&state.mode?state.mode:"normal";
+ const mode=state&&state.mode==="normal"?"normal":"maintenance";
  if(mode==="normal"){
    const wasActive=document.body.classList.contains("maintenance-active");
    document.body.classList.remove("maintenance-active","maintenance-checking");
@@ -952,7 +954,7 @@ function applyMaintenanceState(state){
 }
 function showMaintenanceScreen(state){
  if(!state||!state.mode||state.mode==="normal")return applyMaintenanceState({mode:"normal"});
- const mode=state.mode,logo="assets/logo%20web.png",instagram="https://www.instagram.com/silviiacrea",contact="contacto.html#contact-form";
+ const mode="maintenance",logo="assets/logo%20web.png",instagram="https://www.instagram.com/silviiacrea",contact="contacto.html#contact-form";
  const copy={construction:{title:"Web en construcción",message:"Estamos preparando un rincón lleno de creatividad. Muy pronto podrás descubrir todas las creaciones.",icon:"🛠️",className:"construction"},maintenance:{title:"Estamos realizando pequeños cuidados",message:"La web está en mantenimiento. Mientras tanto, puedes contactar con Silvia o seguir las novedades en Instagram.",icon:"🧵",className:"maintenance"},total:{title:"Volvemos muy pronto",message:"Estamos realizando trabajos de mantenimiento.",icon:"🌙",className:"total"}}[mode]||{title:"Estamos realizando pequeños cuidados",message:"La web está en mantenimiento.",icon:"🧵",className:"maintenance"};
  let overlay=$(".maintenance-screen");if(!overlay){overlay=document.createElement("div");overlay.className="maintenance-screen";document.body.appendChild(overlay);}
  const actions=mode==="total"?`<div class="maintenance-total-follow"><span>Por ahora, puedes seguirnos en Instagram.</span><a class="btn btn-primary" href="${instagram}" target="_blank" rel="noopener">Instagram</a></div>`:`<div class="maintenance-actions"><button class="btn btn-primary" type="button" data-open-maint-contact>Formulario de contacto</button><a class="btn btn-soft" href="${instagram}" target="_blank" rel="noopener">Instagram</a></div><div class="maintenance-contact-overlay" id="maintenance-contact-overlay" aria-hidden="true"><div class="maintenance-contact-dialog" role="dialog" aria-modal="true" aria-labelledby="maintenance-contact-title"><button type="button" class="maintenance-contact-close" data-close-maint-contact aria-label="Cerrar formulario">×</button><h2 id="maintenance-contact-title">Contacta con Silvia</h2><form id="maintenance-contact"><label>Tu nombre<input name="Nombre" required autocomplete="name"></label><label>Email<input type="email" name="Email" required autocomplete="email"></label><label>Mensaje<textarea name="Mensaje" rows="3" required></textarea></label><button class="btn btn-primary" type="submit">Enviar mensaje</button><p id="maintenance-status" aria-live="polite"></p></form></div></div>`;
@@ -968,8 +970,21 @@ function showMaintenanceScreen(state){
 }
 async function applyMaintenance(){
  document.body.classList.add("maintenance-checking");
- try{const data=await fetchFreshSiteData();const state=data.maintenance||{mode:"normal"};applyMaintenanceState(state);applyShopAccessImage(data.imagenTiendaInicio||data.shopImage||"");siteDataPromise=Promise.resolve(data);startMaintenancePolling();return state.mode!=="normal";}
- catch(err){console.warn("No se pudo obtener datos.json para el estado inicial:",err);applyMaintenanceState({mode:"normal"});startMaintenancePolling();return false;}
+ const state=await fetchMaintenanceStatus();
+ if(!state){
+  applyMaintenanceState({mode:"maintenance"});
+  const screen=$(".maintenance-screen");
+  if(screen){const p=screen.querySelector("p");if(p)p.textContent="No podemos verificar el estado de la web en este momento. Vuelve a intentarlo más tarde.";}
+  startMaintenancePolling();return true;
+ }
+ applyMaintenanceState(state);
+ if(state.mode==="maintenance"){startMaintenancePolling();return true;}
+ try{
+  const data=await fetchFreshSiteData();
+  applyShopAccessImage(data.imagenTiendaInicio||data.shopImage||"");
+  siteDataPromise=Promise.resolve(data);
+ }catch(err){console.warn("No se pudieron cargar los datos iniciales:",err);}
+ startMaintenancePolling();return false;
 }
 
 function loadPageContent(){
