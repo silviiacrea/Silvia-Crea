@@ -1859,70 +1859,118 @@ body[data-page="home"] section.section.tinted > .home-slider-wrapper > #specialt
 body[data-page="home"] section.section.tinted > .home-slider-wrapper > #specialties-grid > .item-card{flex-shrink:0!important;}
 @media(prefers-reduced-motion:reduce){.item-card{transition:none!important}.item-card:hover,.item-card:focus-within{transform:none!important;}}
 
-/* VERSION 17: alternancia de categorías por filas, tarjetas uniformes y carrusel táctil. */
-/* Alternancia tipo damero: cada fila invierte el patrón de la anterior. */
-@media (min-width: 521px){
-  .category-tiles{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
-  .category-tiles>.category-tile:nth-child(6n+1),
-  .category-tiles>.category-tile:nth-child(6n+3),
-  .category-tiles>.category-tile:nth-child(6n+5){background:var(--lilac-card)!important;border-color:#dfceeb!important;}
-  .category-tiles>.category-tile:nth-child(6n+2),
-  .category-tiles>.category-tile:nth-child(6n+4),
-  .category-tiles>.category-tile:nth-child(6n+6){background:var(--pink-soft)!important;border-color:#f0d5e1!important;}
+/* VERSION 17 — correcciones definitivas de categorías, tarjetas y carrusel. */
+/* Damero real: cada fila de tres invierte el patrón de color de la anterior. */
+@media (min-width: 521px) {
+  .category-tiles {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  .category-tiles > .category-tile:nth-child(6n + 1),
+  .category-tiles > .category-tile:nth-child(6n + 3),
+  .category-tiles > .category-tile:nth-child(6n + 5) {
+    background: var(--lilac-card) !important;
+    border-color: #dfceeb !important;
+  }
+  .category-tiles > .category-tile:nth-child(6n + 2),
+  .category-tiles > .category-tile:nth-child(6n + 4),
+  .category-tiles > .category-tile:nth-child(6n + 6) {
+    background: var(--pink-soft) !important;
+    border-color: #f0d5e1 !important;
+  }
 }
-@media (max-width:520px){
-  .category-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
-  .category-tiles>.category-tile:nth-child(4n+1),
-  .category-tiles>.category-tile:nth-child(4n+4){background:var(--lilac-card)!important;border-color:#dfceeb!important;}
-  .category-tiles>.category-tile:nth-child(4n+2),
-  .category-tiles>.category-tile:nth-child(4n+3){background:var(--pink-soft)!important;border-color:#f0d5e1!important;}
+@media (max-width: 520px) {
+  .category-tiles {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .category-tiles > .category-tile:nth-child(4n + 1),
+  .category-tiles > .category-tile:nth-child(4n + 4) {
+    background: var(--lilac-card) !important;
+    border-color: #dfceeb !important;
+  }
+  .category-tiles > .category-tile:nth-child(4n + 2),
+  .category-tiles > .category-tile:nth-child(4n + 3) {
+    background: var(--pink-soft) !important;
+    border-color: #f0d5e1 !important;
+  }
 }
-/* Todas las tarjetas comparten elevación; la imagen nunca hace zoom. */
+
+/* Todas las tarjetas usan elevación; ninguna imagen hace zoom. */
 .item-card,
 .item-card.is-featured,
 .item-card.is-offer,
-.item-card.is-featured.is-offer{
-  position:relative!important;
-  isolation:isolate!important;
-  box-sizing:border-box!important;
-  overflow:hidden!important;
-  transition:transform .24s ease,box-shadow .24s ease!important;
+.item-card.is-featured.is-offer {
+  position: relative !important;
+  isolation: isolate !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  transition: transform .24s ease, box-shadow .24s ease !important;
 }
-.item-card:hover,.item-card:focus-within,
-.item-card.is-featured:hover,.item-card.is-offer:hover,
-.item-card.is-featured.is-offer:hover{
-  transform:translateY(-5px)!important;
+.item-card:hover,
+.item-card:focus-within,
+.item-card.is-featured:hover,
+.item-card.is-offer:hover,
+.item-card.is-featured.is-offer:hover {
+  transform: translateY(-5px) !important;
 }
+.item-card .image-wrapper,
+.item-card .image-wrapper img,
 .item-card .item-image,
+.item-card:hover .image-wrapper img,
 .item-card:hover .item-image,
-.item-card:focus-within .item-image{
-  transform:none!important;
-  transition:none!important;
+.item-card:focus-within .image-wrapper img,
+.item-card:focus-within .item-image {
+  transform: none !important;
+  transition: none !important;
 }
-.item-card .image-wrapper{overflow:hidden!important;border-radius:inherit!important;}
-/* El marco se dibuja en el borde exterior y queda por encima de la imagen. */
+.item-card .image-wrapper {
+  overflow: hidden !important;
+  border-radius: inherit;
+}
+
+/* El marco es la capa más externa, contenido en la silueta redondeada. */
+.item-card.is-featured,
+.item-card.is-offer,
+.item-card.is-featured.is-offer {
+  border: 0 !important;
+}
 .item-card.is-featured::after,
 .item-card.is-offer::after,
-.item-card.is-featured.is-offer::after{
-  content:""!important;position:absolute!important;inset:0!important;
-  box-sizing:border-box!important;border-radius:inherit!important;
-  border:3.5px solid!important;pointer-events:none!important;z-index:30!important;
-  animation:borderOnlyPulse 3.2s ease-in-out infinite!important;
+.item-card.is-featured.is-offer::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  box-sizing: border-box !important;
+  border-radius: inherit !important;
+  border: 3.5px solid !important;
+  pointer-events: none !important;
+  z-index: 999 !important;
+  animation: sc17-border-pulse 3.4s ease-in-out infinite !important;
 }
-.item-card.is-featured::after{border-color:#bda4dc!important;}
-.item-card.is-offer::after,.item-card.is-featured.is-offer::after{border-color:#edb98d!important;}
-@keyframes borderOnlyPulse{0%,100%{opacity:.88;}50%{opacity:1;}}
-/* Desplazamiento táctil nativo en móvil; el JS mantiene el arrastre de ratón en PC. */
-body[data-page="home"] #specialties-grid.has-slider{
-  overflow-x:auto!important;overflow-y:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  touch-action:pan-x pan-y!important;
-  overscroll-behavior-x:contain!important;
-  scroll-snap-type:x mandatory!important;
+.item-card.is-featured::after { border-color: #c5afe0 !important; }
+.item-card.is-offer::after,
+.item-card.is-featured.is-offer::after { border-color: #f0c49f !important; }
+@keyframes sc17-border-pulse {
+  0%, 100% { opacity: .91; }
+  50% { opacity: 1; }
 }
-body[data-page="home"] #specialties-grid.has-slider>.item-card{scroll-snap-align:start!important;}
-@media(prefers-reduced-motion:reduce){
-  .item-card,.item-card:hover,.item-card:focus-within{transition:none!important;}
-  /* El pulso del borde usa opacidad (sin aceleración GPU) y se conserva en ahorro de energía. */
-  .item-card.is-featured::after,.item-card.is-offer::after{animation:borderOnlyPulse 3.2s ease-in-out infinite!important;}
+/* Tarjetas normales conservan un borde fino acorde con su fondo. */
+.item-card:not(.is-featured):not(.is-offer) {
+  border: 1px solid rgba(139, 105, 160, .34) !important;
 }
+
+/* El carrusel mantiene el gesto táctil horizontal y permite seguir desplazando la página en vertical. */
+body[data-page="home"] #specialties-grid.has-slider {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-x pan-y !important;
+  overscroll-behavior-x: contain !important;
+  scroll-snap-type: x mandatory !important;
+}
+body[data-page="home"] #specialties-grid.has-slider > .item-card {
+  scroll-snap-align: start !important;
+}
+/* El pulso solo anima opacidad: no requiere transformaciones ni aceleración GPU.
+   Se conserva también con ahorro de energía o prefers-reduced-motion. */
