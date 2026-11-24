@@ -81,33 +81,6 @@
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/bolsitocrochet.jpg",
       "album": "",
       "categoria": "b"
-    },
-    {
-      "nombre": "Tarjeta con Lettering",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/mu%C3%B1ecodenieve.jpg",
-      "descripcion": "Decorada a mano con técnicas de acuarela y lettering.",
-      "descripcionCompleta": "Decorada a mano con técnicas de acuarela y lettering.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/mu%C3%B1ecodenieve.jpg",
-      "album": "",
-      "categoria": "c"
-    },
-    {
-      "nombre": "Zorros a crochet",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/zorrocrochet.jpeg",
-      "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/zorrocrochet.jpeg",
-      "album": "",
-      "categoria": "e"
-    },
-    {
-      "nombre": "Próximamente...",
-      "imagen": "",
-      "descripcion": "En proceso",
-      "descripcionCompleta": "",
-      "imagenGrande": "",
-      "album": "",
-      "categoria": ""
     }
   ],
   "categoriasTienda": [
@@ -116,8 +89,6 @@
   ],
   "categoriasTrabajos": [
     "a",
-    "b",
-    "c",
-    "e"
+    "b"
   ]
 }
