@@ -321,7 +321,17 @@ function setupModalAlbum(photos,mainSrc){
 function openProduct(p,isProduct=false,idx=0,kind=isProduct?"product":"specialty"){   
 modalProduct=isProduct?p:null;
 const modalCopy=$("#product-modal .modal-copy");
-if(modalCopy){modalCopy.classList.remove("has-detail-link");modalCopy.removeAttribute("role");modalCopy.removeAttribute("aria-label");modalCopy.removeAttribute("data-detail-url");modalCopy.setAttribute("tabindex","-1");}   
+if(modalCopy){
+  modalCopy.classList.remove("has-detail-link");modalCopy.removeAttribute("role");modalCopy.removeAttribute("aria-label");modalCopy.removeAttribute("data-detail-url");modalCopy.setAttribute("tabindex","-1");
+  modalCopy.querySelector(".modal-full-detail")?.remove();
+  if(kind==="specialty"||safeImg(p.largeImage||p.image)){
+    const detailLink=document.createElement("a");
+    detailLink.className="modal-full-detail";
+    detailLink.href=detailUrl(p,kind,idx);
+    detailLink.textContent="Ver ficha completa →";
+    modalCopy.appendChild(detailLink);
+  }
+}
 $("#modal-title").textContent=p.name||p.title||"";   
 $("#modal-description").textContent=p.detail||p.description||p.desc||"";   
 const priceEl=$("#modal-price");   
@@ -493,7 +503,7 @@ ${featured}${offer}
 ${image?`<div class="image-wrapper"><img class="item-image" src="${esc(workerModeUrl(image,isProduct?"card":kind==="specialty"?"specialty":"gallery"))}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
 <div class="item-content"><h3>${esc(p.name||p.title)}</h3><p>${esc(desc)}</p>   
 ${metaHtml}  
-<div class="item-actions"><button class="mini-btn detail-button" type="button" data-detail-card="${kind}" data-index="${index}">Ver detalles</button>${isProduct?`<button class="mini-btn add-button" type="button" data-add="${index}" ${p.stock<=0?"disabled":""}>Añadir carrito</button>`:''}${(kind==="specialty"||safeImg(p.largeImage||p.image))?`<a class="card-full-detail" href="${esc(detailUrl(p,kind,index))}">Ver ficha completa</a>`:""}</div>   
+<div class="item-actions"><button class="mini-btn detail-button" type="button" data-detail-card="${kind}" data-index="${index}">Ver detalles</button>${isProduct?`<button class="mini-btn add-button" type="button" data-add="${index}" ${p.stock<=0?"disabled":""}>Añadir carrito</button>`:''}</div>   
 </div></article>`;   
 }   
 function renderShopProducts(query=""){

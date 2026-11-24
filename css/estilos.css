@@ -2785,28 +2785,15 @@ body[data-page="home"] .home-slider-wrapper>#specialties-grid.has-slider>.item-c
 
 
 
-/* V48: enlace explícito a las fichas individuales; la tarjeta no navega por sí sola. */
-.item-actions{flex-wrap:wrap!important;justify-content:center!important;align-items:center!important;}
-.item-actions .card-full-detail{
-  display:inline-flex;align-items:center;justify-content:center;text-align:center;
-  min-height:38px;padding:8px 15px;border-radius:24px;
-  color:var(--lilac-dark,#765b89);background:#f7f0fb;border:1px solid #dfceeb;
-  font-size:clamp(13px,1.15vw,15px);font-weight:700;line-height:1.25;
-  text-decoration:none;white-space:normal;flex:0 1 auto;min-width:160px;max-width:65%;
-  margin-top:3px;margin-left:auto;align-self:flex-end;
+/* V50: enlace de ficha completa dentro de la superposición de detalle, como texto y flecha. */
+.modal-copy .modal-full-detail{
+  display:block;width:max-content;max-width:100%;margin:18px 0 0 auto;
+  color:var(--lilac-dark,#765b89);font-size:15px;font-weight:600;line-height:1.4;
+  text-decoration:none;text-align:right;background:none;border:0;border-radius:0;padding:0;
 }
-.item-actions .card-full-detail:hover,.item-actions .card-full-detail:focus-visible{
-  background:#f1e7f4;text-decoration:underline;text-underline-offset:3px;
-  outline:2px solid #bf7895;outline-offset:2px;
+.modal-copy .modal-full-detail:hover,.modal-copy .modal-full-detail:focus-visible{
+  color:var(--pink-dark,#a45d78);text-decoration:underline;text-underline-offset:4px;
+  outline:2px solid #bf7895;outline-offset:4px;
 }
-.detail-extra-description{margin:22px 0;color:var(--muted,#665b68);line-height:1.75}
-.detail-extra-description h2{font:600 1.25rem var(--serif,Georgia,serif);color:var(--lilac-dark);margin:0 0 8px}
-.detail-extra-description p{margin:0;white-space:pre-line}
-@media(max-width:700px){
- .item-actions{gap:8px!important;flex-wrap:wrap!important}
- .item-actions .mini-btn{min-width:0!important;flex:1 1 auto}
- .item-actions .card-full-detail{flex:1 1 100%;max-width:100%;margin-left:0;font-size:14px;min-height:40px}
-}
-
 /* V48: respetar los saltos de línea de las descripciones extensas. */
 .detail-description{white-space:pre-line;line-height:1.75}
