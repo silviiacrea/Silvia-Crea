@@ -382,25 +382,24 @@ function closeProduct(){const overlay=$("#product-modal");if(!overlay||!overlay.
 function prepareSlider(el,count){
  if(!el)return;
  const mobile=()=>window.matchMedia("(max-width:700px)").matches;
- const staticLayout=()=>{
+ const centeredLayout=()=>{
   const existing=el.closest(".home-slider-wrapper");
   if(existing){
    const parent=existing.parentNode;
    parent.insertBefore(el,existing);
    existing.remove();
   }
-  el.classList.remove("has-slider","is-centered","is-mobile-list","is-dragging","grid-count-2");
-  el.classList.add("specialties-static-grid");
-  // Con exactamente dos tarjetas, CSS crea una fila de dos columnas centrada.
-  el.classList.toggle("grid-count-2",count===2);
+  // Recupera el modo centrado original de .card-grid.is-centered.
+  // No se fuerza una cuadrícula de tres columnas para dos tarjetas.
+  el.classList.remove("has-slider","is-mobile-list","is-dragging");
+  el.classList.add("is-centered");
   el.removeAttribute("aria-label");
   el.style.removeProperty("scroll-snap-type");
   el.style.removeProperty("overflow");
  };
- // Tres o menos especialidades nunca deben entrar en el modo carrusel.
- // No se crea wrapper ni botones: el grid es un elemento normal del flujo.
- if(count<=3){staticLayout();return;}
- el.classList.remove("specialties-static-grid");
+ // Tres o menos especialidades se muestran centradas, sin carrusel ni wrapper.
+ if(count<=3){centeredLayout();return;}
+ 
  let wrapper=el.closest(".home-slider-wrapper");
  if(!wrapper){
   wrapper=document.createElement("div");
