@@ -2216,3 +2216,36 @@ body.page-leaving{animation:silviaPageLeave .15s ease-in both;pointer-events:non
   .category-tiles>.category-tile{min-height:40px!important;padding:7px 8px!important;}
   .category-tiles>.category-tile>span{font-size:clamp(14px,3.4vw,18px)!important;}
 }
+
+
+/* VERSION 24 — la foto continúa por detrás de las esquinas superiores del panel del nombre. */
+.item-card .image-wrapper{
+  position:relative!important;
+  flex:0 0 auto!important;
+  aspect-ratio:4/3!important;
+  height:auto!important;
+  overflow:visible!important;
+  border-radius:20px 20px 0 0!important;
+  z-index:0!important;
+}
+.item-card .image-wrapper>img,
+.item-card .image-wrapper>.item-image{
+  position:absolute!important;
+  inset:0 0 -16px 0!important;
+  display:block!important;
+  width:100%!important;
+  height:calc(100% + 16px)!important;
+  max-width:none!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  border-radius:20px 20px 0 0!important;
+  transform:none!important;
+  scale:1!important;
+}
+.item-card .item-content{
+  position:relative!important;
+  z-index:2!important;
+  margin-top:-16px!important;
+  border-radius:18px 18px 0 0!important;
+  overflow:hidden!important;
+}
