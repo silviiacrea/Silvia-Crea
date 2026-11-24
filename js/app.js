@@ -53,59 +53,76 @@ function workerImage(url){
     return ""; // external images are blocked unless routed through the Cloudflare Worker
   }catch{return "";}
 }
-const SITE_CACHE_KEY="silviacrea_site_data_v4";
-const SITE_REFRESH_AFTER=60*1000;
-const MAINTENANCE_CHECK_INTERVAL=10*1000;
+const MAINTENANCE_CHECK_INTERVAL=15000;
 let maintenancePollTimer=null, maintenanceStatusFailures=0, pageContentLoaded=false, maintenanceCurrentState=null;
-let siteDataPromise=null,siteRefreshPromise=null;
-function readSiteCache(){try{const c=JSON.parse(localStorage.getItem(SITE_CACHE_KEY)||"null");return c&&c.data&&(c.data.catalogo||c.data.trabajos||c.data.especialidades)?c:null;}catch{return null;}}
-function writeSiteCache(data){try{localStorage.setItem(SITE_CACHE_KEY,JSON.stringify({savedAt:Date.now(),data}));}catch(e){}}
-function validSiteData(data){return !!(data&&(Array.isArray(data.catalogo)||Array.isArray(data.trabajos)||Array.isArray(data.especialidades)));}
-function maintenanceStatusUrl(){try{const u=new URL(cfg.appsScriptUrl);u.searchParams.set("action","status");u.searchParams.set("v",String(Date.now()));return u.href;}catch{return "";}}
-async function fetchMaintenanceStatus(){
- // datos.json is the single source of truth for maintenance/construction states.
- if(cfg.dataJsonUrl){try{const u=cfg.dataJsonUrl+(cfg.dataJsonUrl.includes("?")?"&":"?")+"maintenancev="+Date.now();const r=await fetch(u,{cache:"no-store",headers:{"Cache-Control":"no-cache"}});if(r.ok){const d=await r.json();if(d&&d.maintenance&&typeof d.maintenance.mode==="string")return d.maintenance;}}catch{}}
- // Apps Script status is a fallback only when datos.json is unavailable.
- const statusUrl=maintenanceStatusUrl();if(statusUrl){try{const r=await fetch(statusUrl,{cache:"no-store"});if(r.ok){const d=await r.json();const state=d&&typeof d.mode==="string"?d:(d&&d.maintenance);if(state&&typeof state.mode==="string")return state;}}catch{}}
- return null;
+let siteDataPromise=null;
+function normalizeSiteData(raw){
+ if(raw&&raw.data&&typeof raw.data==="object")raw=raw.data;
+ if(raw&&raw.website&&typeof raw.website==="object")raw=raw.website;
+ return raw;
 }
-
-function startMaintenancePolling(){if(maintenancePollTimer)return;maintenancePollTimer=setInterval(async()=>{const state=await fetchMaintenanceStatus();if(state){maintenanceStatusFailures=0;applyMaintenanceState(state);}else if(++maintenanceStatusFailures>=2){maintenanceStatusFailures=0;applyMaintenanceState({mode:"normal"});}},MAINTENANCE_CHECK_INTERVAL);}
+function validSiteData(data){
+ data=normalizeSiteData(data);
+ return !!(data&&(Array.isArray(data.catalogo)||Array.isArray(data.trabajos)||Array.isArray(data.especialidades)));
+}
+function getDataSources(){
+ const sources=[];
+ if(cfg.dataJsonUrl){
+  sources.push(cfg.dataJsonUrl);
+  const m=String(cfg.dataJsonUrl).match(/^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/);
+  if(m)sources.push(`https://cdn.jsdelivr.net/gh/${m[1]}/${m[2]}@${m[3]}/${m[4]}`);
+ }
+ if(cfg.appsScriptUrl){
+  sources.push(cfg.appsScriptUrl);
+  try{const u=new URL(cfg.appsScriptUrl);u.searchParams.set("action","data");sources.push(u.href);}catch{}
+ }
+ return [...new Set(sources.filter(Boolean))];
+}
+async function fetchJsonNoCache(url){
+ const u=url+(url.includes("?")?"&":"?")+"scv="+Date.now()+"_"+Math.random().toString(36).slice(2);
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+ try{
+  const response=await fetch(u,{cache:"no-store",headers:{"Cache-Control":"no-cache","Pragma":"no-cache"},signal:controller.signal});
+  if(!response.ok)throw new Error("HTTP "+response.status);
+  const text=await response.text();let data;
+  try{data=JSON.parse(text);}catch{throw new Error("La respuesta no es JSON válido");}
+  return normalizeSiteData(data);
+ }finally{clearTimeout(timer);}
+}
 async function fetchFreshSiteData(){
-  const urls=[cfg.dataJsonUrl?cfg.dataJsonUrl+(cfg.dataJsonUrl.includes("?")?"&":"?")+"v="+Date.now():"",cfg.appsScriptUrl?cfg.appsScriptUrl+"?action=data&v="+Date.now():""].filter(Boolean);
-  let lastError;
-  for(const url of urls){try{const r=await fetch(url,{cache:"no-store",headers:{"Cache-Control":"no-cache"}});if(!r.ok)throw new Error("HTTP "+r.status);const data=await r.json();if(validSiteData(data)){writeSiteCache(data);applyShopAccessImage(data.imagenTiendaInicio||data.shopImage||"");return data;}}catch(e){lastError=e;}}
-  throw lastError||new Error("No se pudieron cargar los datos.");
+ const failures=[];
+ for(const source of getDataSources()){
+  try{
+   const data=await fetchJsonNoCache(source);
+   if(!validSiteData(data))throw new Error("JSON recibido, pero faltan las listas catalogo/trabajos/especialidades");
+   applyShopAccessImage(data.imagenTiendaInicio||data.shopImage||"");
+   return data;
+  }catch(err){failures.push(new URL(source).hostname+": "+(err.message||"error"));}
+ }
+ throw new Error("No se pudo obtener datos.json. "+failures.join(" | "));
 }
-function refreshSiteDataInBackground(){
-  if(siteRefreshPromise)return siteRefreshPromise;
-  const old=readSiteCache()?.data;
-  siteRefreshPromise=fetchFreshSiteData().then(fresh=>{
-    if(old&&JSON.stringify(old)!==JSON.stringify(fresh)){
-      siteDataPromise=Promise.resolve(fresh);
-      if(fresh.maintenance&&fresh.maintenance.mode&&fresh.maintenance.mode!=="normal")showMaintenanceScreen(fresh.maintenance);
-      // Re-render only the grids present on the current page, after the cache is refreshed.
-      if(!document.body.classList.contains("maintenance-active")){
-        if($("#products-grid"))loadProducts().catch(()=>{});
-        if($("#specialties-grid"))loadSpecialties().catch(()=>{});
-        if($("#gallery-grid"))loadGallery().catch(()=>{});
-        if($("#category-grid"))Promise.all([loadProducts(),loadGallery()]).catch(()=>{});
-      }
-    }
-    return fresh;
-  }).catch(()=>null).finally(()=>{siteRefreshPromise=null;});
-  return siteRefreshPromise;
+async function fetchMaintenanceStatus(){
+ try{const data=await fetchFreshSiteData();return data.maintenance&&typeof data.maintenance.mode==="string"?data.maintenance:{mode:"normal"};}
+ catch(err){console.warn("No se pudo comprobar el estado de la web:",err);return null;}
+}
+function startMaintenancePolling(){
+ if(maintenancePollTimer)return;
+ maintenancePollTimer=setInterval(async()=>{
+  const state=await fetchMaintenanceStatus();
+  if(state){maintenanceStatusFailures=0;applyMaintenanceState(state);}
+  else maintenanceStatusFailures++;
+ },MAINTENANCE_CHECK_INTERVAL);
 }
 async function getSiteData(){
-  // Fuente autoritativa: datos.json. No se sirven estados ni productos desde localStorage.
-  if(siteDataPromise)return siteDataPromise;
-  siteDataPromise=fetchFreshSiteData();return siteDataPromise;
+ if(siteDataPromise)return siteDataPromise;
+ siteDataPromise=fetchFreshSiteData().catch(err=>{siteDataPromise=null;throw err;});
+ return siteDataPromise;
 }
 async function getSheet(name){
-  const data=await getSiteData();
-  const key={CATALOGO:"catalogo",TRABAJOS:"trabajos",ESPECIALIDADES:"especialidades"}[name];
-  return key && Array.isArray(data[key]) ? data[key] : [];
-}   
+ const data=await getSiteData();
+ const key={CATALOGO:"catalogo",TRABAJOS:"trabajos",ESPECIALIDADES:"especialidades"}[name];
+ return key&&Array.isArray(data[key])?data[key]:[];
+}
 function applyShopAccessImage(url){
   const frame=$(".shop-access-frame"),img=$("#shop-access-image"),placeholder=$("#shop-access-placeholder");
   if(!frame||!img||!placeholder)return;
@@ -318,7 +335,16 @@ if(grid){
 }
 if($("#category-grid")&&categoryParams().type==="gallery") renderCategoryLanding();
 }   
-function showLoadError(id){const el=$(id);if(el)el.innerHTML='<p class="loading-note">No se ha podido cargar el contenido. Inténtalo de nuevo más tarde.</p>';}   
+function showLoadError(id,err){
+ const el=$(id);if(!el)return;
+ const detail=String(err&&err.message||err||"Error desconocido").replace(/[<>&"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c]));
+ el.innerHTML='<p class="loading-note">No se ha podido cargar el contenido. Comprueba la conexión e inténtalo de nuevo.<br><small>'+detail+'</small></p><button type="button" class="btn btn-soft" data-retry-content>Reintentar</button>';
+ el.querySelector("[data-retry-content]")?.addEventListener("click",async()=>{
+  el.innerHTML='<p class="loading-note">Cargando…</p>';siteDataPromise=null;
+  try{if(id==="#products-grid")await loadProducts();else if(id==="#specialties-grid")await loadSpecialties();else if(id==="#gallery-grid")await loadGallery();else if(id==="#category-grid"){await Promise.all([loadProducts(),loadGallery()]);}}
+  catch(retryErr){showLoadError(id,retryErr);}
+ });
+}   
 function initMenu(){   
 const btn=$(".menu-toggle"),nav=$(".main-nav");   
 btn?.addEventListener("click",()=>{const open=nav.classList.toggle("open");btn.setAttribute("aria-expanded",String(open));});   
@@ -708,15 +734,15 @@ function showMaintenanceScreen(state){
 async function applyMaintenance(){
  document.body.classList.add("maintenance-checking");
  try{const data=await fetchFreshSiteData();const state=data.maintenance||{mode:"normal"};applyMaintenanceState(state);applyShopAccessImage(data.imagenTiendaInicio||data.shopImage||"");siteDataPromise=Promise.resolve(data);startMaintenancePolling();return state.mode!=="normal";}
- catch{applyMaintenanceState({mode:"normal"});startMaintenancePolling();return false;}
+ catch(err){console.warn("No se pudo obtener datos.json para el estado inicial:",err);applyMaintenanceState({mode:"normal"});startMaintenancePolling();return false;}
 }
 
 function loadPageContent(){
  if(pageContentLoaded)return;pageContentLoaded=true;
- if($("#products-grid"))loadProducts().catch(()=>showLoadError("#products-grid"));
- if($("#specialties-grid"))loadSpecialties().catch(()=>showLoadError("#specialties-grid"));
- if($("#gallery-grid"))loadGallery().catch(()=>showLoadError("#gallery-grid"));
- if($("#category-grid"))Promise.all([loadProducts(),loadGallery()]).catch(()=>showLoadError("#category-grid"));
+ if($("#products-grid"))loadProducts().catch(err=>showLoadError("#products-grid",err));
+ if($("#specialties-grid"))loadSpecialties().catch(err=>showLoadError("#specialties-grid",err));
+ if($("#gallery-grid"))loadGallery().catch(err=>showLoadError("#gallery-grid",err));
+ if($("#category-grid"))Promise.all([loadProducts(),loadGallery()]).catch(err=>showLoadError("#category-grid",err));
 }
 applyMaintenance().then(active=>{if(!active)loadPageContent();});
 
