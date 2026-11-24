@@ -1,6 +1,6 @@
 {
   "maintenance": {
-    "mode": "maintenance",
+    "mode": "total",
     "message": ""
   },
   "imagenTiendaInicio": "",
