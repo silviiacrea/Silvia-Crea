@@ -53,15 +53,24 @@ function workerImage(url){
 }
 const SITE_CACHE_KEY="silviacrea_site_data_v4";
 const SITE_REFRESH_AFTER=60*1000;
-const MAINTENANCE_CHECK_INTERVAL=30*1000;
-let maintenancePollTimer=null, pageContentLoaded=false, maintenanceCurrentState=null;
+const MAINTENANCE_CHECK_INTERVAL=10*1000;
+let maintenancePollTimer=null, maintenanceStatusFailures=0, pageContentLoaded=false, maintenanceCurrentState=null;
 let siteDataPromise=null,siteRefreshPromise=null;
 function readSiteCache(){try{const c=JSON.parse(localStorage.getItem(SITE_CACHE_KEY)||"null");return c&&c.data&&(c.data.catalogo||c.data.trabajos||c.data.especialidades)?c:null;}catch{return null;}}
 function writeSiteCache(data){try{localStorage.setItem(SITE_CACHE_KEY,JSON.stringify({savedAt:Date.now(),data}));}catch(e){}}
 function validSiteData(data){return !!(data&&(Array.isArray(data.catalogo)||Array.isArray(data.trabajos)||Array.isArray(data.especialidades)));}
 function maintenanceStatusUrl(){try{const u=new URL(cfg.appsScriptUrl);u.searchParams.set("action","status");u.searchParams.set("v",String(Date.now()));return u.href;}catch{return "";}}
-async function fetchMaintenanceStatus(){const url=maintenanceStatusUrl();if(!url)return null;const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),4500);try{const r=await fetch(url,{cache:"no-store",signal:controller.signal});if(!r.ok)return null;const d=await r.json();return d&&typeof d.mode==="string"?d:(d&&d.maintenance)||null;}catch{return null;}finally{clearTimeout(timer);}}
-function startMaintenancePolling(){if(maintenancePollTimer)return;maintenancePollTimer=setInterval(async()=>{const state=await fetchMaintenanceStatus();if(state)applyMaintenanceState(state);},MAINTENANCE_CHECK_INTERVAL);}
+async function fetchMaintenanceStatus(){
+ const urls=[];const statusUrl=maintenanceStatusUrl();if(statusUrl)urls.push(statusUrl);
+ if(cfg.dataJsonUrl)urls.push(cfg.dataJsonUrl+(cfg.dataJsonUrl.includes("?")?"&":"?")+"statusv="+Date.now());
+ for(const url of urls){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),4500);try{
+  const r=await fetch(url,{cache:"no-store",signal:controller.signal});if(!r.ok)continue;const d=await r.json();
+  const state=d&&typeof d.mode==="string"?d:(d&&d.maintenance)||null;if(state&&typeof state.mode==="string")return state;
+  if(validSiteData(d)&&d.maintenance&&typeof d.maintenance.mode==="string")return d.maintenance;
+ }catch{}finally{clearTimeout(timer);}}
+ return null;
+}
+function startMaintenancePolling(){if(maintenancePollTimer)return;maintenancePollTimer=setInterval(async()=>{const state=await fetchMaintenanceStatus();if(state){maintenanceStatusFailures=0;applyMaintenanceState(state);}else if(++maintenanceStatusFailures>=2){maintenanceStatusFailures=0;applyMaintenanceState({mode:"normal"});}},MAINTENANCE_CHECK_INTERVAL);}
 async function fetchFreshSiteData(){
   const urls=[cfg.dataJsonUrl?cfg.dataJsonUrl+(cfg.dataJsonUrl.includes("?")?"&":"?")+"v="+Date.now():"",cfg.appsScriptUrl?cfg.appsScriptUrl+"?action=data":""].filter(Boolean);
   let lastError;
@@ -688,25 +697,25 @@ function showMaintenanceScreen(state){
  const mode=state.mode,logo="assets/logo%20web.png",instagram="https://www.instagram.com/silviiacrea",contact="contacto.html#contact-form";
  const copy={construction:{title:"Web en construcción",message:"Estamos preparando un rincón lleno de creatividad. Muy pronto podrás descubrir todas las creaciones.",icon:"🛠️",className:"construction"},maintenance:{title:"Estamos realizando pequeños cuidados",message:"La web está en mantenimiento. Mientras tanto, puedes contactar con Silvia o seguir las novedades en Instagram.",icon:"🧵",className:"maintenance"},total:{title:"Volvemos muy pronto",message:"Estamos realizando trabajos de mantenimiento. Por ahora, puedes seguirnos en Instagram.",icon:"🌙",className:"total"}}[mode]||{title:"Estamos realizando pequeños cuidados",message:"La web está en mantenimiento.",icon:"🧵",className:"maintenance"};
  let overlay=$(".maintenance-screen");if(!overlay){overlay=document.createElement("div");overlay.className="maintenance-screen";document.body.appendChild(overlay);}
- const actions=mode==="total"?`<a class="btn btn-primary" href="${instagram}" target="_blank" rel="noopener">Instagram</a>`:`<div class="maintenance-actions"><a class="btn btn-primary" href="#maintenance-contact">Formulario de contacto</a><a class="btn btn-soft" href="${instagram}" target="_blank" rel="noopener">Instagram</a></div><form id="maintenance-contact" class="maintenance-contact"><label>Tu nombre<input name="Nombre" required autocomplete="name"></label><label>Email<input type="email" name="Email" required autocomplete="email"></label><label>Mensaje<textarea name="Mensaje" rows="3" required></textarea></label><button class="btn btn-primary" type="submit">Enviar mensaje</button><p id="maintenance-status" aria-live="polite"></p></form>`;
+ const actions=mode==="total"?`<a class="btn btn-primary" href="${instagram}" target="_blank" rel="noopener">Instagram</a>`:`<div class="maintenance-actions"><button class="btn btn-primary" type="button" data-open-maint-contact>Formulario de contacto</button><a class="btn btn-soft" href="${instagram}" target="_blank" rel="noopener">Instagram</a></div><div class="maintenance-contact-overlay" id="maintenance-contact-overlay" aria-hidden="true"><div class="maintenance-contact-dialog" role="dialog" aria-modal="true" aria-labelledby="maintenance-contact-title"><button type="button" class="maintenance-contact-close" data-close-maint-contact aria-label="Cerrar formulario">×</button><h2 id="maintenance-contact-title">Contacta con Silvia</h2><form id="maintenance-contact"><label>Tu nombre<input name="Nombre" required autocomplete="name"></label><label>Email<input type="email" name="Email" required autocomplete="email"></label><label>Mensaje<textarea name="Mensaje" rows="3" required></textarea></label><button class="btn btn-primary" type="submit">Enviar mensaje</button><p id="maintenance-status" aria-live="polite"></p></form></div></div>`;
  overlay.innerHTML=`<section class="maintenance-card ${copy.className}" role="dialog" aria-modal="true"><img class="maintenance-logo" src="${logo}" alt="Silvia Crea"><div class="maintenance-icon" aria-hidden="true"><span class="maintenance-symbol">${copy.icon}</span><span class="maintenance-spark">✦</span></div><h1>${esc(copy.title)}</h1><p>${esc(state.message||copy.message)}</p>${actions}</section>`;
  document.body.classList.add("maintenance-active");document.body.classList.remove("maintenance-checking");
  maintenanceCurrentState=JSON.stringify({mode,message:state.message||""});
- const form=$("#maintenance-contact",overlay);form?.addEventListener("submit",async ev=>{ev.preventDefault();const status=$("#maintenance-status",overlay),button=form.querySelector("button");button.disabled=true;status.textContent="Enviando…";try{const fd=new FormData(form),data={action:"contact"};fd.forEach((v,k)=>data[k]=v);const r=await fetch(cfg.appsScriptUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data)});const out=await r.json();if(out.status!=="success")throw new Error(out.message||"No se pudo enviar");status.textContent="Mensaje enviado. Gracias por contactar.";form.reset();}catch(err){status.textContent="No se ha podido enviar. Escríbenos por Instagram.";}finally{button.disabled=false;}});
+ const contactLayer=$("#maintenance-contact-overlay",overlay);
+ overlay.querySelector("[data-open-maint-contact]")?.addEventListener("click",()=>{contactLayer?.classList.add("open");contactLayer?.setAttribute("aria-hidden","false");document.body.dataset.maintContactOpen="1";contactLayer?.querySelector("input")?.focus();});
+ overlay.querySelector("[data-close-maint-contact]")?.addEventListener("click",()=>{contactLayer?.classList.remove("open");contactLayer?.setAttribute("aria-hidden","true");delete document.body.dataset.maintContactOpen;});
+ contactLayer?.addEventListener("click",ev=>{if(ev.target===contactLayer){contactLayer.classList.remove("open");contactLayer.setAttribute("aria-hidden","true");delete document.body.dataset.maintContactOpen;}});
+ const form=$("#maintenance-contact",overlay);form?.addEventListener("submit",async ev=>{ev.preventDefault();const status=$("#maintenance-status",overlay),button=form.querySelector("button");button.disabled=true;status.textContent="Enviando…";try{const fd=new FormData(form),data={action:"contact"};fd.forEach((v,k)=>data[k]=v);const r=await fetch(cfg.appsScriptUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data)});const out=await r.json();if(out.status!=="success")throw new Error(out.message||"No se pudo enviar");status.textContent="Mensaje enviado. Gracias por contactar.";form.reset();contactLayer?.classList.remove("open");contactLayer?.setAttribute("aria-hidden","true");delete document.body.dataset.maintContactOpen;}catch(err){status.textContent="No se ha podido enviar. Escríbenos por Instagram.";}finally{button.disabled=false;}});
  return true;
 }
 async function applyMaintenance(){
- const cached=readSiteCache(),cachedState=cached?.data?.maintenance||{mode:"normal"};
- // An active cached maintenance screen is shown immediately while checking the live sheet state.
- if(cachedState.mode&&cachedState.mode!=="normal")showMaintenanceScreen(cachedState);
- else document.body.classList.add("maintenance-checking");
- const live=await fetchMaintenanceStatus();
- const state=live||cachedState;
+ const cached=readSiteCache();document.body.classList.add("maintenance-checking");
+ const live=await fetchMaintenanceStatus();const state=live||{mode:"normal"};
+ if(live&&cached){const updated={...cached.data,maintenance:state};writeSiteCache(updated);siteDataPromise=Promise.resolve(updated);}
  applyMaintenanceState(state);
- if(cached){siteDataPromise=Promise.resolve(cached.data);applyShopAccessImage(cached.data.imagenTiendaInicio||cached.data.shopImage||"");if(Date.now()-cached.savedAt>SITE_REFRESH_AFTER)refreshSiteDataInBackground();}
- else if(!live){try{const data=await getSiteData();applyMaintenanceState(data.maintenance||{mode:"normal"});}catch{document.body.classList.remove("maintenance-checking");return false;}}
- startMaintenancePolling();
- return state.mode!=="normal";
+ if(cached){siteDataPromise=siteDataPromise||Promise.resolve(cached.data);applyShopAccessImage(cached.data.imagenTiendaInicio||cached.data.shopImage||"");if(Date.now()-cached.savedAt>SITE_REFRESH_AFTER)refreshSiteDataInBackground();}
+ else if(!live){try{const data=await fetchFreshSiteData();applyMaintenanceState(data.maintenance||{mode:"normal"});}catch{applyMaintenanceState({mode:"normal"});}}
+ startMaintenancePolling();return state.mode!=="normal";
 }
 
 function loadPageContent(){
