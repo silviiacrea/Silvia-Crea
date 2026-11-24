@@ -2249,3 +2249,64 @@ body.page-leaving{animation:silviaPageLeave .15s ease-in both;pointer-events:non
   border-radius:18px 18px 0 0!important;
   overflow:hidden!important;
 }
+
+
+/* VERSION 28 — distribución de pocas tarjetas y diseño móvil de tienda/galería. */
+/* Dos elementos ocupan una pareja centrada; con 5, 3+2 siguen alineados a la izquierda. */
+#products-grid.grid-count-2,
+#gallery-grid.grid-count-2,
+#category-grid.grid-count-2{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,360px))!important;
+  justify-content:center!important;
+  justify-items:stretch!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin-inline:auto!important;
+}
+/* El inicio centra las tarjetas cuando no hay suficientes para llenar una fila. */
+body[data-page="home"] #specialties-grid.is-centered{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  justify-content:center!important;
+  align-items:stretch!important;
+  width:100%!important;
+  max-width:1412px!important;
+  margin-inline:auto!important;
+  overflow:visible!important;
+}
+body[data-page="home"] #specialties-grid.is-centered>.item-card{
+  flex:0 1 calc((100% - 44px)/3)!important;
+  width:calc((100% - 44px)/3)!important;
+  max-width:none!important;
+  min-width:0!important;
+}
+/* En móvil, tienda y galería priorizan fotos y textos legibles: una tarjeta por fila. */
+@media(max-width:700px){
+  #products-grid,#gallery-grid,#category-grid,
+  #products-grid.grid-count-2,#gallery-grid.grid-count-2,#category-grid.grid-count-2{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    justify-content:center!important;
+    justify-items:center!important;
+    gap:22px!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin-inline:auto!important;
+  }
+  #products-grid>.item-card,#gallery-grid>.item-card,#category-grid>.item-card{
+    width:100%!important;
+    max-width:520px!important;
+    min-width:0!important;
+    margin-inline:auto!important;
+  }
+  #products-grid .image-wrapper,#gallery-grid .image-wrapper,#category-grid .image-wrapper{
+    aspect-ratio:4/3!important;
+  }
+}
+
+@media(max-width:520px){
+  body[data-page="home"] #specialties-grid.is-centered>.item-card{
+    flex:0 1 100%!important;width:100%!important;max-width:460px!important;
+  }
+}

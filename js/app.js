@@ -326,7 +326,7 @@ function prepareSlider(el,count){
  let lastVisible=visible();
  const update=()=>{
   const v=visible(),wasActive=el.classList.contains("has-slider"),max=Math.max(0,el.scrollWidth-el.clientWidth),pos=el.scrollLeft;
-  const active=count>v;
+  const active=count>v&&count>2;
   el.classList.toggle("has-slider",active);el.classList.toggle("is-centered",!active);
   el.setAttribute("aria-label",active?"Carrusel de especialidades":"Especialidades");
   left.hidden=!active||pos<=2;right.hidden=!active||pos>=max-2;
@@ -367,8 +367,9 @@ function prepareSlider(el,count){
 }
 function balanceGrid(el,count){
  if(!el)return;
- el.classList.remove("grid-balanced-2","grid-balanced-3");
- if(count===4)el.classList.add("grid-balanced-2");
+ el.classList.remove("grid-balanced-2","grid-balanced-3","grid-count-2");
+ if(count===2)el.classList.add("grid-count-2");
+ else if(count===4)el.classList.add("grid-balanced-2");
  else if(count===5||count===7)el.classList.add("grid-balanced-3");
 }
 function positionCardWatermarks(root=document){root.querySelectorAll(".item-card").forEach(cardEl=>{const logo=cardEl.querySelector(".card-logo-watermark"),copy=cardEl.querySelector(".item-content");if(!logo||!copy)return;const sync=()=>{const h=copy.getBoundingClientRect().height;cardEl.style.setProperty("--card-copy-height",Math.ceil(h)+"px");logo.style.bottom=Math.ceil(h)+"px";};sync();if(!logo.dataset.measure){logo.dataset.measure="1";if("ResizeObserver" in window){const ro=new ResizeObserver(sync);ro.observe(copy);logo._cardRO=ro;}window.addEventListener("resize",sync,{passive:true});}});}
@@ -549,7 +550,7 @@ if(cleanPhone.length !== 9){showToast("El número de teléfono debe tener exacta
   
 const total=cart.reduce((n,x)=>n+x.price*x.qty,0);   
 const productsText=cart.map(x=>`- ${x.qty}x ${x.name} | Personalización: ${x.comment||"Sin detalles"}`).join("\n");   
-const payload={Cliente:name,Email:email,Telefono:phone.replace(/\D/g,""),Direccion:address,Productos:productsText,Total:`${total.toFixed(2).replace(".",",")} €`,Comentario:comment};   
+const payload={action:"order",Cliente:name,Email:email,Telefono:phone.replace(/\D/g,""),Direccion:address,Productos:productsText,Total:`${total.toFixed(2).replace(".",",")} €`,Comentario:comment};   
 const btn=$("#submit-order");btn.disabled=true;btn.textContent="Enviando solicitud…";   
 try{   
 if(!cfg.appsScriptUrl)throw new Error("La conexión de pedidos no está configurada.");   
