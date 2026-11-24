@@ -1547,3 +1547,57 @@ body[data-page="home"] #specialties-grid.is-centered > .item-card{
  body[data-page="home"] #specialties-grid.has-slider > .item-card,
  body[data-page="home"] #specialties-grid.is-centered > .item-card{flex-basis:100%!important;width:100%!important;}
 }
+
+
+/* VERSION 11: carrusel de especialidades a todo el ancho del bloque principal. */
+body[data-page="home"] .home-slider-wrapper{
+  position:relative!important; left:50%!important; transform:translateX(-50%)!important;
+  width:min(1376px,calc(100vw - 48px))!important; max-width:none!important;
+  margin:0!important; padding:0 0 20px!important; box-sizing:border-box!important; overflow:visible!important;
+}
+body[data-page="home"] .home-slider-wrapper > #specialties-grid{
+  display:flex!important; flex-flow:row nowrap!important; align-items:stretch!important;
+  gap:24px!important; width:100%!important; max-width:none!important; min-width:0!important;
+  box-sizing:border-box!important; overflow-x:auto!important; overflow-y:hidden!important;
+  scrollbar-width:none!important; scroll-snap-type:x mandatory!important; cursor:grab!important;
+  user-select:none!important; -webkit-user-select:none!important; touch-action:pan-y!important;
+}
+body[data-page="home"] .home-slider-wrapper > #specialties-grid:active{cursor:grabbing!important;}
+body[data-page="home"] .home-slider-wrapper > #specialties-grid::-webkit-scrollbar{display:none!important;}
+body[data-page="home"] .home-slider-wrapper > #specialties-grid > .item-card{
+  flex:0 0 calc((100% - 72px)/4)!important; width:calc((100% - 72px)/4)!important;
+  min-width:0!important; max-width:none!important; margin:0!important; scroll-snap-align:start!important;
+}
+@media(max-width:1020px){
+ body[data-page="home"] .home-slider-wrapper{width:calc(100vw - 48px)!important;}
+ body[data-page="home"] .home-slider-wrapper > #specialties-grid > .item-card{flex-basis:calc((100% - 48px)/3)!important;width:calc((100% - 48px)/3)!important;}
+}
+@media(max-width:760px){
+ body[data-page="home"] .home-slider-wrapper{width:calc(100vw - 36px)!important;}
+ body[data-page="home"] .home-slider-wrapper > #specialties-grid > .item-card{flex-basis:calc((100% - 24px)/2)!important;width:calc((100% - 24px)/2)!important;}
+}
+@media(max-width:520px){
+ body[data-page="home"] .home-slider-wrapper{width:calc(100vw - 24px)!important;}
+ body[data-page="home"] .home-slider-wrapper > #specialties-grid > .item-card{flex-basis:100%!important;width:100%!important;}
+}
+
+
+/* Igualar el ancho exterior de Mis especialidades al bloque destacado superior. */
+body[data-page="home"] section.section.tinted{
+  width:min(1376px,calc(100vw - 48px))!important;
+  max-width:none!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  box-sizing:border-box!important;
+}
+body[data-page="home"] section.section.tinted > .home-slider-wrapper{
+  position:relative!important;left:auto!important;transform:none!important;
+  width:100%!important;max-width:none!important;margin:0!important;
+  padding:0 0 20px!important;box-sizing:border-box!important;
+}
+@media(max-width:760px){
+ body[data-page="home"] section.section.tinted{width:calc(100vw - 36px)!important;}
+}
+@media(max-width:520px){
+ body[data-page="home"] section.section.tinted{width:calc(100vw - 24px)!important;}
+}

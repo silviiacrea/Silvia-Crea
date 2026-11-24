@@ -298,6 +298,32 @@ function prepareSlider(el,count){
  };
  const scroll=direction=>{const cards=[...el.querySelectorAll(":scope > .item-card")];if(!cards.length)return;const first=cards[0],second=cards[1];const step=second?Math.abs(second.getBoundingClientRect().left-first.getBoundingClientRect().left):first.getBoundingClientRect().width;const max=Math.max(0,el.scrollWidth-el.clientWidth);el.scrollTo({left:Math.max(0,Math.min(max,el.scrollLeft+direction*step)),behavior:"smooth"});};
  left.onclick=()=>scroll(-1);right.onclick=()=>scroll(1);
+ // En escritorio se puede arrastrar el carrusel manteniendo pulsado el botón izquierdo.
+ if(!el.dataset.sliderDrag){
+  let dragging=false,startX=0,startScroll=0,moved=false,suppressClick=false;
+  el.addEventListener("pointerdown",ev=>{
+   if(ev.pointerType!=="mouse"||ev.button!==0||ev.target.closest("button,a,input,textarea,select"))return;
+   dragging=true;moved=false;startX=ev.clientX;startScroll=el.scrollLeft;
+   el.classList.add("is-dragging");
+   try{el.setPointerCapture(ev.pointerId);}catch(_){}
+   ev.preventDefault();
+  });
+  el.addEventListener("pointermove",ev=>{
+   if(!dragging)return;
+   const delta=ev.clientX-startX;
+   if(Math.abs(delta)>4)moved=true;
+   el.scrollLeft=startScroll-delta;
+  });
+  const stopDrag=()=>{
+   if(!dragging)return;
+   dragging=false;el.classList.remove("is-dragging");
+   if(moved){suppressClick=true;setTimeout(()=>{suppressClick=false;},0);}
+  };
+  el.addEventListener("pointerup",stopDrag);
+  el.addEventListener("pointercancel",stopDrag);
+  el.addEventListener("click",ev=>{if(suppressClick){ev.preventDefault();ev.stopPropagation();suppressClick=false;}},true);
+  el.dataset.sliderDrag="1";
+ }
  if(!el.dataset.sliderResize){window.addEventListener("resize",update,{passive:true});el.addEventListener("scroll",update,{passive:true});if("ResizeObserver" in window){const ro=new ResizeObserver(update);ro.observe(el);el._sliderRO=ro;}el.dataset.sliderResize="1";}
  requestAnimationFrame(update);
 }
