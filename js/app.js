@@ -22,6 +22,7 @@ function updateViewVars(e) {
     document.documentElement.style.setProperty('--scroll-y', `${scrollTop}px`);
     document.documentElement.style.setProperty('--view-h', `${vHeight}px`);
 }
+document.addEventListener("click",ev=>{const contactButton=ev.target.closest("[data-open-order-contact]");if(contactButton&&document.body.dataset.page==="orders"){ev.preventDefault();openOrderContact();}},true);
 document.addEventListener("click", updateViewVars, true);
 document.addEventListener("touchstart", updateViewVars, {passive: true, capture: true});
 // La ficha queda fija a la pantalla; los gestos sobre el área exterior desplazan el documento de fondo.
@@ -159,13 +160,14 @@ const safeImg=(url)=>/^https?:\/\//i.test(url||"")?url:"";
 const cleanCategory=value=>{const c=String(value??"").trim();return !c||c.toLowerCase()==="vacio"?"":c;};
 const categoryParams=()=>{const q=new URLSearchParams(location.search);return {type:q.get("tipo")==="trabajos"?"gallery":"product",name:q.get("categoria")||""};};
 function sizeCategoryTiles(root){
- const tiles=[...(root?.querySelectorAll(".category-tile")||[])];if(!tiles.length)return;
- const width=Math.max(...tiles.map(tile=>{const span=tile.querySelector("span");return span?Math.ceil(span.getBoundingClientRect().width):0;}));
- root.style.setProperty("--category-tile-width",(width+34)+"px");
- root.style.setProperty("--category-tile-count",String(tiles.length));
- const available=root.clientWidth||window.innerWidth;
- root.style.width=Math.min(available,(width+34)*tiles.length+10*(tiles.length-1))+"px";
+ const tilesRoot=root?.querySelector(".category-tiles")||root;
+ const tiles=[...(tilesRoot?.querySelectorAll(".category-tile")||[])];if(!tiles.length)return;
+ const maxText=Math.max(...tiles.map(tile=>{const span=tile.querySelector("span");if(!span)return 0;const oldWidth=span.style.width,oldMax=span.style.maxWidth;span.style.width="max-content";span.style.maxWidth="none";const measured=Math.ceil(span.scrollWidth);span.style.width=oldWidth;span.style.maxWidth=oldMax;return measured;}));
+ const tileWidth=Math.min(Math.max(maxText+36,132),260);
+ tilesRoot.style.setProperty("--category-tile-width",tileWidth+"px");
+ tilesRoot.style.setProperty("--category-tile-count",String(tiles.length));
 }
+
 function categoryCards(items,type){
   const map=new Map();
   items.forEach(item=>{const name=cleanCategory(item.category);if(name&&!map.has(name))map.set(name,true);});
@@ -272,7 +274,7 @@ const m=$(".product-modal");
    });
  }
  const productOverlay=$("#product-modal");if(productOverlay&&productOverlay.parentElement!==document.documentElement)document.documentElement.appendChild(productOverlay);updateSilviaVisualViewport();
- productOverlay?.classList.add("open");productOverlay?.setAttribute("aria-hidden","false");document.body.style.overflow="";document.documentElement.style.overflow="";   
+ productOverlay?.classList.add("open");productOverlay?.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";document.documentElement.style.overflow="hidden";   
 }   
   
 function closeProduct(){$("#product-modal")?.classList.remove("open","has-album");$("#product-modal")?.setAttribute("aria-hidden","true");if(!$("#fs-modal")?.classList.contains("open")){document.body.style.overflow="";document.documentElement.style.overflow="";}}   
@@ -287,12 +289,12 @@ function prepareSlider(el,count){
  const visible=()=>{const w=el.clientWidth||window.innerWidth;return w<=520?1:w<=760?2:w<=1020?3:4;};
  let lastVisible=visible();
  const update=()=>{
-  const v=visible(),max=Math.max(0,el.scrollWidth-el.clientWidth),pos=el.scrollLeft;
-  const active=count>v&&max>2;
+  const v=visible(),wasActive=el.classList.contains("has-slider"),max=Math.max(0,el.scrollWidth-el.clientWidth),pos=el.scrollLeft;
+  const active=count>v;
   el.classList.toggle("has-slider",active);el.classList.toggle("is-centered",!active);
   el.setAttribute("aria-label",active?"Carrusel de especialidades":"Especialidades");
   left.hidden=!active||pos<=2;right.hidden=!active||pos>=max-2;
-  if(v!==lastVisible){el.scrollTo({left:0,behavior:"auto"});lastVisible=v;requestAnimationFrame(update);}
+  if(v!==lastVisible){el.scrollTo({left:0,behavior:"auto"});lastVisible=v;requestAnimationFrame(update);}else if(wasActive!==active){requestAnimationFrame(update);}
  };
  const scroll=direction=>{const cards=[...el.querySelectorAll(":scope > .item-card")];if(!cards.length)return;const first=cards[0],second=cards[1];const step=second?Math.abs(second.getBoundingClientRect().left-first.getBoundingClientRect().left):first.getBoundingClientRect().width;const max=Math.max(0,el.scrollWidth-el.clientWidth);el.scrollTo({left:Math.max(0,Math.min(max,el.scrollLeft+direction*step)),behavior:"smooth"});};
  left.onclick=()=>scroll(-1);right.onclick=()=>scroll(1);
@@ -330,6 +332,7 @@ const classes=["item-card",kind==="gallery"?"gallery-card":"",p.featured?"is-fea
 return `<article class="${classes}" data-card-kind="${kind}" data-index="${index}" tabindex="0" role="group" aria-label="${esc(p.name||p.title)}. Pulsa para ver el detalle">   
 ${featured}${offer}   
 ${image?`<div class="image-wrapper"><img class="item-image" src="${esc(workerModeUrl(image,kind==="gallery"?"gallery":"card"))}" alt="${esc(p.name||p.title)}" loading="lazy" decoding="async" fetchpriority="low" draggable="false"></div>`:`<div class="image-wrapper"><div class="item-image placeholder" aria-hidden="true"><img src="assets/camara.svg" alt=""></div></div>`}   
+<img class="card-logo-watermark" src="assets/logo%20web.png" alt="" aria-hidden="true" loading="lazy">
 <div class="item-content"><h3>${esc(p.name||p.title)}</h3><p>${esc(desc)}</p>   
 ${metaHtml}  
 <div class="item-actions"><button class="mini-btn detail-button" type="button" data-detail-card="${kind}" data-index="${index}">Ver detalles</button>${isProduct?`<button class="mini-btn add-button" type="button" data-add="${index}" ${p.stock<=0?"disabled":""}>Añadir carrito</button>`:''}</div>   
@@ -440,6 +443,22 @@ async function sendContact(e){
   }catch(err){status.textContent="No se ha podido enviar el mensaje. Inténtalo de nuevo más tarde o escribe a "+cfg.email+".";}
   finally{button.disabled=false;button.textContent="Enviar consulta";}
 }
+function openOrderContact(){
+ let layer=$("#order-contact-overlay");
+ if(!layer){
+  layer=document.createElement("div");layer.id="order-contact-overlay";layer.className="order-contact-overlay";layer.setAttribute("aria-hidden","true");
+  layer.innerHTML=`<section class="order-contact-dialog" role="dialog" aria-modal="true" aria-labelledby="order-contact-title"><button type="button" class="icon-button order-contact-close" data-close-order-contact aria-label="Cerrar">×</button><span class="eyebrow">Hablemos</span><h2 id="order-contact-title">Contacta con Silvia</h2><p>Cuéntame qué tienes en mente y te responderé lo antes posible.</p><form id="order-contact-form" class="form-card"><label>Tu nombre<input name="name" required autocomplete="name" placeholder="¿Cómo te llamas?"></label><label>Tu correo electrónico<input name="email" type="email" required autocomplete="email" placeholder="tu@correo.com"></label><label>Tu mensaje<textarea name="message" rows="5" required placeholder="Cuéntame en qué puedo ayudarte…"></textarea></label><button class="btn btn-primary" type="submit">Enviar consulta</button><p id="contact-status" class="form-status" role="status"></p></form></section>`;
+  document.body.appendChild(layer);
+  layer.querySelector("[data-close-order-contact]").addEventListener("click",closeOrderContact);
+  layer.addEventListener("click",ev=>{if(ev.target===layer)closeOrderContact();});
+  layer.querySelector("form").addEventListener("submit",sendContact);
+  document.addEventListener("keydown",ev=>{if(ev.key==="Escape"&&layer.classList.contains("open"))closeOrderContact();});
+ }
+ layer.classList.add("open");layer.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";
+ requestAnimationFrame(()=>layer.querySelector("input")?.focus());
+}
+function closeOrderContact(){const layer=$("#order-contact-overlay");if(!layer)return;layer.classList.remove("open");layer.setAttribute("aria-hidden","true");document.body.style.overflow="";}
+
 function showCustomAlert(title, message) {  
  const backdrop = document.createElement("div");  
  backdrop.className = "modal-backdrop open";  
