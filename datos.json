@@ -61,20 +61,20 @@
   "trabajos": [
     {
       "nombre": "Amigurumi Zorro",
-      "imagen": "",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/zorro.png",
       "descripcion": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
       "descripcionCompleta": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
-      "imagenGrande": "",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/zorro.png",
       "descripcionFicha": "",
       "album": "",
       "categoria": ""
     },
     {
-      "nombre": "Pulsera de Abalorios",
-      "imagen": "",
-      "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
-      "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagenGrande": "",
+      "nombre": "Pulseras de Abalorios",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/pulseras.png",
+      "descripcion": "Diseños exclusivos hechos a mano.",
+      "descripcionCompleta": "Diseños exclusivos hechos a mano.",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/pulseras.png",
       "descripcionFicha": "",
       "album": "",
       "categoria": ""
