@@ -78,6 +78,36 @@
       "descripcionFicha": "",
       "album": "",
       "categoria": ""
+    },
+    {
+      "nombre": "Amigurumi Reno",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/reno.png",
+      "descripcion": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
+      "descripcionCompleta": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/reno.png",
+      "descripcionFicha": "",
+      "album": "",
+      "categoria": ""
+    },
+    {
+      "nombre": "Amigurumi Muñeco de nieve",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/mu%C3%B1ecodenieve.png",
+      "descripcion": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
+      "descripcionCompleta": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/mu%C3%B1ecodenieve.png",
+      "descripcionFicha": "",
+      "album": "",
+      "categoria": ""
+    },
+    {
+      "nombre": "Muñeco de fieltro Vivi Ornitier",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/IMG_1672.jpg",
+      "descripcion": "Muñeco 2D en fieltro de Vivi Ornitier, de Final Fantasy  IX",
+      "descripcionCompleta": "Muñeco 2D en fieltro de Vivi Ornitier, de Final Fantasy  IX",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/IMG_1672.jpg",
+      "descripcionFicha": "",
+      "album": "",
+      "categoria": ""
     }
   ],
   "categoriasTienda": [],
