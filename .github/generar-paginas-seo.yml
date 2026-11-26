@@ -1,1 +1,32 @@
+name: Generar páginas SEO y sitemap
+on:
+  workflow_dispatch:
 
+permissions:
+  contents: write
+
+jobs:
+  generar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Regenerar páginas y sitemap desde Google Sheets
+        run: node scripts/generate-detail-pages.js
+      - name: Publicar cambios generados
+        run: |
+          if git diff --quiet; then
+            echo "No hay cambios SEO que publicar."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add catalogo especialidades trabajo sitemap.xml artesania-badajoz.html creatividad-badajoz.html artesania-extremadura.html tejer-badajoz.html lana-badajoz.html crochet-amigurumi-badajoz.html tejidos-lana-extremadura.html amigurumi.html felting.html abalorios.html encargos-personalizados.html amigurumi-hecho-a-mano.html crochet-y-lana.html needle-felting-fieltro.html abalorios-y-regalos-personalizados.html manualidades-badajoz-extremadura.html
+            git commit -m "Actualizar páginas SEO y sitemap automáticamente"
+            git push
+          fi
