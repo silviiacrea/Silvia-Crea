@@ -9,6 +9,7 @@ async function call(path,body={},auth=false,method='POST'){
  const data=await r.json().catch(()=>({error:'Respuesta no válida del servidor'}));
  if(!r.ok)throw new Error(data.error||'Error HTTP '+r.status);return data;
 }
+async function recordAdminAudit(action,details={}){try{const response=await fetch('https://clientes.silviacrea.es/api/admin/audit',{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action,details,result:'success'})});if(!response.ok)throw new Error('HTTP '+response.status);return true;}catch(e){console.warn('No se pudo registrar la acción administrativa:',action,e.message);return false;}}
 function sessionExpired(e){if(/sesión|autoriz/i.test(e.message)){token='';sessionStorage.removeItem('silvia_admin_session');show();}}
 let indexNowCooldownUntil=0,indexNowCooldownTimer=null,indexNowStatusReady=false;
 function renderIndexNowCooldown(){
@@ -115,11 +116,12 @@ async function loadWorkerHealth(){
   sessionExpired(e);
  }
 }
-function show(){login.hidden=!!token;control.hidden=!token;const headerActions=$('admin-header-actions');if(headerActions)headerActions.hidden=!token;if(token){loadMaintenance();checkPublishedVersion();loadOrderStats();loadWorkerHealth();loadIndexNowStatus();}}
+async function loadCustomerWorkerHealth(){const panel=$('customer-worker-health-state'),label=$('customer-worker-health-current'),note=$('customer-worker-health-note');if(!panel)return;panel.className='admin-state';label.textContent='Comprobando Worker de clientes…';try{const response=await fetch('https://clientes.silviacrea.es/health',{cache:'no-store'});const d=await response.json();if(!response.ok||d.status!=='ok'||d.service!=='silviacrea-clientes'||!d.database)throw new Error(d.error||'El servicio o D1 no están disponibles.');panel.className='admin-state normal';label.textContent='Worker de clientes operativo';note.textContent='Servicio: '+d.service+' · D1: disponible · Correo: '+(d.emailConfigured?'configurado':'no configurado');}catch(e){panel.className='admin-state error';label.textContent='Worker de clientes no disponible';note.textContent=e.message;}}
+function show(){login.hidden=!!token;control.hidden=!token;const headerActions=$('admin-header-actions');if(headerActions)headerActions.hidden=!token;if(token){loadMaintenance();checkPublishedVersion();loadOrderStats();loadWorkerHealth();loadCustomerWorkerHealth();loadIndexNowStatus();document.dispatchEvent(new CustomEvent('silvia-admin-session',{detail:{authenticated:true}}));}else{document.dispatchEvent(new CustomEvent('silvia-admin-session',{detail:{authenticated:false}}));}}
 function renderState(mode){
  const active=mode==='maintenance',panel=$('maintenance-state');
  panel.className='admin-state '+(active?'maintenance':'normal');
- $('maintenance-current').textContent=active?'MODO MANTENIMIENTO':'WEB NORMAL';
+ $('maintenance-current').textContent=active?'MODO MANTENIMIENTO':'WEB NORMAL';const dash=$('dash-maintenance-state'),dashLabel=$('dash-maintenance-current');if(dash){dash.className='admin-state '+(active?'maintenance':'normal');if(dashLabel)dashLabel.textContent=active?'MODO MANTENIMIENTO':'WEB NORMAL';}const dashNormal=$('dash-set-normal'),dashMaintenance=$('dash-set-maintenance');if(dashNormal)dashNormal.disabled=!active;if(dashMaintenance)dashMaintenance.disabled=active;
  $('set-normal').disabled=!active;$('set-maintenance').disabled=active;
 }
 async function loadMaintenance(){
@@ -135,20 +137,20 @@ async function setMode(mode,button){
  if(confirmed!==mode)throw new Error('El servidor no confirmó el modo solicitado.');
  const verify=await call('/admin/maintenance',{},true,'GET');
  if(verify.maintenance?.mode!==mode)throw new Error('La lectura posterior no coincide con el cambio solicitado.');
- renderState(mode);status.textContent=mode==='maintenance'?'Modo mantenimiento activado y verificado en el servidor.':'Web normal restaurada y verificada en el servidor.';
+ renderState(mode);await recordAdminAudit('maintenance_set',{mode});status.textContent=mode==='maintenance'?'Modo mantenimiento activado y verificado en el servidor.':'Web normal restaurada y verificada en el servidor.';
  }catch(e){status.textContent='No se pudo cambiar el modo: '+e.message;await loadMaintenance();sessionExpired(e);}
  finally{button.disabled=false;}
 }
 show();
 $('login-form').addEventListener('submit',async e=>{e.preventDefault();status.textContent='Comprobando acceso…';try{const d=await call('/admin/login',{username:$('admin-user').value,password:$('admin-pass').value});token=d.token;sessionStorage.setItem('silvia_admin_session',token);$('admin-pass').value='';show();notify('Acceso autorizado. Sesión iniciada correctamente.');}catch(err){status.textContent=err.message;}});
 $('set-normal').addEventListener('click',e=>setMode('normal',e.currentTarget));
-$('set-maintenance').addEventListener('click',e=>setMode('maintenance',e.currentTarget));
+$('set-maintenance').addEventListener('click',e=>setMode('maintenance',e.currentTarget));$('dash-set-normal')?.addEventListener('click',e=>setMode('normal',e.currentTarget));$('dash-set-maintenance')?.addEventListener('click',e=>setMode('maintenance',e.currentTarget));
 $('recheck-version')?.addEventListener('click',checkPublishedVersion);
 $('refresh-orders')?.addEventListener('click',loadOrderStats);
-$('refresh-worker-health')?.addEventListener('click',loadWorkerHealth);
-$('run-generation').addEventListener('click',async()=>{if(!confirm('¿Quieres regenerar y publicar ahora todas las páginas de catálogo, trabajos y el sitemap?'))return;const b=$('run-generation');b.disabled=true;status.textContent='Enviando solicitud a GitHub Actions…';try{const d=await call('/admin/generate',{},true);status.textContent=d.message||'Solicitud aceptada por GitHub.';}catch(e){status.textContent='No se pudo solicitar la actualización SEO: '+e.message;sessionExpired(e);}finally{b.disabled=false;}});
-$('run-sitemap')?.addEventListener('click',async()=>{if(!confirm('¿Actualizar el sitemap y regenerar las páginas SEO usando los productos y trabajos actuales de Google Sheets?'))return;const b=$('run-sitemap'),note=$('sitemap-note');b.disabled=true;note.textContent='Solicitando actualización del sitemap…';status.textContent='Enviando actualización SEO a GitHub Actions…';try{const d=await call('/admin/generate',{},true);note.textContent=d.message||'Actualización aceptada. El sitemap se regenerará y publicará automáticamente.';status.textContent=note.textContent;}catch(e){note.textContent='No se pudo solicitar la actualización: '+e.message;status.textContent=note.textContent;sessionExpired(e);}finally{b.disabled=false;}});
-$('run-indexnow')?.addEventListener('click',async()=>{if($('run-indexnow').disabled)return;if(!confirm('Se comparará el sitemap con la última referencia guardada. Solo se enviarán URL nuevas, modificadas o eliminadas. Después de un envío aceptado habrá que esperar al menos 30 minutos. ¿Quieres continuar?'))return;const b=$('run-indexnow'),note=$('indexnow-note');b.disabled=true;note.textContent='Comparando el sitemap con el historial guardado…';status.textContent='Comprobando cambios para IndexNow…';try{const d=await call('/admin/indexnow',{},true);note.textContent=d.message||('IndexNow ha aceptado '+d.notified+' URL.');status.textContent=note.textContent;if(d.cooldownUntil)indexNowCooldownUntil=Number(d.cooldownUntil);if(d.baselineCreated||d.noChanges)indexNowCooldownUntil=0;note.dataset.cooldown=indexNowCooldownUntil>Date.now()?'1':'0';}catch(e){note.textContent='No se pudo actualizar IndexNow: '+e.message;status.textContent=note.textContent;await loadIndexNowStatus();sessionExpired(e);}finally{renderIndexNowCooldown();}});
+$('refresh-worker-health')?.addEventListener('click',loadWorkerHealth);$('refresh-customer-worker-health')?.addEventListener('click',loadCustomerWorkerHealth);
+$('run-generation').addEventListener('click',async()=>{if(!confirm('¿Quieres regenerar y publicar ahora todas las páginas de catálogo, trabajos y el sitemap?'))return;const b=$('run-generation');b.disabled=true;status.textContent='Enviando solicitud a GitHub Actions…';try{const d=await call('/admin/generate',{},true);await recordAdminAudit('seo_generate',{message:d.message||'Solicitud aceptada por GitHub.'});status.textContent=d.message||'Solicitud aceptada por GitHub.';}catch(e){status.textContent='No se pudo solicitar la actualización SEO: '+e.message;sessionExpired(e);}finally{b.disabled=false;}});
+$('run-sitemap')?.addEventListener('click',async()=>{if(!confirm('¿Actualizar el sitemap y regenerar las páginas SEO usando los productos y trabajos actuales de Google Sheets?'))return;const b=$('run-sitemap'),note=$('sitemap-note');b.disabled=true;note.textContent='Solicitando actualización del sitemap…';status.textContent='Enviando actualización SEO a GitHub Actions…';try{const d=await call('/admin/generate',{},true);await recordAdminAudit('seo_sitemap',{message:d.message||'Actualización aceptada.'});note.textContent=d.message||'Actualización aceptada. El sitemap se regenerará y publicará automáticamente.';status.textContent=note.textContent;}catch(e){note.textContent='No se pudo solicitar la actualización: '+e.message;status.textContent=note.textContent;sessionExpired(e);}finally{b.disabled=false;}});
+$('run-indexnow')?.addEventListener('click',async()=>{if($('run-indexnow').disabled)return;if(!confirm('Se comparará el sitemap con la última referencia guardada. Solo se enviarán URL nuevas, modificadas o eliminadas. Después de un envío aceptado habrá que esperar al menos 30 minutos. ¿Quieres continuar?'))return;const b=$('run-indexnow'),note=$('indexnow-note');b.disabled=true;note.textContent='Comparando el sitemap con el historial guardado…';status.textContent='Comprobando cambios para IndexNow…';try{const d=await call('/admin/indexnow',{},true);await recordAdminAudit('seo_indexnow',{notified:d.notified||0,message:d.message||''});note.textContent=d.message||('IndexNow ha aceptado '+d.notified+' URL.');status.textContent=note.textContent;if(d.cooldownUntil)indexNowCooldownUntil=Number(d.cooldownUntil);if(d.baselineCreated||d.noChanges)indexNowCooldownUntil=0;note.dataset.cooldown=indexNowCooldownUntil>Date.now()?'1':'0';}catch(e){note.textContent='No se pudo actualizar IndexNow: '+e.message;status.textContent=note.textContent;await loadIndexNowStatus();sessionExpired(e);}finally{renderIndexNowCooldown();}});
 
 let cleanupPreview=null;
 function resetCleanup(){cleanupPreview=null;const result=$('cleanup-result'),button=$('execute-cleanup'),list=$('cleanup-list');if(result)result.hidden=true;if(button){button.hidden=true;button.disabled=true;}if(list)list.replaceChildren();}
@@ -179,7 +181,7 @@ $('execute-cleanup')?.addEventListener('click',async()=>{
   $('cleanup-summary').textContent=d.message||'Limpieza completada.';
   $('cleanup-list').replaceChildren();
   const li=document.createElement('li');li.textContent='Carpetas eliminadas: '+(d.deletedFolders??0)+' · Archivos eliminados: '+(d.deletedFiles??0)+' · URLs retiradas del sitemap: '+(d.sitemapUrlsRemoved??0)+'.';$('cleanup-list').appendChild(li);
-  cleanupPreview=null;button.hidden=true;button.disabled=true;status.textContent=d.message||'Limpieza publicada en GitHub.';
+  cleanupPreview=null;button.hidden=true;button.disabled=true;await recordAdminAudit('seo_cleanup',{deletedFolders:d.deletedFolders??0,deletedFiles:d.deletedFiles??0});status.textContent=d.message||'Limpieza publicada en GitHub.';
  }catch(e){$('cleanup-summary').textContent='No se ha completado la limpieza: '+e.message;status.textContent=$('cleanup-summary').textContent;sessionExpired(e);}
  finally{button.textContent='Eliminar carpetas obsoletas';previewButton.disabled=false;}
 });

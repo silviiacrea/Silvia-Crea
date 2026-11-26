@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow,noarchive"><meta name="silvia-build" content="80.0">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="silvia-build" content="81">
 <title>Silvia Crea | Gestión privada</title><link rel="icon" href="assets/logo%20web.png">
 <link rel="stylesheet" href="css/estilos.css?v=80">
 <style>
@@ -18,7 +18,7 @@
 .admin-main-nav{position:sticky;top:0;z-index:30;display:flex;gap:6px;overflow-x:auto;padding:10px;border:1px solid var(--adm-line);border-radius:16px;background:rgba(255,255,255,.96);box-shadow:0 8px 24px #493b4d0c;scrollbar-width:thin}
 .admin-main-nav a{flex:0 0 auto;padding:9px 13px;border-radius:999px;font-size:.88rem;font-weight:750;color:var(--adm-ink);white-space:nowrap}
 .admin-main-nav a:hover,.admin-main-nav a:focus-visible{background:var(--adm-lilac);color:#765b89}
-.admin-section{scroll-margin-top:88px}
+.admin-section{scroll-margin-top:88px}.admin-overview-grid{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}.admin-overview-grid .admin-card{text-align:left}.admin-overview-grid .admin-stat{margin:10px 0}.admin-overview-grid a{font-weight:750;color:var(--adm-ink)}.btn-danger{background:#fff1f1!important;border-color:#e5bcbc!important;color:#9d3030!important}
 #admin-customers{scroll-margin-top:88px}
 @media(max-width:760px){.admin-dashboard{width:calc(100% - 22px);gap:16px}.admin-main-nav{margin-inline:-2px}.admin-welcome{padding:20px}}
 </style></head><body>
@@ -28,12 +28,22 @@
 <section id="login-panel" class="admin-login"><h2>Acceso de administración</h2><form id="login-form" class="admin-form"><label>Usuario administrador<input id="admin-user" autocomplete="username" required></label><label>Contraseña<input id="admin-pass" type="password" autocomplete="current-password" required></label><button class="btn btn-primary" type="submit">Iniciar sesión</button></form></section>
 <section id="control-panel" class="admin-hidden admin-dashboard" hidden>
  <section class="admin-welcome" id="admin-start"><p class="admin-kicker">Silvia Crea · Espacio privado</p><h2>¡Bienvenida a tu gestión!</h2><p>Todo el trabajo de tu web, reunido en un mismo lugar.</p></section>
+ <section class="admin-section" aria-label="Resumen de actividad"><div class="admin-section-heading"><div><span class="section-kicker">Resumen</span><h2>Lo importante, de un vistazo</h2></div><p>Indicadores consultados en los servicios conectados.</p></div><div class="admin-grid admin-overview-grid">
+  <article class="admin-card"><h3>Pedidos</h3><div class="admin-stats"><div class="admin-stat"><strong id="dash-orders">—</strong><span>Totales</span></div><div class="admin-stat"><strong id="dash-pending-orders">—</strong><span>Pendientes</span></div></div><a href="#admin-orders">Ir a pedidos →</a></article>
+  <article class="admin-card"><h3>Clientes activos</h3><div class="admin-stat"><strong id="dash-customers">—</strong><span>Cuentas activas</span></div><a href="#admin-customer-records">Gestionar clientes →</a></article>
+  <article class="admin-card"><h3>Incidencias</h3><div class="admin-stat"><strong id="dash-issues">—</strong><span>Abiertas o en curso</span></div><a href="#admin-issues">Revisar incidencias →</a></article>
+  <article class="admin-card"><h3>Mensajes de clientes</h3><div class="admin-stat"><strong id="dash-messages">—</strong><span>Recibidos en los últimos 7 días</span></div><a href="#admin-issues">Abrir mensajería →</a></article>
+  <article class="admin-card"><h3>Privacidad</h3><div class="admin-stat"><strong id="dash-privacy">—</strong><span>Solicitudes pendientes de sincronización</span></div><a href="#admin-privacy">Ver solicitudes →</a></article>
+  <article class="admin-card"><h3>Modo de la web</h3><div class="admin-state" id="dash-maintenance-state"><span class="admin-dot"></span><span id="dash-maintenance-current">Consultando…</span></div><div class="admin-actions"><button class="btn" id="dash-set-normal" type="button">Web normal</button><button class="btn" id="dash-set-maintenance" type="button">Activar mantenimiento</button></div><a href="#admin-web-state">Ver estado técnico →</a></article>
+  <article class="admin-card"><h3>Actividad reciente</h3><div id="dash-recent-activity" class="client-message-list">Consultando actividad…</div><a href="#admin-audit">Abrir auditoría →</a></article>
+ </div><div class="admin-actions"><button class="btn" id="client-refresh-summary" type="button">Actualizar resumen</button></div><p class="admin-note" id="dash-summary-note" role="status">El resumen se actualizará al iniciar sesión.</p></section>
  <nav class="admin-main-nav" aria-label="Navegación de administración">
-  <a href="#admin-start">Inicio gestión</a><a href="#admin-web-state">Estado web</a><a href="#admin-orders">Pedidos</a><a href="#admin-customer-records">Clientes</a><a href="#admin-coupons">Cupones</a><a href="#admin-issues">Incidencias</a><a href="#admin-privacy">Solicitudes privacidad</a><a href="#admin-audit">Auditoría</a><a href="#admin-seo">SEO</a>
+  <a href="#admin-start">Inicio gestión</a><a href="#admin-web-state">Estado web</a><a href="#admin-orders-clients">Pedidos</a><a href="#admin-customer-records">Clientes</a><a href="#admin-coupons">Cupones</a><a href="#admin-issues">Incidencias</a><a href="#admin-privacy">Solicitudes privacidad</a><a href="#admin-audit">Auditoría</a><a href="#admin-seo">SEO</a>
  </nav>
 <section class="admin-section" id="admin-web-state"><div class="admin-section-heading"><div><span class="section-kicker">01 · Servicio</span><h2>Servicio</h2></div><p>Estado operativo de la web y del Worker.</p></div><div class="admin-grid">
 <article class="admin-card accent-rose"><h3>Estado de la web</h3><p class="admin-note">Consulta el estado efectivo comunicado por Cloudflare Worker y cambia entre web normal y mantenimiento.</p><div id="maintenance-state" class="admin-state"><span class="admin-dot"></span><span id="maintenance-current">Consultando el servidor…</span></div><div class="admin-actions"><button class="btn btn-primary" id="set-normal" type="button">Poner web en modo normal</button><button class="btn" id="set-maintenance" type="button">Activar modo mantenimiento</button></div></article>
 <article class="admin-card accent-green" id="worker-health-card"><h3>Estado del Worker</h3><p class="admin-note">Comprobación del Worker y del espacio de configuración KV.</p><div id="worker-health-state" class="admin-state"><span class="admin-dot"></span><span id="worker-health-current">Comprobando Worker…</span></div><p class="admin-note" id="worker-health-note" role="status">Comprobando el estado real del Worker…</p><div class="admin-actions"><button class="btn" id="refresh-worker-health" type="button">Volver a comprobar</button></div></article>
+<article class="admin-card accent-lilac" id="customer-worker-health-card"><h3>Worker de clientes</h3><p class="admin-note">Comprobación independiente del servicio de clientes y su conexión con D1.</p><div id="customer-worker-health-state" class="admin-state"><span class="admin-dot"></span><span id="customer-worker-health-current">Comprobando Worker de clientes…</span></div><p class="admin-note" id="customer-worker-health-note" role="status">Consultando clientes.silviacrea.es/health.</p><div class="admin-actions"><button class="btn" id="refresh-customer-worker-health" type="button">Volver a comprobar</button></div></article>
 </div></section>
 <section class="admin-section" id="admin-orders"><div class="admin-section-heading"><div><span class="section-kicker">02 · Pedidos</span><h2>Pedidos y seguimiento</h2></div><p>Indicadores de pedidos consultados directamente en Google Sheets.</p></div><div class="admin-grid"><article class="admin-card" id="orders-stats-card"><h3>Estadísticas de pedidos</h3><p class="admin-note">Datos leídos directamente de la hoja PEDIDOS.</p><div class="admin-stats"><div class="admin-stat"><strong id="orders-total">—</strong><span>Pedidos</span></div><div class="admin-stat"><strong id="orders-completed">—</strong><span>Completados</span></div><div class="admin-stat"><strong id="orders-pending">—</strong><span>Pendientes</span></div></div><p class="admin-note" id="orders-note" role="status">Las estadísticas se mostrarán al iniciar sesión.</p><div class="admin-actions"><button class="btn" id="refresh-orders" type="button">Actualizar estadísticas</button></div></article></div></section>
 <section class="admin-section" id="admin-seo"><div class="admin-section-heading"><div><span class="section-kicker">03 · Publicación</span><h2>Publicación, versiones y SEO</h2></div><p>Control de versión, limpieza de páginas obsoletas y actualización de páginas SEO.</p></div><div class="admin-grid">
@@ -44,13 +54,8 @@
 </div></section>
 
 <section class="admin-section" id="admin-customers">
- <div class="admin-section-heading"><div><span class="section-kicker">04 · Clientes y pedidos</span><h2>Gestión de clientes y pedidos</h2></div><p>Administración del nuevo sistema de clientes, pedidos, cupones e incidencias. La clave de administración se mantiene solo en memoria durante esta sesión.</p></div>
- <article class="admin-card" id="client-admin-connect-card">
-  <h3>Conexión segura con el servicio de clientes</h3>
-  <p class="admin-note">Introduce la clave ADMIN_API_KEY configurada como secreto en Cloudflare. No se guarda en el navegador ni en el almacenamiento local.</p>
-  <form id="client-admin-connect" class="admin-form" autocomplete="off"><label>Clave de administración<input id="client-admin-key" type="password" autocomplete="off" required></label><div class="admin-actions"><button class="btn btn-primary" type="submit">Conectar</button><button class="btn" id="client-admin-disconnect" type="button">Desconectar</button></div></form>
-  <p id="client-admin-status" class="admin-note" role="status" aria-live="polite">No conectado.</p>
- </article>
+ <div class="admin-section-heading"><div><span class="section-kicker">04 · Clientes y pedidos</span><h2>Gestión de clientes y pedidos</h2></div><p>Administración del nuevo sistema de clientes, pedidos, cupones e incidencias. El acceso utiliza la sesión administrativa compartida; no se solicita una segunda clave.</p></div>
+ <article class="admin-card" id="client-admin-connect-card" hidden><h3>Acceso integrado</h3><p class="admin-note">La sesión iniciada en esta administración también autoriza el Worker de clientes. No se solicita una segunda contraseña ni una ADMIN_API_KEY.</p><p id="client-admin-status" class="admin-note" role="status" aria-live="polite">Verificando sesión compartida…</p></article>
  <div id="client-admin-tools" hidden>
   <div class="admin-grid">
    <article class="admin-card" id="admin-orders-clients"><h3>Pedidos</h3><p class="admin-note">Revisa las solicitudes, cambia estados, registra el pago acordado y confirma envío e importe final.</p><div class="admin-actions"><button class="btn" id="client-load-orders" type="button">Actualizar pedidos</button></div><div class="client-admin-table-wrap"><table class="client-admin-table"><thead><tr><th>Pedido</th><th>Cliente</th><th>Estado</th><th>Pago</th><th>Método de pago</th><th>Envío €</th><th>Total final €</th><th>Guardar</th><th>Detalle</th></tr></thead><tbody id="client-orders-body"><tr><td colspan="9">Conecta para cargar pedidos.</td></tr></tbody></table></div><div id="client-order-detail" class="client-message-list" hidden></div></article>
@@ -72,11 +77,11 @@
 .admin-main-nav{position:sticky;top:0;z-index:30;display:flex;gap:6px;overflow-x:auto;padding:10px;border:1px solid var(--adm-line);border-radius:16px;background:rgba(255,255,255,.96);box-shadow:0 8px 24px #493b4d0c;scrollbar-width:thin}
 .admin-main-nav a{flex:0 0 auto;padding:9px 13px;border-radius:999px;font-size:.88rem;font-weight:750;color:var(--adm-ink);white-space:nowrap}
 .admin-main-nav a:hover,.admin-main-nav a:focus-visible{background:var(--adm-lilac);color:#765b89}
-.admin-section{scroll-margin-top:88px}
+.admin-section{scroll-margin-top:88px}.admin-overview-grid{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}.admin-overview-grid .admin-card{text-align:left}.admin-overview-grid .admin-stat{margin:10px 0}.admin-overview-grid a{font-weight:750;color:var(--adm-ink)}.btn-danger{background:#fff1f1!important;border-color:#e5bcbc!important;color:#9d3030!important}
 #admin-customers{scroll-margin-top:88px}
 @media(max-width:760px){.admin-dashboard{width:calc(100% - 22px);gap:16px}.admin-main-nav{margin-inline:-2px}.admin-welcome{padding:20px}}
 </style>
 
 </section>
 <div class="admin-status" id="admin-status" role="status" aria-live="polite"></div></main>
-<footer class="site-footer"><p>Silvia Crea · Panel privado</p></footer><script src="js/admin.js?v=80.0" defer></script><script src="js/admin-clientes.js?v=80.0" defer></script></body></html>
+<footer class="site-footer"><p>Silvia Crea · Panel privado</p></footer><script src="js/admin.js?v=81.0" defer></script><script src="js/admin-clientes.js?v=81.0" defer></script></body></html>
