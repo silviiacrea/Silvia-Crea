@@ -446,6 +446,30 @@ document.addEventListener('DOMContentLoaded',()=>{const toggle=document.querySel
 .admin-section{scroll-margin-top:88px}.admin-overview-grid{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}.admin-overview-grid .admin-card{text-align:left}.admin-overview-grid .admin-stat{margin:10px 0}.admin-overview-grid a{font-weight:750;color:var(--adm-ink)}.btn-danger{background:#fff1f1!important;border-color:#e5bcbc!important;color:#9d3030!important}
 #admin-customers{scroll-margin-top:88px}
 @media(max-width:760px){.admin-dashboard{width:calc(100% - 22px);gap:16px}.admin-main-nav{margin-inline:-2px}.admin-welcome{padding:20px}}
+
+
+/* V89 · Inicio de gestión: acción de actualizar resumen centrada */
+#admin-summary > .admin-actions{
+ display:flex!important;
+ justify-content:center!important;
+ align-items:center!important;
+ width:100%!important;
+ margin:18px auto 0!important;
+ text-align:center!important;
+}
+#admin-summary #client-refresh-summary{
+ display:inline-flex!important;
+ justify-content:center!important;
+ align-items:center!important;
+ width:max-content!important;
+ max-width:100%!important;
+ margin:0 auto!important;
+ float:none!important;
+}
+#admin-summary #client-refresh-summary:disabled{
+ cursor:not-allowed;
+ opacity:.58;
+}
 </style>
 </section>
 <div aria-live="polite" class="admin-status" id="admin-status" role="status"></div></main>

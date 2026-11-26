@@ -120,26 +120,57 @@ async function loadCustomerWorkerHealth(){const panel=$('customer-worker-health-
 function show(){login.hidden=false;login.classList.toggle('is-authenticated',!!token);const loginButton=$('open-login-form'),loginForm=$('login-form');if(loginButton)loginButton.hidden=!!token;if(loginForm)loginForm.hidden=!!token;control.hidden=!token;if(!token){const open=$('open-login-form'),form=$('login-form');if(open)open.hidden=false;if(form)form.hidden=true;}const headerActions=$('admin-header-actions'),navWrap=$('admin-nav-wrap'),roleBadge=$('admin-role-badge'),siteHeader=document.querySelector('.admin-site-header'),siteFooter=document.querySelector('.site-footer');if(siteHeader)siteHeader.hidden=!token;if(siteFooter)siteFooter.hidden=!token;if(token&&!document.getElementById('admin-cookie-script')){const cookieScript=document.createElement('script');cookieScript.id='admin-cookie-script';cookieScript.src='js/cookies.js?v=88.0';document.head.appendChild(cookieScript);}if(headerActions)headerActions.hidden=!token;if(navWrap)navWrap.hidden=!token;if(roleBadge&&token){try{const part=token.split('.')[0].replace(/-/g,'+').replace(/_/g,'/');const payload=JSON.parse(atob(part+'='.repeat((4-part.length%4)%4)));roleBadge.textContent=payload.role==='owner'?'Dueña · Silvia':payload.role==='webmaster'?'WebMaster · Pekhin23':'Administración';}catch{roleBadge.textContent='Administración';}}if(token){loadMaintenance();if(document.body.dataset.adminPage==='estado'||document.body.dataset.adminPage==='publicacion')checkPublishedVersion();if(document.body.dataset.adminPage==='estado'){loadWorkerHealth();loadCustomerWorkerHealth();}loadIndexNowStatus();document.dispatchEvent(new CustomEvent('silvia-admin-session',{detail:{authenticated:true}}));}else{document.dispatchEvent(new CustomEvent('silvia-admin-session',{detail:{authenticated:false}}));}}
 function renderState(mode){
  const active=mode==='maintenance',panel=$('maintenance-state');
- panel.className='admin-state '+(active?'maintenance':'normal');
- $('maintenance-current').textContent=active?'MODO MANTENIMIENTO':'WEB NORMAL';const dash=$('dash-maintenance-state'),dashLabel=$('dash-maintenance-current');if(dash){dash.className='admin-state '+(active?'maintenance':'normal');if(dashLabel)dashLabel.textContent=active?'MODO MANTENIMIENTO':'WEB NORMAL';}const dashNormal=$('dash-set-normal'),dashMaintenance=$('dash-set-maintenance');if(dashNormal)dashNormal.disabled=!active;if(dashMaintenance)dashMaintenance.disabled=active;
- $('set-normal').disabled=!active;$('set-maintenance').disabled=active;
+ if(panel)panel.className='admin-state '+(active?'maintenance':'normal');
+ const current=$('maintenance-current');
+ if(current)current.textContent=active?'MODO MANTENIMIENTO':'WEB NORMAL';
+ const dash=$('dash-maintenance-state'),dashLabel=$('dash-maintenance-current');
+ if(dash){dash.className='admin-state '+(active?'maintenance':'normal');}
+ if(dashLabel)dashLabel.textContent=active?'MODO MANTENIMIENTO':'WEB NORMAL';
+ // El botón de la acción que ya está activa permanece deshabilitado.
+ // La acción contraria queda disponible tanto en el resumen como en Servicio.
+ const dashNormal=$('dash-set-normal'),dashMaintenance=$('dash-set-maintenance');
+ const normal=$('set-normal'),maintenance=$('set-maintenance');
+ if(dashNormal)dashNormal.disabled=!active;
+ if(normal)normal.disabled=!active;
+ if(dashMaintenance)dashMaintenance.disabled=active;
+ if(maintenance)maintenance.disabled=active;
 }
 async function loadMaintenance(){
  $('maintenance-current').textContent='Consultando el servidor…';
  try{const d=await call('/admin/maintenance',{},true,'GET');const mode=d.maintenance?.mode;
  if(!['normal','maintenance'].includes(mode))throw new Error('El servidor devolvió un estado desconocido.');
  renderState(mode);
- }catch(e){$('maintenance-state').className='admin-state';$('maintenance-current').textContent='No se pudo verificar el estado';status.textContent='Error al consultar el estado real: '+e.message;sessionExpired(e);}
+ }catch(e){
+  const panel=$('maintenance-state'),current=$('maintenance-current');
+  if(panel)panel.className='admin-state';
+  if(current)current.textContent='No se pudo verificar el estado';
+  // Si el servidor no permite confirmar el modo, bloquear ambas acciones
+  // para evitar que la interfaz afirme o ejecute un cambio sobre un estado desconocido.
+  ['dash-set-normal','dash-set-maintenance','set-normal','set-maintenance'].forEach(id=>{const control=$(id);if(control)control.disabled=true;});
+  status.textContent='Error al consultar el estado real: '+e.message;
+  sessionExpired(e);
+ }
 }
 async function setMode(mode,button){
- button.disabled=true;status.textContent='Solicitando el cambio al servidor…';
- try{const d=await call('/admin/maintenance',{mode},true);const confirmed=d.maintenance?.mode;
- if(confirmed!==mode)throw new Error('El servidor no confirmó el modo solicitado.');
- const verify=await call('/admin/maintenance',{},true,'GET');
- if(verify.maintenance?.mode!==mode)throw new Error('La lectura posterior no coincide con el cambio solicitado.');
- renderState(mode);await recordAdminAudit('maintenance_set',{mode});status.textContent=mode==='maintenance'?'Modo mantenimiento activado y verificado en el servidor.':'Web normal restaurada y verificada en el servidor.';
- }catch(e){status.textContent='No se pudo cambiar el modo: '+e.message;await loadMaintenance();sessionExpired(e);}
- finally{button.disabled=false;}
+ button.disabled=true;
+ status.textContent='Solicitando el cambio al servidor…';
+ try{
+  const d=await call('/admin/maintenance',{mode},true);
+  const confirmed=d.maintenance?.mode;
+  if(confirmed!==mode)throw new Error('El servidor no confirmó el modo solicitado.');
+  const verify=await call('/admin/maintenance',{},true,'GET');
+  if(verify.maintenance?.mode!==mode)throw new Error('La lectura posterior no coincide con el cambio solicitado.');
+  renderState(mode);
+  await recordAdminAudit('maintenance_set',{mode});
+  status.textContent=mode==='maintenance'?'Modo mantenimiento activado y verificado en el servidor.':'Web normal restaurada y verificada en el servidor.';
+ }catch(e){
+  status.textContent='No se pudo cambiar el modo: '+e.message;
+  await loadMaintenance();
+  sessionExpired(e);
+ }
+ // No reactivar aquí el botón pulsado: renderState/loadMaintenance aplican
+ // el estado real confirmado por el Worker. Reactivarlo incondicionalmente
+ // permitía volver a pulsar la acción que ya estaba activa.
 }
 show();
 $('open-login-form')?.addEventListener('click',()=>{$('open-login-form').hidden=true;$('login-form').hidden=false;$('admin-user').focus();});
