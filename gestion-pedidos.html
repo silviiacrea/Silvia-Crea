@@ -119,7 +119,7 @@ body[data-admin-page="pedidos"] #admin-customers,body[data-admin-page="clientes"
 @media(max-width:650px){.home-order-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style>
 <style id="v85-admin-theme">
-/* V85: cabecera idéntica en proporciones y lenguaje visual a la web pública */
+/* Referencia histórica de cabecera, consolidada en V88 */
 .admin-site-header{position:relative!important;z-index:50;background:rgba(226,211,241,.94)!important;border-bottom:1px solid rgba(192,169,215,.65)!important;box-shadow:0 5px 22px rgba(112,84,139,.07)!important}
 .admin-header-inner{max-width:1180px!important;margin:0 auto!important;padding:12px 24px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:18px!important;min-height:0!important}
 .admin-header-inner .brand{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;text-align:left!important;flex:0 0 auto!important}
@@ -171,11 +171,11 @@ body[data-admin-page="pedidos"] #admin-customers,body[data-admin-page="clientes"
 @media(max-width:760px){.admin-nav-wrap.v85-open{display:block!important}.admin-header-inner{padding:10px 16px!important}.admin-header-inner .header-logo{width:46px!important;height:46px!important}.admin-header-inner .brand strong{font-size:25px!important}.admin-header-inner .menu-toggle{display:block!important;order:2}.admin-nav-wrap{display:none!important}.admin-nav-wrap.v85-open{display:block!important}.admin-main-nav{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%;padding:10px 0!important}.admin-main-nav a{text-align:center;white-space:normal!important}.admin-header-actions{order:3}.admin-role-badge{display:none}.v85-audit-grid{grid-template-columns:1fr}}
 </style>
 <script>
-document.addEventListener('DOMContentLoaded',()=>{const toggle=document.querySelector('.admin-site-header .menu-toggle'),wrap=document.getElementById('admin-nav-wrap');if(toggle&&wrap){toggle.addEventListener('click',()=>{const open=wrap.classList.toggle('v85-open');toggle.setAttribute('aria-expanded',String(open));});}document.querySelectorAll('.admin-section-heading').forEach(h=>{const p=h.querySelector('p');if(p&&document.body.dataset.adminPage==='publicacion')p.textContent='Herramientas para mantener actualizados los contenidos, las páginas y la presencia de Silvia Crea en buscadores.';});if(document.body.dataset.adminPage==='publicacion'){document.querySelectorAll('.admin-card h3').forEach(h=>{const m=h.textContent.trim().match(/^(0[234])\s*[·.-]\s*(.*)$/);if(m){const badge=document.createElement('span');badge.className='section-kicker';badge.textContent=m[1];h.parentElement.parentElement.insertBefore(badge,h.parentElement);h.textContent=m[2];}});}});
+document.addEventListener('DOMContentLoaded',()=>{const toggle=document.querySelector('.admin-site-header .menu-toggle'),wrap=document.getElementById('admin-nav-wrap');if(toggle&&wrap){toggle.addEventListener('click',()=>{const open=wrap.classList.toggle('v85-open');toggle.setAttribute('aria-expanded',String(open));});}if(document.body.dataset.adminPage==='publicacion'){document.querySelectorAll('.admin-card h3').forEach(h=>{const m=h.textContent.trim().match(/^(0[234])\s*[·.-]\s*(.*)$/);if(m){const badge=document.createElement('span');badge.className='section-kicker';badge.textContent=m[1];h.parentElement.parentElement.insertBefore(badge,h.parentElement);h.textContent=m[2];}});}});
 </script>
 <style id="silvia-v87-admin">
 
-/* ==================== SILVIA CREA V87 ==================== */
+/* ==================== SILVIA CREA V88 ==================== */
 /* Cabecera administrativa: reutiliza las proporciones y colores de la cabecera pública */
 .admin-site-header{background:rgba(226,211,241,.94)!important;border-bottom:1px solid rgba(192,169,215,.65)!important;box-shadow:0 5px 22px rgba(112,84,139,.07)!important}
 .admin-header-inner{max-width:1180px!important;min-height:0!important;padding:12px 24px!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;gap:14px!important}
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded',()=>{const toggle=document.querySel
 .v85-audit-dialog .detail-top-close{position:sticky!important;top:-18px!important;z-index:4;display:flex!important;width:max-content!important;margin:-4px 0 10px auto!important;background:#e2edf8!important;border:1px solid #c8dbf2!important;color:#5a6e85!important}
 </style><style id="admin-header-v87">
 
-/* V87 — Cabecera administrativa unificada con la cabecera pública */
+/* V88 — Cabecera administrativa unificada con la cabecera pública */
 .admin-site-header{position:relative!important;z-index:100!important;background:rgba(226,211,241,.96)!important;border-bottom:1px solid rgba(192,169,215,.65)!important;box-shadow:0 5px 22px rgba(112,84,139,.07)!important}
 .admin-site-header .admin-header-inner{box-sizing:border-box!important;width:100%!important;max-width:1600px!important;min-height:76px!important;margin:0 auto!important;padding:12px clamp(16px,3vw,40px)!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:space-between!important;gap:clamp(10px,1.4vw,22px)!important}
 .admin-site-header .brand{box-sizing:border-box!important;display:flex!important;flex:0 0 205px!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;min-width:0!important;margin:0!important;padding:4px 0!important;text-align:left!important;text-decoration:none!important;overflow:visible!important}
@@ -370,7 +370,25 @@ document.addEventListener('DOMContentLoaded',()=>{const toggle=document.querySel
 .admin-main-nav a:hover,.admin-main-nav a[aria-current=page]{background:transparent!important;color:var(--pink-dark)!important}
 .admin-main-nav a[aria-current=page]{font-style:italic!important}
 .admin-main-nav a[aria-current=page]:after{content:"";display:block;height:2px;background:var(--pink);margin-top:3px;border-radius:2px;position:static;left:auto;right:auto;bottom:auto}
-</style></head><body data-admin-page="pedidos">
+</style>
+<style id="silvia-v88-final-layout">
+/* V88: navegación administrativa con las mismas reglas visuales que index.html */
+.admin-site-header .admin-main-nav{display:flex!important;align-items:center!important;justify-content:center!important;gap:clamp(10px,2vw,26px)!important;flex-wrap:wrap!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;white-space:normal!important}
+.admin-site-header .admin-main-nav a{display:inline-flex!important;align-items:center!important;justify-content:center!important;padding:0 2px 3px!important;border:0!important;border-radius:14px!important;background:transparent!important;color:#665c6b!important;font:700 15px/1.25 var(--sans)!important;text-decoration:none!important;white-space:nowrap!important;transition:color .2s!important}
+.admin-site-header .admin-main-nav a:hover,.admin-site-header .admin-main-nav a:focus-visible,.admin-site-header .admin-main-nav a[aria-current=page]{background:transparent!important;color:var(--pink-dark)!important;transform:none!important}
+.admin-site-header .admin-main-nav a[aria-current=page]{font-style:italic!important}
+.admin-site-header .admin-main-nav a[aria-current=page]:after{content:""!important;display:block!important;position:static!important;height:2px!important;margin-top:3px!important;background:var(--pink)!important;border-radius:2px!important}
+.admin-site-header .admin-header-actions{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-end!important;gap:10px!important;white-space:nowrap!important}
+.admin-site-header .admin-role-badge{order:2!important;display:inline-flex!important;align-items:center!important;max-width:none!important;white-space:nowrap!important;text-align:left!important}
+.admin-site-header .admin-header-actions .admin-logout{order:1!important}
+.admin-card:before,.admin-card.accent-rose:before,.admin-card.accent-green:before,.admin-card.accent-lilac:before{background:#d9c2e8!important}
+.admin-card[class*="accent-"]{border-top-color:#d9c2e8!important}
+.admin-divider,hr,.admin-section-heading:after{border-color:#d9c2e8!important}
+@media(max-width:900px){.admin-site-header .admin-header-inner{flex-wrap:wrap!important;justify-content:center!important}.admin-site-header .admin-nav-wrap{flex:1 0 100%!important;order:3!important}.admin-site-header .admin-main-nav{gap:12px!important}.admin-site-header .admin-main-nav a{font-size:13px!important}.admin-site-header .admin-header-actions{order:4!important;margin-left:auto!important}}
+@media(max-width:700px){.admin-site-header .admin-header-inner .menu-toggle{display:block!important;order:2!important}.admin-site-header .admin-nav-wrap{display:none!important;width:100%!important;margin-top:12px!important;padding:14px 12px!important;border:1px solid rgba(192,169,215,.7)!important;border-radius:20px!important;background:rgba(226,211,241,.96)!important;box-shadow:0 10px 25px rgba(112,84,139,.15)!important}.admin-site-header .admin-nav-wrap.v85-open{display:block!important}.admin-site-header .admin-main-nav{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important}.admin-site-header .admin-main-nav a{justify-content:center!important;padding:12px 16px!important;border:1px solid #eadcf5!important;border-radius:14px!important;background:var(--white-lilac)!important;color:#765b89!important;font-size:15px!important;white-space:normal!important}.admin-site-header .admin-main-nav a[aria-current=page]:after{display:none!important}.admin-site-header .admin-main-nav a:hover,.admin-site-header .admin-main-nav a[aria-current=page]{background:#eadcf5!important;color:var(--lilac-dark)!important}.admin-site-header .admin-header-actions{width:auto!important;flex-direction:row!important;margin-left:auto!important}.admin-site-header .admin-role-badge{display:inline-flex!important;max-width:48vw!important;white-space:normal!important;text-align:right!important}}
+@media(max-width:520px){.admin-site-header .admin-header-actions{width:100%!important;justify-content:center!important;margin:0!important}.admin-site-header .admin-role-badge{max-width:58vw!important}}
+</style>
+</head><body data-admin-page="pedidos">
 <header class="site-header admin-site-header"><div class="header-inner admin-header-inner">
 <a aria-label="Silvia Crea, inicio" class="brand" href="index.html"><img alt="Logotipo Silvia Crea" class="header-logo" src="assets/logo%20web.png"/><span><strong>Silvia Crea ♡</strong><small>ADMINISTRACIÓN WEB</small></span></a><span class="admin-private-label" aria-hidden="true">Zona privada</span>
 <button aria-expanded="false" aria-label="Abrir menú" class="menu-toggle" type="button"><span></span><span></span><span></span></button>
