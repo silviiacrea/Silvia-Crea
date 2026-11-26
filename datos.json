@@ -67,7 +67,7 @@
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/zorro.png",
       "descripcionFicha": "",
       "album": "",
-      "categoria": ""
+      "categoria": "Amigurumis"
     },
     {
       "nombre": "Pulseras de Abalorios",
@@ -80,14 +80,14 @@
       "categoria": ""
     },
     {
-      "nombre": "Amigurumi Reno",
+      "nombre": "Amigurumi Reno Navideño",
       "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/reno.png",
       "descripcion": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
       "descripcionCompleta": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/reno.png",
       "descripcionFicha": "",
       "album": "",
-      "categoria": ""
+      "categoria": "Amigurumis"
     },
     {
       "nombre": "Amigurumi Muñeco de nieve",
@@ -97,7 +97,7 @@
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/mu%C3%B1ecodenieve.png",
       "descripcionFicha": "",
       "album": "",
-      "categoria": ""
+      "categoria": "Amigurumis"
     },
     {
       "nombre": "Muñeco de fieltro Vivi Ornitier",
@@ -111,5 +111,7 @@
     }
   ],
   "categoriasTienda": [],
-  "categoriasTrabajos": []
+  "categoriasTrabajos": [
+    "Amigurumis"
+  ]
 }
