@@ -413,6 +413,76 @@ body[data-admin-page="cupones"] #admin-customers #admin-coupons{display:block!im
 @media(max-width:560px){.coupon-list-heading{align-items:stretch}.coupon-list-tools{flex-direction:column-reverse;align-items:stretch}.coupon-list-tools input{width:100%}.coupon-list-tools button{width:100%}}
 @media(max-width:850px){.coupon-fields,.coupon-fields-main{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.coupon-fields,.coupon-fields-main{grid-template-columns:1fr}.coupon-form-footer,.coupon-form-actions,.coupon-list-tools{width:100%}.coupon-form-actions>*{flex:1}.coupon-list-tools input{width:100%}.coupon-card-heading{display:block}.coupon-count{display:inline-grid;margin-top:14px}.coupon-code-control{align-items:stretch;flex-direction:column}.coupon-generate{width:100%}}
+
+/* V94 — tonos suaves y alineación de herramientas */
+.coupon-manager,
+.coupon-list-card{
+  background:linear-gradient(145deg,#f7f1fa 0%,#f1eaf6 100%)!important;
+  border-color:#dfd1e8!important;
+}
+.coupon-form{
+  background:linear-gradient(145deg,#f7f1fa 0%,#f1eaf6 100%)!important;
+  border-color:#dfd1e8!important;
+  box-shadow:0 8px 24px #59436b0d;
+}
+.coupon-field input,
+.coupon-field select,
+.coupon-field textarea,
+.coupon-list-tools input{
+  background:#fbf8fd!important;
+  border-color:#d9cbe2!important;
+  color:#493b4d!important;
+}
+.coupon-field input::placeholder,
+.coupon-field textarea::placeholder,
+.coupon-list-tools input::placeholder{color:#918397;opacity:1}
+.coupon-field input:focus,
+.coupon-field select:focus,
+.coupon-field textarea:focus,
+.coupon-list-tools input:focus{
+  background:#fff!important;
+  outline:3px solid #e9d8ef;
+  border-color:#a88ab7!important;
+}
+.coupon-list-heading{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center!important;
+  column-gap:16px;
+}
+.coupon-list-tools{display:contents!important}
+.coupon-list-tools button{
+  grid-column:2;
+  grid-row:1;
+  justify-self:center;
+  white-space:nowrap;
+}
+.coupon-list-tools input{
+  grid-column:3;
+  grid-row:1;
+  justify-self:end;
+  width:min(250px,100%)!important;
+}
+@media(max-width:700px){
+  .coupon-list-heading{
+    display:flex!important;
+    flex-direction:column;
+    align-items:stretch!important;
+    gap:14px;
+  }
+  .coupon-list-tools{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    width:100%;
+  }
+  .coupon-list-tools button,
+  .coupon-list-tools input{
+    width:100%!important;
+    justify-self:stretch;
+  }
+}
+
 </style>
 
 </head><body data-admin-page="cupones">
