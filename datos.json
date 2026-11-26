@@ -107,11 +107,23 @@
       "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/IMG_1672.jpg",
       "descripcionFicha": "",
       "album": "",
-      "categoria": ""
+      "categoria": "Fieltro"
+    },
+    {
+      "nombre": "Bolsito a crochet",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/bolsito.png",
+      "descripcion": "Pequeño bolsito hecho a crochet, tejido a mano con hilo de algodón 100%",
+      "descripcionCompleta": "Pequeño bolsito hecho a crochet, tejido a mano con hilo de algodón 100%",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/bolsito.png",
+      "descripcionFicha": "",
+      "album": "",
+      "categoria": "Crochet"
     }
   ],
   "categoriasTienda": [],
   "categoriasTrabajos": [
-    "Amigurumis"
+    "Amigurumis",
+    "Crochet",
+    "Fieltro"
   ]
 }
