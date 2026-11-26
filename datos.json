@@ -40,9 +40,9 @@
     {
       "nombre": "Amigurumi Personalizado",
       "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/amigurumis/reno.jpg",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/amigurumis/zorro.png",
       "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/amigurumis/reno.jpg",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/amigurumis/zorro.png",
       "descripcionFicha": "",
       "album": "amigurumis",
       "destacado": true
@@ -50,9 +50,9 @@
     {
       "nombre": "Pulsera de Abalorios",
       "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/pulseras/especialidadpulseras.PNG",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/pulseras/pulseras.png",
       "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/pulseras/especialidadpulseras.PNG",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/pulseras/pulseras.png",
       "descripcionFicha": "",
       "album": "pulseras",
       "destacado": false
@@ -60,26 +60,70 @@
   ],
   "trabajos": [
     {
-      "nombre": "Amigurumi Personalizado",
-      "imagen": "",
-      "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
-      "imagenGrande": "",
+      "nombre": "Amigurumi Zorro",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/zorro.png",
+      "descripcion": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
+      "descripcionCompleta": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/zorro.png",
+      "descripcionFicha": "",
+      "album": "",
+      "categoria": "Amigurumis"
+    },
+    {
+      "nombre": "Pulseras de Abalorios",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/pulseras.png",
+      "descripcion": "Diseños exclusivos hechos a mano.",
+      "descripcionCompleta": "Diseños exclusivos hechos a mano.",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/pulseras.png",
       "descripcionFicha": "",
       "album": "",
       "categoria": ""
     },
     {
-      "nombre": "Pulsera de Abalorios",
-      "imagen": "",
-      "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
-      "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
-      "imagenGrande": "",
+      "nombre": "Amigurumi Reno Navideño",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/reno.png",
+      "descripcion": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
+      "descripcionCompleta": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/reno.png",
       "descripcionFicha": "",
       "album": "",
-      "categoria": ""
+      "categoria": "Amigurumis"
+    },
+    {
+      "nombre": "Amigurumi Muñeco de nieve",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/mu%C3%B1ecodenieve.png",
+      "descripcion": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
+      "descripcionCompleta": "Muñeco de crochet tejido a mano con hilo de algodón 100%.",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/mu%C3%B1ecodenieve.png",
+      "descripcionFicha": "",
+      "album": "",
+      "categoria": "Amigurumis"
+    },
+    {
+      "nombre": "Muñeco de fieltro Vivi Ornitier",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/IMG_1672.jpg",
+      "descripcion": "Muñeco 2D en fieltro de Vivi Ornitier, de Final Fantasy  IX",
+      "descripcionCompleta": "Muñeco 2D en fieltro de Vivi Ornitier, de Final Fantasy  IX",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/IMG_1672.jpg",
+      "descripcionFicha": "",
+      "album": "",
+      "categoria": "Fieltro"
+    },
+    {
+      "nombre": "Bolsito a crochet",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/bolsito.png",
+      "descripcion": "Pequeño bolsito hecho a crochet, tejido a mano con hilo de algodón 100%",
+      "descripcionCompleta": "Pequeño bolsito hecho a crochet, tejido a mano con hilo de algodón 100%",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/trabajos/bolsito.png",
+      "descripcionFicha": "",
+      "album": "",
+      "categoria": "Crochet"
     }
   ],
   "categoriasTienda": [],
-  "categoriasTrabajos": []
+  "categoriasTrabajos": [
+    "Amigurumis",
+    "Crochet",
+    "Fieltro"
+  ]
 }
