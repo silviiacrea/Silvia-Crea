@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
 <html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
-<meta content="noindex,nofollow,noarchive" name="robots"/><meta content="84" name="silvia-build"/>
+<meta content="noindex,nofollow,noarchive" name="robots"/><meta content="88" name="silvia-build"/>
 <title>Silvia Crea | Incidencias</title><link href="assets/logo%20web.png" rel="icon"/>
-<link href="css/estilos.css?v=86" rel="stylesheet"/>
+<link href="css/estilos.css?v=88" rel="stylesheet"/>
 <style>
  :root{--adm-ink:#493b4d;--adm-muted:#766c73;--adm-line:#eadfd8;--adm-paper:#fff;--adm-bg:#fbf7f5;--adm-lilac:#f4edf7;--adm-rose:#fbf0f1;--adm-green:#eaf5ee;--adm-shadow:0 18px 48px #4e35400d}
 .admin-page{width:min(900px,calc(100% - 32px));margin:30px auto 64px;text-align:center}.admin-hero{position:relative;overflow:hidden;padding:clamp(24px,5vw,42px);border:1px solid var(--adm-line);border-radius:26px;background:linear-gradient(125deg,#fff 0%,#fff9f7 54%,#f7f0fa 100%);box-shadow:var(--adm-shadow);text-align:center}.admin-hero:after{content:"♡";position:absolute;right:5%;top:-38px;font:170px/1 'Playfair Display',serif;color:#d8b9cc;opacity:.2;pointer-events:none}.admin-kicker,.section-kicker{font-size:.76rem;letter-spacing:.15em;text-transform:uppercase;font-weight:800;color:#a16e8c}.admin-hero h1{font:600 clamp(2rem,4vw,2.8rem)/1.15 'Playfair Display',serif;color:var(--adm-ink);margin:9px 0 12px}.admin-intro{max-width:760px;color:#655b63;line-height:1.7;margin:0 auto}
@@ -322,12 +322,60 @@ document.addEventListener('DOMContentLoaded',()=>{const toggle=document.querySel
 }
 
 </style>
-</head><body data-admin-page="incidencias">
+<style id="silvia-v88-admin-overrides">
+/* V88: cabecera administrativa alineada con la identidad pública */
+.admin-header-inner{display:flex!important;flex-direction:row!important;align-items:center!important;gap:clamp(8px,1.2vw,18px)!important;flex-wrap:wrap!important}
+.admin-header-inner .brand{flex:0 0 auto;min-width:190px;gap:10px;flex-direction:row!important}
+.admin-header-inner .header-logo{width:42px!important;height:42px!important}
+.admin-header-inner .brand strong{font:600 28px var(--script)!important;white-space:nowrap}
+.admin-header-inner .brand small{font-size:11px;letter-spacing:2px}
+.admin-nav-wrap{flex:1 1 560px!important;min-width:0}
+.admin-main-nav{display:flex;align-items:center;justify-content:center;gap:clamp(4px,.6vw,9px)!important;flex-wrap:wrap}
+.admin-main-nav a{display:inline-flex;align-items:center;justify-content:center;padding:8px 11px!important;border:1px solid #f0d5e1!important;border-radius:30px!important;background:var(--pink-soft)!important;color:var(--lilac-dark)!important;font-size:15px!important;font-family:inherit!important;font-weight:700!important;transition:transform .2s,color .2s,background .2s}
+.admin-main-nav a:hover{transform:translateY(-1px);background:#f7e6ed!important;color:var(--pink-dark)!important}
+.admin-main-nav a[aria-current=page]{background:#f7e6ed!important;color:var(--pink-dark)!important;font-style:italic}
+.admin-main-nav a[aria-current=page]:after{content:"";height:2px;background:var(--pink);border-radius:2px;position:absolute;bottom:3px;left:12px;right:12px}
+.admin-main-nav a[aria-current=page]{position:relative}
+.admin-header-actions{flex:0 0 auto;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:10px!important;white-space:nowrap}
+.admin-header-actions[hidden]{display:none!important}
+.admin-role-badge{order:2;white-space:nowrap}
+.admin-header-actions .admin-logout{order:1;background:var(--pink-soft)!important;border:1px solid #f0d5e1!important;border-radius:30px!important;color:var(--lilac-dark)!important}
+.admin-private-label{display:none!important}
+.admin-divider,.admin-card:before,.admin-card:after,.admin-section-heading:before{border-color:#d9c2e8!important}
+.admin-card{border-top-color:#d9c2e8!important}
+.client-admin-table{border-collapse:separate!important;border-spacing:0!important;background:#fff9fc!important;border:1px solid #eadfea!important;border-radius:16px!important;overflow:hidden}
+.client-admin-table thead th{background:#f1e8f6!important;color:#57465f!important}
+.client-admin-table th,.client-admin-table td{border-color:#eadfea!important;padding:11px 12px!important}
+.client-admin-table-wrap{max-width:100%;overflow-x:auto;border-radius:16px}
+@media(max-width:900px){.admin-header-inner{justify-content:center!important}.admin-nav-wrap{flex-basis:100%!important;order:3}.admin-header-actions{order:4}.admin-main-nav a{font-size:13px!important;padding:7px 9px!important}}
+@media(max-width:560px){.admin-header-inner .brand{min-width:0}.admin-header-inner .brand strong{font-size:24px!important}.admin-header-actions{width:100%;justify-content:center!important}.admin-main-nav{gap:5px!important}.admin-main-nav a{white-space:normal;text-align:center}}
+
+/* V88 · tarjeta de versión y acentos decorativos */
+#version-card{display:flex;flex-direction:column;align-items:center;text-align:center}
+#version-card>*{width:100%;text-align:center}
+#version-card .admin-state,#version-card .admin-actions{justify-content:center!important}
+#version-card .admin-divider{width:100%;border-color:#d9c2e8!important}
+.admin-card[class*="accent-"]{border-top-color:#d9c2e8!important}
+.admin-card:before,.admin-card:after,.admin-section:before,.admin-section:after{border-color:#d9c2e8!important}
+.admin-section-heading .section-kicker{color:#8e72a6}
+.admin-divider{background:#d9c2e8!important;border-color:#d9c2e8!important}
+
+:root{--adm-line:#ddcce9!important;--adm-lilac:#f2ebf7}
+.admin-divider,hr,.admin-card[class*="accent-"],.admin-section-heading:after{border-color:#d9c2e8!important}
+.admin-card[class*="accent-"]{border-top:3px solid #d9c2e8!important}
+.admin-card{border-color:#eadff0!important}
+.admin-section-heading:after{background:#d9c2e8!important}
+
+.admin-main-nav a{background:transparent!important;border:0!important;border-radius:14px!important;padding:8px 10px!important;color:#665c6b!important;font-size:15px!important;font-weight:700!important}
+.admin-main-nav a:hover,.admin-main-nav a[aria-current=page]{background:transparent!important;color:var(--pink-dark)!important}
+.admin-main-nav a[aria-current=page]{font-style:italic!important}
+.admin-main-nav a[aria-current=page]:after{content:"";display:block;height:2px;background:var(--pink);margin-top:3px;border-radius:2px;position:static;left:auto;right:auto;bottom:auto}
+</style></head><body data-admin-page="incidencias">
 <header class="site-header admin-site-header"><div class="header-inner admin-header-inner">
-<a aria-label="Silvia Crea, inicio" class="brand" href="index.html"><img alt="Logotipo Silvia Crea" class="header-logo" src="assets/logo%20web.png"/><span><strong>Silvia Crea ♡</strong><small>Administración web</small></span></a><span class="admin-private-label" aria-hidden="true">Zona privada</span>
+<a aria-label="Silvia Crea, inicio" class="brand" href="index.html"><img alt="Logotipo Silvia Crea" class="header-logo" src="assets/logo%20web.png"/><span><strong>Silvia Crea ♡</strong><small>ADMINISTRACIÓN WEB</small></span></a><span class="admin-private-label" aria-hidden="true">Zona privada</span>
 <button aria-expanded="false" aria-label="Abrir menú" class="menu-toggle" type="button"><span></span><span></span><span></span></button>
 <div class="admin-nav-wrap" hidden="" id="admin-nav-wrap"><nav aria-label="Navegación de administración" class="main-nav admin-main-nav" id="admin-page-nav"><a data-admin-nav="inicio" href="gestion-privada.html">Inicio gestión</a><a data-admin-nav="estado" href="gestion-estado.html">Estado de servicio</a><a data-admin-nav="pedidos" href="gestion-pedidos.html">Pedidos</a><a data-admin-nav="publicacion" href="gestion-publicacion.html">Publicación y SEO</a><a data-admin-nav="clientes" href="gestion-clientes.html">Clientes</a><a data-admin-nav="cupones" href="gestion-cupones.html">Cupones</a><a data-admin-nav="incidencias" href="gestion-incidencias.html">Incidencias</a><a data-admin-nav="privacidad" href="gestion-privacidad.html">Privacidad</a><a data-admin-nav="auditoria" href="gestion-auditoria.html">Auditoría</a></nav></div>
-<div class="admin-header-actions" hidden="" id="admin-header-actions"><span class="admin-role-badge" id="admin-role-badge"></span><button class="cart-trigger admin-logout" id="logout" type="button"><span>Cerrar sesión</span></button></div>
+<div class="admin-header-actions" hidden="" id="admin-header-actions"><button class="cart-trigger admin-logout" id="logout" type="button"><span>Cerrar sesión</span></button><span class="admin-role-badge" id="admin-role-badge"></span></div>
 </div></header>
 <main class="admin-page"><div aria-live="polite" class="admin-status admin-notice" hidden="" id="admin-notice" role="status"></div>
 <section class="admin-login" id="login-panel"><span class="admin-kicker">Zona privada</span><h2>Administración de la web</h2><button class="btn btn-primary" id="open-login-form" type="button">Acceder a la administración</button><form class="admin-form" hidden="" id="login-form"><label>Usuario administrador<input autocomplete="username" id="admin-user" required=""/></label><label>Contraseña<input autocomplete="current-password" id="admin-pass" required="" type="password"/></label><button class="btn btn-primary" type="submit">Iniciar sesión</button></form></section>
@@ -388,4 +436,4 @@ document.addEventListener('DOMContentLoaded',()=>{const toggle=document.querySel
 <p>Arte y manualidades hechas con cariño.</p>
 <div class="footer-links"><a href="privacidad.html">Privacidad</a><a href="contacto.html">Contacto</a><a href="tienda.html">Tienda</a><a href="encargos.html">Encargos</a><a href="https://www.instagram.com/silviiacrea" rel="noopener noreferrer" target="_blank">Instagram</a><a href="politica-cookies.html">Política de cookies</a><button data-cookie-settings="" type="button">Configurar cookies</button></div>
 <small>© <span id="year">2026</span> Silvia Crea</small>
-</footer><script>document.getElementById("year")&&(document.getElementById("year").textContent=new Date().getFullYear());document.querySelectorAll("[data-admin-nav]").forEach(a=>{if(a.dataset.adminNav===document.body.dataset.adminPage)a.setAttribute("aria-current","page")});</script><script defer="" src="js/admin.js?v=86.0"></script><script defer="" src="js/admin-clientes.js?v=86.0"></script></body></html>
+</footer><script>document.getElementById("year")&&(document.getElementById("year").textContent=new Date().getFullYear());document.querySelectorAll("[data-admin-nav]").forEach(a=>{if(a.dataset.adminNav===document.body.dataset.adminPage)a.setAttribute("aria-current","page")});</script><script defer="" src="js/admin.js?v=88.0"></script><script defer="" src="js/admin-clientes.js?v=88.0"></script></body></html>
