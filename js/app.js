@@ -256,7 +256,13 @@ function renderCategoryLanding(){
    
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));   
 function loadCart(){try{return JSON.parse(localStorage.getItem(CART_KEY)||"[]").filter(x=>x&&x.name&&Number(x.price)>=0&&Number(x.qty)>0);}catch{return[];}}   
-function saveCart(){try{localStorage.setItem(CART_KEY,JSON.stringify(cart));}catch{}}   
+let remoteCartReady=false;
+function saveCart(){try{localStorage.setItem(CART_KEY,JSON.stringify(cart));}catch{}if(remoteCartReady)syncRemoteCart();}
+const CLIENT_API="https://clientes.silviacrea.es/api";
+function guestCartId(){let k=localStorage.getItem("sc_guest_cart_key");if(!k){k=crypto.randomUUID?crypto.randomUUID():"sc-"+Date.now()+"-"+Math.random();localStorage.setItem("sc_guest_cart_key",k);}return k;}
+let remoteCartBusy=false;
+async function syncRemoteCart(){if(remoteCartBusy)return;remoteCartBusy=true;try{await fetch(CLIENT_API+"/cart",{method:"PUT",credentials:"include",headers:{"Content-Type":"application/json","X-Guest-Cart":guestCartId()},body:JSON.stringify({items:cart.map(x=>({name:x.name,quantity:x.qty,customization:x.comment||""}))})});}catch{}finally{remoteCartBusy=false;}}
+async function restoreRemoteCart(){try{const r=await fetch(CLIENT_API+"/cart",{credentials:"include",headers:{"X-Guest-Cart":guestCartId()}});if(!r.ok)return;const d=await r.json();remoteCartReady=true;if(Array.isArray(d.items)){const localNames=new Set(cart.map(x=>x.name));for(const x of d.items){const p=products.find(z=>z.name===x.name),local=cart.find(z=>z.name===x.name);if(local&&p)local.price=p.offer&&p.offerPrice!==undefined?p.offerPrice:p.price;else if(!local)cart.push({name:x.name,price:p?.price||0,qty:x.quantity||1,comment:x.customization||""});}updateCart();syncRemoteCart();}}catch{}}   
 function showToast(msg){const el=$("#toast");if(!el)return;el.textContent=msg;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2400);} function updateCart(){ $$(".cart-count").forEach(el=>el.textContent=cart.reduce((n,x)=>n+x.qty,0));   
 const items=$("#cart-items"); if(!items)return;   
 if(!cart.length){items.innerHTML='<p class="empty-cart">Todavía no has añadido productos.</p>';}   
@@ -683,11 +689,11 @@ function showCustomAlert(title, message) {
  document.body.appendChild(backdrop);  
 }  
   
-let pendingOrderRequestId="";
+let pendingOrderRequestId="",checkoutCouponCode="";
 async function sendOrder(){   
 if(!cart.length){showToast("Tu carrito está vacío.");return;}   
-const name=$("#customer-name")?.value.trim(),email=$("#customer-email")?.value.trim(),phone=$("#customer-phone")?.value.trim(),address=$("#customer-address")?.value.trim(),comment=$("#customer-comment")?.value.trim();   
-if(!name||!email||!phone||!address){showToast("Completa los datos obligatorios.");return;}   
+const name=$("#customer-name")?.value.trim(),email=$("#customer-email")?.value.trim(),phone=$("#customer-phone")?.value.trim(),address=$("#customer-address")?.value.trim(),postalCode=$("#customer-postal-code")?.value.trim(),city=$("#customer-city")?.value.trim(),province=$("#customer-province")?.value.trim(),country=$("#customer-country")?.value.trim(),comment=$("#customer-comment")?.value.trim();   
+if(!name||!email||!phone||!address||!postalCode||!city||!country){showToast("Completa los datos obligatorios, incluido el código postal y la localidad.");return;}   
   
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;   
 if(!emailRegex.test(email)){showToast("Por favor, introduce un correo electrónico válido.");return;}   
@@ -697,16 +703,14 @@ if(cleanPhone.length !== 9){showToast("El número de teléfono debe tener exacta
 const total=cart.reduce((n,x)=>n+x.price*x.qty,0);   
 const productsText=cart.map(x=>`- ${x.qty}x ${x.name} | Personalización: ${x.comment||"Sin detalles"}`).join("\n");   
 if(!pendingOrderRequestId)pendingOrderRequestId=(crypto.randomUUID?crypto.randomUUID():("sc"+Date.now().toString(36)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)));
-const payload={action:"order",requestId:pendingOrderRequestId,Cliente:name,Email:email,Telefono:phone.replace(/\D/g,""),Direccion:address,Productos:productsText,Total:`${total.toFixed(2).replace(".",",")} €`,Comentario:comment};   
-const btn=$("#submit-order");btn.disabled=true;btn.textContent="Enviando solicitud…";   
-try{   
-if(!cfg.appsScriptUrl)throw new Error("La conexión de pedidos no está configurada.");   
-const response=await fetch(cfg.appsScriptUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),redirect:"follow"});   
-if(!response.ok)throw new Error("El servidor no ha aceptado la solicitud.");   
-const result=await response.json();   
-if(result.status!=="success")throw new Error(result.message||"No se ha podido registrar el pedido.");   
-pendingOrderRequestId="";cart=[];updateCart();closeCart();$("#order-form")?.reset();$("#back-to-cart")?.click();   
-showCustomAlert("¡Solicitud enviada!", "Tu solicitud se ha registrado correctamente. Silvia se pondrá en contacto contigo para confirmar los detalles y la forma de pago.");   
+const payload={items:cart.map(x=>({name:x.name,quantity:x.qty,customization:x.comment||""})),customer:{name,email,phone:phone.replace(/\D/g,""),address,postalCode,city,province,country},comment,couponCode:checkoutCouponCode};
+const btn=$("#submit-order");btn.disabled=true;btn.textContent="Enviando solicitud…";
+try{
+const response=await fetch(CLIENT_API+"/orders",{method:"POST",credentials:"include",headers:{"Content-Type":"application/json","Idempotency-Key":pendingOrderRequestId,"X-Guest-Cart":guestCartId()},body:JSON.stringify(payload)});
+const result=await response.json().catch(()=>({}));
+if(!response.ok||!result.ok)throw new Error(result.error||"No se ha podido registrar el pedido.");
+pendingOrderRequestId="";checkoutCouponCode="";cart=[];updateCart();closeCart();$("#order-form")?.reset();$("#back-to-cart")?.click();
+showCustomAlert("¡Solicitud enviada!", `Tu solicitud ${result.orderNumber} se ha registrado. Puedes consultar el seguimiento en ${result.trackingUrl}. Silvia confirmará los detalles, el importe definitivo y el envío.`);
 }catch(err){   
 showCustomAlert("Hubo un problema", "No hemos podido verificar el registro de tu solicitud. No se ha vaciado tu carrito. Puedes intentarlo de nuevo más tarde o escribir a "+cfg.email+". Detalle: "+err.message);   
 }finally{btn.disabled=false;btn.textContent="Enviar solicitud de pedido";}   
@@ -943,7 +947,13 @@ if(!checkoutView){
  <label>Nombre *<input id="customer-name" required autocomplete="name" style="background:var(--lilac-card); border-color:#dfceeb;"></label>  
  <label>Correo electrónico *<input id="customer-email" type="email" required autocomplete="email" style="background:var(--lilac-card); border-color:#dfceeb;"></label>  
  <label>Teléfono *<input id="customer-phone" required inputmode="numeric" pattern="[0-9]{9}" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,'')" title="El teléfono debe tener exactamente 9 dígitos" autocomplete="tel" style="background:var(--lilac-card); border-color:#dfceeb;"></label>  
- <label>Dirección de envío *<textarea id="customer-address" rows="2" required autocomplete="street-address" style="background:var(--lilac-card); border-color:#dfceeb;"></textarea></label>  
+ <label>Dirección de envío *<textarea id="customer-address" rows="2" required autocomplete="street-address" style="background:var(--lilac-card); border-color:#dfceeb;"></textarea></label>
+ <label>Código postal *<input id="customer-postal-code" required autocomplete="postal-code" style="background:var(--lilac-card); border-color:#dfceeb;"></label>
+ <label>Localidad *<input id="customer-city" required autocomplete="address-level2" style="background:var(--lilac-card); border-color:#dfceeb;"></label>
+ <label>Provincia<input id="customer-province" autocomplete="address-level1" style="background:var(--lilac-card); border-color:#dfceeb;"></label>
+ <label>País *<input id="customer-country" value="España" required autocomplete="country-name" style="background:var(--lilac-card); border-color:#dfceeb;"></label>
+ <label>Cupón descuento<input id="coupon-code" maxlength="60" autocomplete="off" style="background:var(--lilac-card); border-color:#dfceeb;"></label>
+ <button type="button" class="btn" id="apply-coupon">Aplicar cupón</button><p id="coupon-status" class="small-note" role="status"></p>
  <label>Comentario general<textarea id="customer-comment" rows="3" style="background:var(--lilac-card); border-color:#dfceeb;"></textarea></label>  
  <p class="small-note">El importe mostrado es estimado y no incluye los gastos de envío. En esta etapa no se realizará ningún cargo; Silvia contactará contigo para confirmar los detalles y el importe definitivo.<br><br><strong style="color:var(--pink-dark)">Nota importante:</strong> Actualmente solo realizamos envíos dentro de la Península.</p>  
  <button class="btn btn-primary full-width" id="submit-order" type="submit">Enviar solicitud de pedido</button>  
@@ -951,9 +961,10 @@ if(!checkoutView){
  `;
  checkoutView.style.scrollbarWidth="thin";
  $(".cart-drawer").appendChild(checkoutView);  
- $("#order-form").addEventListener("submit",e=>{e.preventDefault();sendOrder();});  
- $("#back-to-cart").addEventListener("click",()=>{  
- $("#checkout-view").style.display = "none";  
+ $("#order-form").addEventListener("submit",e=>{e.preventDefault();sendOrder();});
+ $("#apply-coupon").addEventListener("click",async()=>{const code=$("#coupon-code").value.trim(),out=$("#coupon-status");out.textContent="Comprobando cupón…";try{const subtotal=cart.reduce((n,x)=>n+x.price*x.qty,0),items=cart.map(x=>({name:x.name,quantity:x.qty,unitPrice:x.price,category:products.find(p=>p.name===x.name)?.category||""}));const r=await fetch(CLIENT_API+"/coupons/validate",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"include",body:JSON.stringify({code,subtotal,email:$("#customer-email").value.trim(),items})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Cupón no válido.");checkoutCouponCode=d.code;out.textContent=d.message+" Descuento: "+euro(d.discount||0)+(d.freeShipping?" · Envío gratuito":"");}catch(err){checkoutCouponCode="";out.textContent=err.message;}});
+ $("#back-to-cart").addEventListener("click",()=>{
+ checkoutCouponCode="";$("#checkout-view").style.display = "none";  
  $("#cart-items").style.display = "";  
  $(".cart-summary").style.display = "block";  
  $(".drawer-head h2").textContent = "Mi carrito";  
@@ -967,7 +978,7 @@ $(".drawer-head h2").textContent = "Datos de tu solicitud";
 $(".drawer-head .eyebrow").textContent = "Un último paso";  
 });   
 $("#contact-form")?.addEventListener("submit",sendContact);   
-$("#year").textContent=new Date().getFullYear();initMenu();updateCart();
+$("#year").textContent=new Date().getFullYear();initMenu();updateCart();restoreRemoteCart();
 function applyMaintenanceState(state){
  const mode=state&&state.mode==="normal"?"normal":"maintenance";
  if(mode==="normal"){
@@ -1018,7 +1029,7 @@ async function applyMaintenance(){
 
 function loadPageContent(){
  if(pageContentLoaded)return;pageContentLoaded=true;
- if($("#products-grid"))loadProducts().catch(err=>showLoadError("#products-grid",err));
+ if($("#products-grid"))loadProducts().then(restoreRemoteCart).catch(err=>showLoadError("#products-grid",err));
  if($("#specialties-grid"))loadSpecialties().catch(err=>showLoadError("#specialties-grid",err));
  if($("#gallery-grid"))loadGallery().catch(err=>showLoadError("#gallery-grid",err));
  if($("#category-grid"))Promise.all([loadProducts(),loadGallery()]).catch(err=>showLoadError("#category-grid",err));

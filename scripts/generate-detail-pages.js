@@ -78,7 +78,7 @@ function buildPages(items, type) {
     const json = JSON.stringify(data).replace(/</g,'\\u003c');
     const html = `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="silvia-build" content="74.0"><meta name="description" content="${esc(meta)}"><meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="description" content="${esc(meta)}"><meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="${esc(canonical)}"><meta property="og:type" content="${type==='product'?'product':'article'}"><meta property="og:site_name" content="Silvia Crea"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(meta)}"><meta property="og:url" content="${esc(canonical)}">${image ? `<meta property="og:image" content="${esc(image)}">` : ''}<meta name="twitter:card" content="summary_large_image">
 <title>${esc(title)}</title><link rel="icon" href="../../assets/logo%20web.png" type="image/png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../css/estilos.css?v=74.0"><link rel="stylesheet" href="../../css/detalle-seo.css?v=74.0">
 <script type="application/ld+json">${JSON.stringify(schema).replace(/</g,'\\u003c')}</script></head><body data-page="detail"><a class="skip-link" href="#contenido">Saltar al contenido</a>

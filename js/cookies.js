@@ -1,4 +1,4 @@
-/* Silvia Crea · Gestión de cookies y almacenamiento local · v75.0
+/* Silvia Crea · Gestión de cookies y almacenamiento local · v77.0
    Las categorías opcionales se guardan como preferencias, pero no se cargan
    herramientas analíticas ni publicitarias en esta versión. */
 (() => {
