@@ -2791,7 +2791,7 @@ body[data-page="home"] .home-slider-wrapper>#specialties-grid.has-slider>.item-c
 .cart-summary .cart-full-link:hover{background:#eadcf1;transform:translateY(-1px)}
 
 
-/* ==================== SILVIA CREA V86 ==================== */
+/* ==================== SILVIA CREA V87 ==================== */
 /* Cabecera administrativa: reutiliza las proporciones y colores de la cabecera pública */
 .admin-site-header{background:rgba(226,211,241,.94)!important;border-bottom:1px solid rgba(192,169,215,.65)!important;box-shadow:0 5px 22px rgba(112,84,139,.07)!important}
 .admin-header-inner{max-width:1180px!important;min-height:0!important;padding:12px 24px!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;gap:14px!important}

@@ -173,9 +173,9 @@ body[data-admin-page="pedidos"] #admin-customers,body[data-admin-page="clientes"
 <script>
 document.addEventListener('DOMContentLoaded',()=>{const toggle=document.querySelector('.admin-site-header .menu-toggle'),wrap=document.getElementById('admin-nav-wrap');if(toggle&&wrap){toggle.addEventListener('click',()=>{const open=wrap.classList.toggle('v85-open');toggle.setAttribute('aria-expanded',String(open));});}document.querySelectorAll('.admin-section-heading').forEach(h=>{const p=h.querySelector('p');if(p&&document.body.dataset.adminPage==='publicacion')p.textContent='Herramientas para mantener actualizados los contenidos, las páginas y la presencia de Silvia Crea en buscadores.';});if(document.body.dataset.adminPage==='publicacion'){document.querySelectorAll('.admin-card h3').forEach(h=>{const m=h.textContent.trim().match(/^(0[234])\s*[·.-]\s*(.*)$/);if(m){const badge=document.createElement('span');badge.className='section-kicker';badge.textContent=m[1];h.parentElement.parentElement.insertBefore(badge,h.parentElement);h.textContent=m[2];}});}});
 </script>
-<style id="silvia-v86-admin">
+<style id="silvia-v87-admin">
 
-/* ==================== SILVIA CREA V86 ==================== */
+/* ==================== SILVIA CREA V87 ==================== */
 /* Cabecera administrativa: reutiliza las proporciones y colores de la cabecera pública */
 .admin-site-header{background:rgba(226,211,241,.94)!important;border-bottom:1px solid rgba(192,169,215,.65)!important;box-shadow:0 5px 22px rgba(112,84,139,.07)!important}
 .admin-header-inner{max-width:1180px!important;min-height:0!important;padding:12px 24px!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;gap:14px!important}
@@ -271,9 +271,60 @@ document.addEventListener('DOMContentLoaded',()=>{const toggle=document.querySel
 #admin-seo .admin-actions{justify-content:center!important}
 
 .v85-audit-dialog .detail-top-close{position:sticky!important;top:-18px!important;z-index:4;display:flex!important;width:max-content!important;margin:-4px 0 10px auto!important;background:#e2edf8!important;border:1px solid #c8dbf2!important;color:#5a6e85!important}
-</style></head><body data-admin-page="pedidos">
+</style><style id="admin-header-v87">
+
+/* V87 — Cabecera administrativa unificada con la cabecera pública */
+.admin-site-header{position:relative!important;z-index:100!important;background:rgba(226,211,241,.96)!important;border-bottom:1px solid rgba(192,169,215,.65)!important;box-shadow:0 5px 22px rgba(112,84,139,.07)!important}
+.admin-site-header .admin-header-inner{box-sizing:border-box!important;width:100%!important;max-width:1600px!important;min-height:76px!important;margin:0 auto!important;padding:12px clamp(16px,3vw,40px)!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:space-between!important;gap:clamp(10px,1.4vw,22px)!important}
+.admin-site-header .brand{box-sizing:border-box!important;display:flex!important;flex:0 0 205px!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;min-width:0!important;margin:0!important;padding:4px 0!important;text-align:left!important;text-decoration:none!important;overflow:visible!important}
+.admin-site-header .brand .header-logo{display:block!important;width:auto!important;height:42px!important;max-width:52px!important;object-fit:contain!important}
+.admin-site-header .brand span{display:flex!important;flex-direction:column!important;align-items:flex-start!important;min-width:0!important}
+.admin-site-header .brand strong{display:block!important;margin:0 0 3px!important;color:var(--lilac-dark)!important;font:600 27px/1 var(--script)!important;white-space:nowrap!important}
+.admin-site-header .brand small{display:block!important;color:var(--pink-dark)!important;font:500 10px/1.3 var(--sans)!important;letter-spacing:1.5px!important;text-transform:uppercase!important;white-space:nowrap!important}
+.admin-site-header .brand small:after{content:"";display:none}
+.admin-site-header .brand small{font-size:10px!important}
+.admin-site-header .admin-private-label{display:none!important}
+.admin-site-header .menu-toggle{display:none!important}
+.admin-site-header .admin-nav-wrap{display:block!important;visibility:visible!important;position:static!important;order:0!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;margin:0!important;padding:0!important}
+.admin-site-header .admin-main-nav{box-sizing:border-box!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:center!important;gap:clamp(3px,.45vw,7px)!important;width:100%!important;margin:0!important;padding:0!important;overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important}
+.admin-site-header .admin-main-nav a{display:inline-flex!important;flex:0 1 auto!important;align-items:center!important;justify-content:center!important;min-height:40px!important;padding:8px clamp(7px,.75vw,12px)!important;border:0!important;border-radius:24px!important;background:#fff9!important;color:#665c6b!important;font:700 clamp(11px,.88vw,13px)/1.15 var(--sans)!important;text-align:center!important;text-decoration:none!important;white-space:nowrap!important}
+.admin-site-header .admin-main-nav a:hover,.admin-site-header .admin-main-nav a[aria-current=page]{background:#f7e6ed!important;color:#9d607d!important}
+.admin-site-header .admin-header-actions{display:flex!important;flex:0 0 auto!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important;width:auto!important;margin:0!important;padding:0!important}
+.admin-site-header .admin-role-badge{display:block!important;max-width:none!important;padding:5px 10px!important;border-radius:99px!important;background:#f7e6ed!important;color:#80546a!important;font:700 11px/1.2 var(--sans)!important;text-align:center!important;white-space:nowrap!important}
+.admin-site-header .admin-header-actions .admin-logout{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:36px!important;margin:0!important;padding:8px 15px!important;border:1px solid #f0d5e1!important;border-radius:30px!important;background:var(--pink-soft)!important;color:var(--lilac-dark)!important;font:700 13px/1 var(--sans)!important;white-space:nowrap!important}
+.admin-site-header .admin-header-actions[hidden],.admin-site-header .admin-nav-wrap[hidden]{display:none!important}
+@media(max-width:1120px) and (min-width:761px){
+ .admin-site-header .admin-header-inner{gap:9px!important;padding-inline:14px!important}
+ .admin-site-header .brand{flex-basis:178px!important;gap:7px!important}
+ .admin-site-header .brand strong{font-size:24px!important}
+ .admin-site-header .brand small{font-size:9px!important;letter-spacing:1.1px!important}
+ .admin-site-header .admin-main-nav{gap:3px!important}
+ .admin-site-header .admin-main-nav a{padding:8px 6px!important;font-size:10.5px!important}
+ .admin-site-header .admin-header-actions .admin-logout{padding:8px 10px!important;font-size:11px!important}
+}
+@media(max-width:760px){
+ .admin-site-header .admin-header-inner{min-height:0!important;flex-wrap:wrap!important;gap:8px 12px!important;padding:10px 16px!important}
+ .admin-site-header .brand{flex:1 1 auto!important;min-width:0!important}
+ .admin-site-header .brand .header-logo{height:42px!important}
+ .admin-site-header .brand strong{font-size:25px!important}
+ .admin-site-header .menu-toggle{display:flex!important;order:2!important;flex:0 0 auto!important;margin-left:auto!important}
+ .admin-site-header .admin-nav-wrap{display:none!important;order:4!important;flex:1 0 100%!important;width:100%!important}
+ .admin-site-header .admin-nav-wrap.v85-open{display:block!important}
+ .admin-site-header .admin-main-nav{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;padding:8px 0 3px!important}
+ .admin-site-header .admin-main-nav a{min-width:0!important;white-space:normal!important;font-size:12px!important}
+ .admin-site-header .admin-header-actions{order:3!important;flex:0 0 auto!important;flex-direction:row!important;gap:7px!important;margin-left:auto!important}
+ .admin-site-header .admin-role-badge{display:none!important}
+}
+@media(max-width:390px){
+ .admin-site-header .brand strong{font-size:22px!important}
+ .admin-site-header .brand small{font-size:8px!important;letter-spacing:1px!important}
+ .admin-site-header .admin-header-actions .admin-logout{padding:8px 10px!important;font-size:11px!important}
+}
+
+</style>
+</head><body data-admin-page="pedidos">
 <header class="site-header admin-site-header"><div class="header-inner admin-header-inner">
-<a aria-label="Silvia Crea, inicio" class="brand" href="index.html"><img alt="Logotipo Silvia Crea" class="header-logo" src="assets/logo%20web.png"/><span><strong>Silvia Crea ♡</strong><small>Arte y manualidades</small></span></a><span class="admin-private-label">Zona privada</span>
+<a aria-label="Silvia Crea, inicio" class="brand" href="index.html"><img alt="Logotipo Silvia Crea" class="header-logo" src="assets/logo%20web.png"/><span><strong>Silvia Crea ♡</strong><small>Administración web</small></span></a><span class="admin-private-label" aria-hidden="true">Zona privada</span>
 <button aria-expanded="false" aria-label="Abrir menú" class="menu-toggle" type="button"><span></span><span></span><span></span></button>
 <div class="admin-nav-wrap" hidden="" id="admin-nav-wrap"><nav aria-label="Navegación de administración" class="main-nav admin-main-nav" id="admin-page-nav"><a data-admin-nav="inicio" href="gestion-privada.html">Inicio gestión</a><a data-admin-nav="estado" href="gestion-estado.html">Estado de servicio</a><a data-admin-nav="pedidos" href="gestion-pedidos.html">Pedidos</a><a data-admin-nav="publicacion" href="gestion-publicacion.html">Publicación y SEO</a><a data-admin-nav="clientes" href="gestion-clientes.html">Clientes</a><a data-admin-nav="cupones" href="gestion-cupones.html">Cupones</a><a data-admin-nav="incidencias" href="gestion-incidencias.html">Incidencias</a><a data-admin-nav="privacidad" href="gestion-privacidad.html">Privacidad</a><a data-admin-nav="auditoria" href="gestion-auditoria.html">Auditoría</a></nav></div>
 <div class="admin-header-actions" hidden="" id="admin-header-actions"><span class="admin-role-badge" id="admin-role-badge"></span><button class="cart-trigger admin-logout" id="logout" type="button"><span>Cerrar sesión</span></button></div>
