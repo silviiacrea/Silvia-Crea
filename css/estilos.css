@@ -2760,3 +2760,50 @@ body[data-page="home"] .home-slider-wrapper>#specialties-grid.has-slider>.item-c
 .cart-drawer #checkout-view::-webkit-scrollbar-thumb{border-radius:999px;background:linear-gradient(180deg,#bf9bcf,#d99ab2);}
 .cart-drawer #checkout-view::-webkit-scrollbar-thumb:hover{background:#a987bd;}
 
+
+
+/* V75: el pie de página móvil permite que todos los enlaces se lean completos.
+   Se evita el recorte por flex-shrink y overflow:hidden en pantallas estrechas. */
+@media (max-width: 700px) {
+  .site-footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px 10px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto 15px;
+    overflow: visible;
+  }
+  .footer-links a,
+  .footer-links button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-width: max-content;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 360px) {
+  .footer-links {
+    column-gap: 6px;
+    row-gap: 6px;
+  }
+  .footer-links a,
+  .footer-links button {
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: 11px;
+  }
+}
