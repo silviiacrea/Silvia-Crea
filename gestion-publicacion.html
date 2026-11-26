@@ -389,10 +389,11 @@ document.addEventListener('DOMContentLoaded',()=>{const toggle=document.querySel
 @media(max-width:520px){.admin-site-header .admin-header-actions{width:100%!important;justify-content:center!important;margin:0!important}.admin-site-header .admin-role-badge{max-width:58vw!important}}
 </style>
 
-<style id="silvia-v93-publication-version-centering">
-/* V95: la tarjeta de versión iguala el ancho de las tarjetas de servicio inferiores */
-#version-card{width:min(100%,820px)!important;max-width:820px!important;box-sizing:border-box!important;justify-self:center!important;align-self:stretch!important}
-@media(max-width:600px){#version-card{width:100%!important;max-width:100%!important}}
+<style id="silvia-v96-publication-version-width">
+/* V96: la tarjeta de versión ocupa todo el ancho de la fila, igual que los paneles inferiores */
+#version-card{grid-column:1/-1!important;width:min(100%,900px)!important;max-width:900px!important;min-width:0!important;box-sizing:border-box!important;justify-self:center!important;align-self:stretch!important;margin-inline:auto!important}
+@media(max-width:600px){#version-card{grid-column:1/-1!important;width:100%!important;max-width:100%!important}}
+
 
 /* V93: alineación centrada y consistente de toda la tarjeta de versión */
 #version-card{display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;gap:0!important;margin-inline:auto!important}
@@ -469,4 +470,4 @@ document.addEventListener('DOMContentLoaded',()=>{const toggle=document.querySel
 <p>Arte y manualidades hechas con cariño.</p>
 <div class="footer-links"><a href="privacidad.html">Privacidad</a><a href="contacto.html">Contacto</a><a href="tienda.html">Tienda</a><a href="encargos.html">Encargos</a><a href="https://www.instagram.com/silviiacrea" rel="noopener noreferrer" target="_blank">Instagram</a><a href="politica-cookies.html">Política de cookies</a><button data-cookie-settings="" type="button">Configurar cookies</button></div>
 <small>© <span id="year">2026</span> Silvia Crea</small>
-</footer><script>document.getElementById("year")&&(document.getElementById("year").textContent=new Date().getFullYear());document.querySelectorAll("[data-admin-nav]").forEach(a=>{if(a.dataset.adminNav===document.body.dataset.adminPage)a.setAttribute("aria-current","page")});</script><script defer="" src="js/admin.js?v=95.0"></script><script defer="" src="js/admin-clientes.js?v=95.0"></script></body></html>
+</footer><script>document.getElementById("year")&&(document.getElementById("year").textContent=new Date().getFullYear());document.querySelectorAll("[data-admin-nav]").forEach(a=>{if(a.dataset.adminNav===document.body.dataset.adminPage)a.setAttribute("aria-current","page")});</script><script defer="" src="js/admin.js?v=96.0"></script><script defer="" src="js/admin-clientes.js?v=96.0"></script></body></html>
