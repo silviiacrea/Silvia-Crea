@@ -1,0 +1,85 @@
+{
+  "maintenance": {
+    "mode": "normal",
+    "message": ""
+  },
+  "imagenTiendaInicio": "",
+  "catalogo": [
+    {
+      "nombre": "Gnomo Navideño",
+      "descripcion": "Muñeco navideño hecho a mano con técnica felting.",
+      "precio": 10,
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/catalogo/gnomos/gnomosnavide%C3%B1os.jpg",
+      "stock": 15,
+      "descripcionCompleta": "Muñeco navideño hecho a mano con técnica felting. Disponibles en 2 colores: rojo y verde.  Medidas aproximadas: 3,5cm x 11cm",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/catalogo/gnomos/gnomosnavide%C3%B1os.jpg",
+      "destacado": true,
+      "oferta": true,
+      "precioOferta": 8,
+      "album": "gnomos",
+      "categoria": "",
+      "descripcionFicha": ""
+    },
+    {
+      "nombre": "Próximamente...",
+      "descripcion": "En proceso",
+      "precio": 0,
+      "imagen": "",
+      "stock": 0,
+      "descripcionCompleta": "En proceso",
+      "imagenGrande": "",
+      "destacado": false,
+      "oferta": false,
+      "precioOferta": "",
+      "album": "",
+      "categoria": "",
+      "descripcionFicha": ""
+    }
+  ],
+  "especialidades": [
+    {
+      "nombre": "Amigurumi Personalizado",
+      "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/amigurumis/reno.jpg",
+      "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/amigurumis/reno.jpg",
+      "descripcionFicha": "",
+      "album": "amigurumis",
+      "destacado": true
+    },
+    {
+      "nombre": "Pulsera de Abalorios",
+      "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
+      "imagen": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/pulseras/especialidadpulseras.PNG",
+      "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
+      "imagenGrande": "https://f003.backblazeb2.com/file/silviacreacatalogo/especialidades/pulseras/especialidadpulseras.PNG",
+      "descripcionFicha": "",
+      "album": "pulseras",
+      "destacado": false
+    }
+  ],
+  "trabajos": [
+    {
+      "nombre": "Amigurumi Personalizado",
+      "imagen": "",
+      "descripcion": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "descripcionCompleta": "Muñeco tejido a mano con hilo de algodón 100%.",
+      "imagenGrande": "",
+      "descripcionFicha": "",
+      "album": "",
+      "categoria": ""
+    },
+    {
+      "nombre": "Pulsera de Abalorios",
+      "imagen": "",
+      "descripcion": "Diseño exclusivo hecho a mano a tu medida.",
+      "descripcionCompleta": "Diseño exclusivo hecho a mano a tu medida.",
+      "imagenGrande": "",
+      "descripcionFicha": "",
+      "album": "",
+      "categoria": ""
+    }
+  ],
+  "categoriasTienda": [],
+  "categoriasTrabajos": []
+}
